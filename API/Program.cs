@@ -1,5 +1,7 @@
 using Core.Entities.Identity;
+using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +22,8 @@ builder.Services.AddDbContext<FitnessContext>(options =>
 builder.Services.AddIdentityCore<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<FitnessContext>();
+
+builder.Services.AddScoped<IGymRepository, GymRepository>();
 
 var app = builder.Build();
 

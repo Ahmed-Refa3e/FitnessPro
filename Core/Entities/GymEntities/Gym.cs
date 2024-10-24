@@ -1,7 +1,7 @@
 ﻿using Core.Entities.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Core.Entities
+namespace Core.Entities.GymEntities
 {
     public class Gym
     {
@@ -26,5 +26,7 @@ namespace Core.Entities
 
         //navigation property
         public ICollection<GymSubscription>? GymSubscriptions { get; set; }
+
+        public ICollection<GymRating>? Ratings { get; set; }
     }
 }

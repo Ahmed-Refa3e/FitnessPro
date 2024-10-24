@@ -1,4 +1,7 @@
-﻿namespace Core.Entities.Identity
+﻿using Core.Entities.GymEntities;
+using Core.Entities.OnlineTrainingEntities;
+
+namespace Core.Entities.Identity
 {
     public class Coach : ApplicationUser
     {
