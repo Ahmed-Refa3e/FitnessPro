@@ -1,7 +1,9 @@
-﻿using Core.Entities.GymEntities;
+﻿using Core.DTOs;
+using Core.Entities.GymEntities;
 using Core.Helpers;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -32,9 +34,9 @@ namespace Infrastructure.Repositories
             return await context.Gyms.FindAsync(id);
         }
 
-        public async Task<PagedResult<Gym>> GetGymsAsync(string? City, int pageNumber, int pageSize)
+        public async Task<PagedResult<GymResponseDto>> GetGymsAsync(string? City, int pageNumber, int pageSize)
         {
-            var query = context.Gyms.AsQueryable();
+            var query = context.Gyms.Include("Ratings").Include("Owner").AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(City))
                 query = query.Where(x => x.City == City);
@@ -47,11 +49,14 @@ namespace Infrastructure.Repositories
 
             // Apply pagination using Skip and Take
             var data = await query
-                          .Skip((pageNumber - 1) * pageSize)
-                          .Take(pageSize)
-                          .ToListAsync();
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToListAsync();
 
-            return new PagedResult<Gym>(data, count, pageNumber, pageSize);
+            // Map the data to GymResponseDto
+            var dtoData = data.Select(g => g.ToResponseDto()).ToList();
+
+            return new PagedResult<GymResponseDto>(dtoData, count, pageNumber, pageSize);
         }
 
         public bool GymExists(int id)

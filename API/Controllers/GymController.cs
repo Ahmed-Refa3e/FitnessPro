@@ -1,4 +1,4 @@
-﻿using API.DTOs;
+﻿using Core.DTOs;
 using Core.Entities.GymEntities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ namespace API.Controllers;
 public class GymController(IGymRepository repo) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Gym>>> GetGyms([FromQuery]GymDTO GymDTO)
+    public async Task<ActionResult<IReadOnlyList<Gym>>> GetGyms([FromQuery] GetGymDTO GymDTO)
     {
 
         var pagedResult = await repo.GetGymsAsync(GymDTO.City, GymDTO.PageNumber, GymDTO.PageSize);
@@ -17,7 +17,7 @@ public class GymController(IGymRepository repo) : BaseApiController
     }
 
     [HttpGet("{id:int}")] // api/products/2
-    public async Task<ActionResult<Gym>> GetGym(int id)
+    public async Task<ActionResult<Gym>> GetGymById(int id)
     {
         var product = await repo.GetGymByIdAsync(id);
 
