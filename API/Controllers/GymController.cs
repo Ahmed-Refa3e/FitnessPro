@@ -33,7 +33,7 @@ public class GymController(IGymRepository repo) : BaseApiController
 
         if (await repo.SaveChangesAsync())
         {
-            return CreatedAtAction("GetGym", new { id = Gym.GymID }, Gym);
+            return CreatedAtAction("CreateGym", new { id = Gym.GymID }, Gym);
         }
 
         return BadRequest("Problem creating Gym");

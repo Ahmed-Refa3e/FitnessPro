@@ -9,10 +9,11 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
 {
 
     // DbSets
-    public DbSet<Gym> Gyms { get; set; }
-    public DbSet<GymSubscription> GymSubscriptions { get; set; }
-    public DbSet<OnlineTraining> OnlineTrainings { get; set; }
-    public DbSet<OnlineTrainingSubscription> OnlineTrainingSubscriptions { get; set; }
+    public DbSet<Gym>? Gyms { get; set; }
+    public DbSet<GymSubscription>? GymSubscriptions { get; set; }
+    public DbSet<OnlineTraining>? OnlineTrainings { get; set; }
+    public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
+    public DbSet<GymRating>? GymRatings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

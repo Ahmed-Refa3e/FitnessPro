@@ -143,7 +143,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("GymRating");
+                    b.ToTable("GymRatings");
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.GymSubscription", b =>
@@ -507,20 +507,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "094621c4-1848-49a4-8a66-4195793c49c1",
+                            ConcurrencyStamp = "bfd3ee03-b32e-415e-aa9a-c0708d23777b",
                             DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "johndoe@example.com",
                             EmailConfirmed = false,
                             FirstName = "John",
                             Gender = "Male",
-                            JoinedDate = new DateTime(2024, 10, 24, 2, 41, 7, 347, DateTimeKind.Local).AddTicks(999),
+                            JoinedDate = new DateTime(2024, 10, 24, 19, 16, 28, 947, DateTimeKind.Local).AddTicks(5263),
                             LastName = "Doe",
                             LockoutEnabled = false,
                             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "149fa698-1976-4742-8518-562d4b9578d8",
+                            SecurityStamp = "667b94b2-69f4-4c21-99b4-44af0df05ed7",
                             TwoFactorEnabled = false,
                             UserName = "johndoe",
                             AvailableForOnlineTraining = true
@@ -529,20 +529,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5bb60ec0-fe4f-4d77-b3ac-ff5632479c82",
+                            ConcurrencyStamp = "3965f34e-157b-4715-86ba-aea99190f6f9",
                             DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "janesmith@example.com",
                             EmailConfirmed = false,
                             FirstName = "Jane",
                             Gender = "Female",
-                            JoinedDate = new DateTime(2024, 10, 24, 2, 41, 7, 347, DateTimeKind.Local).AddTicks(1145),
+                            JoinedDate = new DateTime(2024, 10, 24, 19, 16, 28, 947, DateTimeKind.Local).AddTicks(5461),
                             LastName = "Smith",
                             LockoutEnabled = false,
                             NormalizedEmail = "JANESMITH@EXAMPLE.COM",
                             NormalizedUserName = "JANESMITH",
                             PhoneNumber = "0987654321",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6c865888-3005-4854-8349-c637fa023349",
+                            SecurityStamp = "29b81412-7d01-4d44-a5f8-32b867900d37",
                             TwoFactorEnabled = false,
                             UserName = "janesmith",
                             AvailableForOnlineTraining = false

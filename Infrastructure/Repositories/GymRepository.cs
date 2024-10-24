@@ -13,17 +13,17 @@ namespace Infrastructure.Repositories
         private const int MaxPageSize = 50;
         public void AddGym(Gym Gym)
         {
-            context.Gyms.Add(Gym);
+            context.Gyms!.Add(Gym);
         }
 
         public void DeleteGym(Gym Gym)
         {
-            context.Gyms.Remove(Gym);
+            context.Gyms!.Remove(Gym);
         }
 
         public async Task<IReadOnlyList<string>> GetCitiesAsync()
         {
-            return await context.Gyms.Select(x => x.City)
+            return await context.Gyms!.Select(x => x.City)
            .Distinct()
            .OrderBy(x => x)
            .ToListAsync();
@@ -31,12 +31,12 @@ namespace Infrastructure.Repositories
 
         public async Task<Gym?> GetGymByIdAsync(int id)
         {
-            return await context.Gyms.FindAsync(id);
+            return await context.Gyms!.FindAsync(id);
         }
 
         public async Task<PagedResult<GymResponseDto>> GetGymsAsync(string? City, int pageNumber, int pageSize)
         {
-            var query = context.Gyms.Include("Ratings").Include("Owner").AsQueryable();
+            var query = context.Gyms!.Include("Ratings").Include("Owner").AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(City))
                 query = query.Where(x => x.City == City);
@@ -61,7 +61,7 @@ namespace Infrastructure.Repositories
 
         public bool GymExists(int id)
         {
-            return context.Gyms.Any(x => x.GymID == id);
+            return context.Gyms!.Any(x => x.GymID == id);
         }
 
         public async Task<bool> SaveChangesAsync()
