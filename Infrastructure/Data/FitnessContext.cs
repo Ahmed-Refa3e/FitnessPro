@@ -1,5 +1,6 @@
-﻿using Core.Entities;
+﻿using Core.Entities.GymEntities;
 using Core.Entities.Identity;
+using Core.Entities.OnlineTrainingEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,15 +10,17 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
 
     // DbSets
     public DbSet<ApplicationUser> applicationUsers { get; set; }
-    public DbSet<Gym> Gyms { get; set; }
-    public DbSet<GymSubscription> GymSubscriptions { get; set; }
-    public DbSet<OnlineTraining> OnlineTrainings { get; set; }
-    public DbSet<OnlineTrainingSubscription> OnlineTrainingSubscriptions { get; set; }
+    public DbSet<Gym>? Gyms { get; set; }
+    public DbSet<GymSubscription>? GymSubscriptions { get; set; }
+    public DbSet<OnlineTraining>? OnlineTrainings { get; set; }
+    public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
+    public DbSet<GymRating>? GymRatings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
+        #region relationships
         // Gym Relationships
         builder.Entity<Gym>()
             .HasOne(g => g.Owner)
@@ -50,5 +53,89 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .WithMany(t => t.OnlineTrainingSubscriptions)
             .HasForeignKey(ots => ots.TraineeID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // GymRating relationships
+        builder.Entity<GymRating>()
+            .HasOne(gr => gr.Gym)
+            .WithMany(g => g.Ratings)
+            .HasForeignKey(gr => gr.GymID)
+            .OnDelete(DeleteBehavior.Cascade); // If a gym is deleted, all associated ratings are also deleted
+
+        builder.Entity<GymRating>()
+            .HasOne(gr => gr.Trainee)
+            .WithMany()
+            .HasForeignKey(gr => gr.TraineeID)
+            .OnDelete(DeleteBehavior.Cascade); // if a trainee is deleted, all associated ratings are also deleted
+        #endregion
+
+        #region seeding data
+        // Seeding Coach data (with all inherited properties from ApplicationUser)
+        builder.Entity<Coach>().HasData(
+            new Coach
+            {
+                Id = "coach1", 
+                FirstName = "John",
+                LastName = "Doe",
+                Gender = "Male",
+                DateOfBirth = new DateTime(1985, 5, 24),
+                Email = "johndoe@example.com",
+                UserName = "johndoe",
+                NormalizedUserName = "JOHNDOE",
+                NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
+                EmailConfirmed = false,
+                PhoneNumber = "0123456789",
+                AvailableForOnlineTraining = true
+            },
+            new Coach
+            {
+                Id = "coach2",
+                FirstName = "Jane",
+                LastName = "Smith",
+                Gender = "Female",
+                DateOfBirth = new DateTime(1990, 8, 14),
+                Email = "janesmith@example.com",
+                UserName = "janesmith",
+                NormalizedUserName = "JANESMITH",
+                NormalizedEmail = "JANESMITH@EXAMPLE.COM",
+                EmailConfirmed = false,
+                PhoneNumber = "0987654321",
+                AvailableForOnlineTraining = false
+            }
+        );
+
+        // Seeding Gym data
+        builder.Entity<Gym>().HasData(
+            new Gym
+            {
+                GymID = 1,
+                GymName = "Downtown Fitness",
+                Address = "123 Main St",
+                City = "Cairo",
+                Country = "Egypt",
+                MonthlyPrice = 50,
+                YearlyPrice = 500,
+                FortnightlyPrice = 30,
+                SessionPrice = 15,
+                PhoneNumber = "0123456789",
+                Description = "A top-tier gym with all the modern equipment you need.",
+                CoachID = "coach1" // Linking to seeded coach
+            },
+            new Gym
+            {
+                GymID = 2,
+                GymName = "Sunset Wellness",
+                Address = "456 Sunset Blvd",
+                City = "Alexandria",
+                Country = "Egypt",
+                MonthlyPrice = 40,
+                YearlyPrice = 450,
+                FortnightlyPrice = 25,
+                SessionPrice = 12,
+                PhoneNumber = "0987654321",
+                Description = "A wellness center focused on body and mind fitness.",
+                CoachID = "coach2" // Linking to seeded coach
+            }
+        );
+        #endregion
     }
 }
