@@ -7,7 +7,7 @@ namespace Core.Entities.Identity
     {
         public Gym? Gym { get; set; }
         public ICollection<OnlineTraining>? OnlineTrainings { get; set; }
-        public bool AvailableForOnlineTraining { get; set; }
+        public bool AvailableForOnlineTraining { get; set; } = false;
 
     }
 }

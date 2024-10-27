@@ -9,6 +9,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
 {
 
     // DbSets
+    public DbSet<ApplicationUser> applicationUsers { get; set; }
     public DbSet<Gym>? Gyms { get; set; }
     public DbSet<GymSubscription>? GymSubscriptions { get; set; }
     public DbSet<OnlineTraining>? OnlineTrainings { get; set; }

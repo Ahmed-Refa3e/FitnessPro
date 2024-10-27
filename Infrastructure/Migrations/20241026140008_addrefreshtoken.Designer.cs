@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    partial class FitnessContextModelSnapshot : ModelSnapshot
+    [Migration("20241026140008_addrefreshtoken")]
+    partial class addrefreshtoken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
+            modelBuilder.Entity("Core.Entities.Gym", b =>
                 {
                     b.Property<int>("GymID")
                         .ValueGeneratedOnAdd()
@@ -79,74 +82,9 @@ namespace Infrastructure.Migrations
                         .HasFilter("[CoachID] IS NOT NULL");
 
                     b.ToTable("Gyms");
-
-                    b.HasData(
-                        new
-                        {
-                            GymID = 1,
-                            Address = "123 Main St",
-                            City = "Cairo",
-                            CoachID = "coach1",
-                            Country = "Egypt",
-                            Description = "A top-tier gym with all the modern equipment you need.",
-                            FortnightlyPrice = 30,
-                            GymName = "Downtown Fitness",
-                            MonthlyPrice = 50,
-                            PhoneNumber = "0123456789",
-                            SessionPrice = 15,
-                            YearlyPrice = 500
-                        },
-                        new
-                        {
-                            GymID = 2,
-                            Address = "456 Sunset Blvd",
-                            City = "Alexandria",
-                            CoachID = "coach2",
-                            Country = "Egypt",
-                            Description = "A wellness center focused on body and mind fitness.",
-                            FortnightlyPrice = 25,
-                            GymName = "Sunset Wellness",
-                            MonthlyPrice = 40,
-                            PhoneNumber = "0987654321",
-                            SessionPrice = 12,
-                            YearlyPrice = 450
-                        });
                 });
 
-            modelBuilder.Entity("Core.Entities.GymEntities.GymRating", b =>
-                {
-                    b.Property<int>("GymRatingID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GymRatingID"));
-
-                    b.Property<int>("GymID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("RatingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RatingValue")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Review")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TraineeID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("GymRatingID");
-
-                    b.HasIndex("GymID");
-
-                    b.HasIndex("TraineeID");
-
-                    b.ToTable("GymRatings");
-                });
-
-            modelBuilder.Entity("Core.Entities.GymEntities.GymSubscription", b =>
+            modelBuilder.Entity("Core.Entities.GymSubscription", b =>
                 {
                     b.Property<int>("SubscriptionID")
                         .ValueGeneratedOnAdd()
@@ -218,10 +156,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
 
@@ -284,7 +218,7 @@ namespace Infrastructure.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
+            modelBuilder.Entity("Core.Entities.OnlineTraining", b =>
                 {
                     b.Property<int>("TrainingID")
                         .ValueGeneratedOnAdd()
@@ -326,7 +260,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("OnlineTrainings");
                 });
 
-            modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingSubscription", b =>
+            modelBuilder.Entity("Core.Entities.OnlineTrainingSubscription", b =>
                 {
                     b.Property<int>("SubscriptionID")
                         .ValueGeneratedOnAdd()
@@ -501,52 +435,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.HasDiscriminator().HasValue("Coach");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "coach1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "bfd3ee03-b32e-415e-aa9a-c0708d23777b",
-                            DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "johndoe@example.com",
-                            EmailConfirmed = false,
-                            FirstName = "John",
-                            Gender = "Male",
-                            JoinedDate = new DateTime(2024, 10, 24, 19, 16, 28, 947, DateTimeKind.Local).AddTicks(5263),
-                            LastName = "Doe",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
-                            NormalizedUserName = "JOHNDOE",
-                            PhoneNumber = "0123456789",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "667b94b2-69f4-4c21-99b4-44af0df05ed7",
-                            TwoFactorEnabled = false,
-                            UserName = "johndoe",
-                            AvailableForOnlineTraining = true
-                        },
-                        new
-                        {
-                            Id = "coach2",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "3965f34e-157b-4715-86ba-aea99190f6f9",
-                            DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "janesmith@example.com",
-                            EmailConfirmed = false,
-                            FirstName = "Jane",
-                            Gender = "Female",
-                            JoinedDate = new DateTime(2024, 10, 24, 19, 16, 28, 947, DateTimeKind.Local).AddTicks(5461),
-                            LastName = "Smith",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JANESMITH@EXAMPLE.COM",
-                            NormalizedUserName = "JANESMITH",
-                            PhoneNumber = "0987654321",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "29b81412-7d01-4d44-a5f8-32b867900d37",
-                            TwoFactorEnabled = false,
-                            UserName = "janesmith",
-                            AvailableForOnlineTraining = false
-                        });
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.Trainee", b =>
@@ -556,38 +444,19 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("Trainee");
                 });
 
-            modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
+            modelBuilder.Entity("Core.Entities.Gym", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Coach", "Owner")
                         .WithOne("Gym")
-                        .HasForeignKey("Core.Entities.GymEntities.Gym", "CoachID")
+                        .HasForeignKey("Core.Entities.Gym", "CoachID")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("Core.Entities.GymEntities.GymRating", b =>
+            modelBuilder.Entity("Core.Entities.GymSubscription", b =>
                 {
-                    b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
-                        .WithMany("Ratings")
-                        .HasForeignKey("GymID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.Identity.Trainee", "Trainee")
-                        .WithMany()
-                        .HasForeignKey("TraineeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Gym");
-
-                    b.Navigation("Trainee");
-                });
-
-            modelBuilder.Entity("Core.Entities.GymEntities.GymSubscription", b =>
-                {
-                    b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
+                    b.HasOne("Core.Entities.Gym", "Gym")
                         .WithMany("GymSubscriptions")
                         .HasForeignKey("GymID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -603,42 +472,44 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Trainee");
                 });
+
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
-            {
-                b.OwnsMany("Core.Entities.Identity.RefreshToken", "refreshTokens", b1 =>
                 {
-                    b1.Property<string>("ApplicationUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.OwnsMany("Core.Entities.Identity.RefreshToken", "refreshTokens", b1 =>
+                        {
+                            b1.Property<string>("ApplicationUserId")
+                                .HasColumnType("nvarchar(450)");
 
-                    b1.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
 
-                    b1.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
+                            b1.Property<DateTime>("Created")
+                                .HasColumnType("datetime2");
 
-                    b1.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
+                            b1.Property<DateTime>("Expires")
+                                .HasColumnType("datetime2");
 
-                    b1.Property<DateTime?>("Revoked")
-                        .HasColumnType("datetime2");
+                            b1.Property<DateTime?>("Revoked")
+                                .HasColumnType("datetime2");
 
-                    b1.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                            b1.Property<string>("Token")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
 
-                    b1.HasKey("ApplicationUserId", "Id");
+                            b1.HasKey("ApplicationUserId", "Id");
 
-                    b1.ToTable("AspNetUsers_refreshTokens");
+                            b1.ToTable("AspNetUsers_refreshTokens");
 
-                    b1.WithOwner()
-                        .HasForeignKey("ApplicationUserId");
+                            b1.WithOwner()
+                                .HasForeignKey("ApplicationUserId");
+                        });
+
+                    b.Navigation("refreshTokens");
                 });
 
-                b.Navigation("refreshTokens");
-            });
             modelBuilder.Entity("Core.Entities.OnlineTraining", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Coach", "Coach")
@@ -650,7 +521,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("Coach");
                 });
 
-            modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingSubscription", b =>
+            modelBuilder.Entity("Core.Entities.OnlineTrainingSubscription", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Trainee", "Trainee")
                         .WithMany("OnlineTrainingSubscriptions")
@@ -658,7 +529,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Core.Entities.OnlineTrainingEntities.OnlineTraining", "Training")
+                    b.HasOne("Core.Entities.OnlineTraining", "Training")
                         .WithMany()
                         .HasForeignKey("TrainingID")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -720,11 +591,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
+            modelBuilder.Entity("Core.Entities.Gym", b =>
                 {
                     b.Navigation("GymSubscriptions");
-
-                    b.Navigation("Ratings");
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.Coach", b =>

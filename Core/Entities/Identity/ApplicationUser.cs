@@ -18,4 +18,5 @@ public class ApplicationUser : IdentityUser
     public string? Bio { get; set; }
     public required DateTime DateOfBirth { get; set; }
     public DateTime JoinedDate { get; set; } = DateTime.Now;
+    public List<RefreshToken>? refreshTokens { get; set; }
 }
