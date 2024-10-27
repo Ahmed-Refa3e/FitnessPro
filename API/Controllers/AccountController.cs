@@ -1,15 +1,18 @@
 ﻿using Core.DTOs;
+using Core.Entities.Identity;
+using Core.Entities.OnlineTrainingEntities;
 using Core.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : BaseApiController
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -43,9 +46,9 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var user = new ApplicationUser
+                var user = new Trainee
                 {
-                    UserName = model.Email,
+                    UserName = model.FirstName+" " + model.LastName,
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -97,7 +100,7 @@ namespace API.Controllers
 
                 Coach coach = new Coach
                 {
-                    UserName = model.Email,
+                    UserName = model.FirstName +" " + model.LastName,
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -105,8 +108,7 @@ namespace API.Controllers
                     Gender = model.Gender,
                     Bio = model.Bio,
                     ProfilePictureUrl = model.ProfilePictureUrl,
-                    JoinedDate = DateTime.Now,
-                    AvailableForOnlineTraining = model.AvailableForOnlineTraining
+                    JoinedDate = DateTime.Now
                 };
 
                 var result = await _userManager.CreateAsync(coach, model.Password);
@@ -250,6 +252,137 @@ namespace API.Controllers
             return BadRequest(ModelState);
         }
 
+        [HttpPost("ForgetPassword")]
+        public async Task<IActionResult> ForgetPassword(string email)
+        {
+            var userModel = await _userManager.FindByEmailAsync(email);
+            if (userModel != null)
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(userModel);
+
+                var url = Url.Action(nameof(ResetPassword), "Account",
+                    new { userId = userModel.Id, token }, Request.Scheme);
+
+                await emailService.SendEmailAsync(email, "Reset your Password",
+                $"Please reset your password by clicking this link: <a href='{url}'>Click Here</a>");
+
+                return Ok("Reset Password Link Send");
+
+            }
+
+            return BadRequest("invalid request");
+
+        }
+        [HttpGet("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(string userId, string token, string password)
+        {
+            var userModel = await _userManager.FindByIdAsync(userId);
+            if (userModel != null)
+            {
+                var result = await _userManager.ResetPasswordAsync(userModel, token, "Ahmed1@#");
+                if (result.Succeeded)
+                {
+                    return Ok("password changes");
+                }
+                return BadRequest("Invalid password");
+            }
+
+            return BadRequest("Invalid user ID");
+
+        }
+
+        [HttpGet("GetAllCoaches")]
+        public async Task<IActionResult> GetAllCoaches()
+        {
+            var coaches = await userRepository.GetAllAsync(
+                   expression: user => user is Coach,
+                   includeProperties: "Gym,OnlineTrainings"
+            );
+
+            var coachDtos = coaches.Select(coach => new GetCoachDTO
+            {
+                Id = coach.Id,
+                FirstName = coach.FirstName,
+                LastName = coach.LastName,
+                ProfilePictureUrl = coach.ProfilePictureUrl,
+                Bio = coach.Bio,
+                Gender = coach.Gender,
+                JoinedDate = coach.JoinedDate,
+                AvailableForOnlineTraining = ((Coach)coach).AvailableForOnlineTraining,
+                Gym = ((Coach)coach).Gym != null ? new GymResponseDto { } : null,
+                OnlineTrainings = ((Coach)coach).OnlineTrainings
+            });
+
+            return Ok(coachDtos);
+        }
+
+        [HttpGet("CoachDetails/{CoachId}")]
+        public async Task<IActionResult> GetCoachDetails(string CoachId)
+        {
+           var user = await userRepository.GetAsync(e => e.Id == CoachId
+                        ,includeProperties:"Gym"
+           );
+            if (user == null)
+                return BadRequest();
+
+            var UserDto = new GetCoachDTO
+            {
+                Id = CoachId,
+                FirstName = user.FirstName,
+                LastName= user.LastName,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Bio = user.Bio,
+                Gender = user.Gender,
+                JoinedDate = user.JoinedDate,
+                AvailableForOnlineTraining = ((Coach)user).AvailableForOnlineTraining,
+                Gym = ((Coach)user).Gym != null ? new GymResponseDto{  }: null,
+                OnlineTrainings = ((Coach)user).OnlineTrainings
+            };
+            return Ok(UserDto);
+        }
+
+        [HttpGet("TraineeDetails/{TraineeId}")]
+        public async Task<IActionResult> GetTraineeDetails(string TraineeId)
+        {
+            var user = await userRepository.GetAsync(e => e.Id == TraineeId);
+            if (user == null)
+                return BadRequest();
+
+            var UserDto = new GetTraineeDTO
+            {
+                Id = TraineeId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Bio = user.Bio,
+                Gender = user.Gender,
+                JoinedDate = user.JoinedDate
+            };
+            return Ok(UserDto);
+        }
+
+        [HttpPut("SetOnlineAvailability")]
+        public async Task<IActionResult> SetOnlineAvailability(bool isAvailable)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Unauthorized();
+
+            if (user is Coach coach)
+            {
+                coach.AvailableForOnlineTraining = isAvailable;
+
+                await _userManager.UpdateAsync(coach);
+
+                return Ok(new { message = $"Availability status updated to: {isAvailable}" });
+            }
+
+            return BadRequest("Only coaches can set online availability.");
+        }
+
+
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken(TokenRequestDTO request)
         {
@@ -305,6 +438,7 @@ namespace API.Controllers
             return Ok("All tokens have been revoked");
         }
 
+
         private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> userclaims = new();
@@ -349,7 +483,7 @@ namespace API.Controllers
                 new { userId = user.Id, token }, Request.Scheme);
 
             await emailService.SendEmailAsync(user.Email, "Confirm your email",
-             $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>link</a>");
+             $"Please confirm your account by clicking this link: <a href='{confirmationLink}'>Click Here</a>");
 
             return Ok("Confirmation Email send");
         }

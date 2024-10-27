@@ -93,17 +93,17 @@ app.MapControllers();
 
 
 //Apply any pending migrations
-try
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<FitnessContext>();
-    await context.Database.MigrateAsync();
-}
-catch (Exception ex)
-{
-    Console.WriteLine(ex);
-    throw;
-}
+//try
+//{
+//    using var scope = app.Services.CreateScope();
+//    var services = scope.ServiceProvider;
+//    var context = services.GetRequiredService<FitnessContext>();
+//    await context.Database.MigrateAsync();
+//}
+//catch (Exception ex)
+//{
+//    Console.WriteLine(ex);
+//    throw;
+//}
 
 app.Run();

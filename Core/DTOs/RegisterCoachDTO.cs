@@ -36,7 +36,6 @@ namespace Core.DTOs
         public DateTime DateOfBirth { get; set; }
 
         public string? Bio { get; set; }
-        public bool AvailableForOnlineTraining { get; set; }
 
         public string? ProfilePictureUrl { get; set; }
     }
