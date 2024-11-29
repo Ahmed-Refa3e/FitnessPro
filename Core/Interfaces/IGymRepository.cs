@@ -6,7 +6,7 @@ namespace Core.Interfaces
 {
     public interface IGymRepository
     {
-        Task<PagedResult<GymResponseDto>> GetGymsAsync(string? City, int pageNumber, int pageSize);
+        Task<PagedResult<GymResponseDto>> GetGymsAsync(string? city, string? governorate, string? gymName, int pageNumber, int pageSize, string? sortBy);
         Task<Gym?> GetGymByIdAsync(int id);
         Task<IReadOnlyList<string>> GetCitiesAsync();
         void AddGym(Gym Gym);

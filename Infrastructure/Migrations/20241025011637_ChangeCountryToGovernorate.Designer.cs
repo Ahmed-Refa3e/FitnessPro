@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    partial class FitnessContextModelSnapshot : ModelSnapshot
+    [Migration("20241025011637_ChangeCountryToGovernorate")]
+    partial class ChangeCountryToGovernorate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,10 +50,6 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("FortnightlyPrice")
                         .HasColumnType("int");
 
-                    b.Property<string>("Governorate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("GymName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -72,6 +71,10 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("YearlyPrice")
                         .HasColumnType("int");
 
+                    b.Property<string>("governorate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("GymID");
 
                     b.HasIndex("CoachID")
@@ -89,12 +92,12 @@ namespace Infrastructure.Migrations
                             CoachID = "coach1",
                             Description = "A top-tier gym with all the modern equipment you need.",
                             FortnightlyPrice = 30,
-                            Governorate = "Gharbia",
                             GymName = "Downtown Fitness",
                             MonthlyPrice = 50,
                             PhoneNumber = "0123456789",
                             SessionPrice = 15,
-                            YearlyPrice = 500
+                            YearlyPrice = 500,
+                            governorate = "Gharbia"
                         },
                         new
                         {
@@ -104,12 +107,12 @@ namespace Infrastructure.Migrations
                             CoachID = "coach2",
                             Description = "A wellness center focused on body and mind fitness.",
                             FortnightlyPrice = 25,
-                            Governorate = "Gharbia",
                             GymName = "Sunset Wellness",
                             MonthlyPrice = 40,
                             PhoneNumber = "0987654321",
                             SessionPrice = 12,
-                            YearlyPrice = 450
+                            YearlyPrice = 450,
+                            governorate = "Gharbia"
                         });
                 });
 
@@ -507,20 +510,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d186acba-884c-47cc-8486-e6eb511519a4",
+                            ConcurrencyStamp = "6feec2fa-a595-45c8-a145-6d3c178a969f",
                             DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "johndoe@example.com",
                             EmailConfirmed = false,
                             FirstName = "John",
                             Gender = "Male",
-                            JoinedDate = new DateTime(2024, 10, 25, 4, 21, 11, 23, DateTimeKind.Local).AddTicks(3520),
+                            JoinedDate = new DateTime(2024, 10, 25, 4, 16, 36, 635, DateTimeKind.Local).AddTicks(6409),
                             LastName = "Doe",
                             LockoutEnabled = false,
                             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "46b59ba0-54c3-425b-98a5-9f8f26394382",
+                            SecurityStamp = "3894c18d-4c56-42db-a162-15417c4c2a82",
                             TwoFactorEnabled = false,
                             UserName = "johndoe",
                             AvailableForOnlineTraining = true
@@ -529,20 +532,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "43e7f43a-86dc-4254-a8f9-0c56cb3586bd",
+                            ConcurrencyStamp = "28342731-ac5d-4925-9cd6-7d9877671889",
                             DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "janesmith@example.com",
                             EmailConfirmed = false,
                             FirstName = "Jane",
                             Gender = "Female",
-                            JoinedDate = new DateTime(2024, 10, 25, 4, 21, 11, 23, DateTimeKind.Local).AddTicks(3671),
+                            JoinedDate = new DateTime(2024, 10, 25, 4, 16, 36, 635, DateTimeKind.Local).AddTicks(6583),
                             LastName = "Smith",
                             LockoutEnabled = false,
                             NormalizedEmail = "JANESMITH@EXAMPLE.COM",
                             NormalizedUserName = "JANESMITH",
                             PhoneNumber = "0987654321",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "804e1a78-948d-4e4b-8ce8-fbbbadf5e2ab",
+                            SecurityStamp = "218bd0a1-34d3-47ed-b0dd-e49d8bbf8819",
                             TwoFactorEnabled = false,
                             UserName = "janesmith",
                             AvailableForOnlineTraining = false

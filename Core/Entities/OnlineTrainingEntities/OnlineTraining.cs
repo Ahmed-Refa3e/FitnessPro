@@ -10,7 +10,7 @@ namespace Core.Entities.OnlineTrainingEntities
         public int TrainingID { get; set; }
         public required string CoachID { get; set; }
         public required Coach Coach { get; set; }
-        public string? Title { get; set; }
+        public required string? Title { get; set; }
         public required string Description { get; set; }
         public required int NoOfSessionsPerWeek { get; set; }
         public int DurationOfSession { get; set; } // Duration in minutes
