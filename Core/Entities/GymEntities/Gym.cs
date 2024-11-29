@@ -12,7 +12,7 @@ namespace Core.Entities.GymEntities
         public string? PictureUrl { get; set; }
         public required string Address { get; set; }
         public required string City { get; set; }
-        public required string Country { get; set; }
+        public required string Governorate { get; set; }
         public required int MonthlyPrice { get; set; }
         public int? YearlyPrice { get; set; }
         public int? FortnightlyPrice { get; set; }

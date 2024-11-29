@@ -5,6 +5,7 @@ using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace Infrastructure.Repositories
 {
@@ -34,29 +35,55 @@ namespace Infrastructure.Repositories
             return await context.Gyms!.FindAsync(id);
         }
 
-        public async Task<PagedResult<GymResponseDto>> GetGymsAsync(string? City, int pageNumber, int pageSize)
+        public async Task<PagedResult<GymResponseDto>> GetGymsAsync(string? city, string? governorate,
+            string? gymName, int pageNumber, int pageSize, string? sortBy)
         {
-            var query = context.Gyms!.Include("Ratings").Include("Owner").AsQueryable();
+            {
+                // Build the query
+                var query = context.Gyms!
+                    .Include("Ratings")
+                    .Include("Owner")
+                    .Include(g => g.GymSubscriptions) // Include subscriptions for sorting
+                    .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(City))
-                query = query.Where(x => x.City == City);
+                // Filter by City
+                if (!string.IsNullOrWhiteSpace(city))
+                    query = query.Where(x => x.City == city);
 
-            // Ensure the pageSize does not exceed the maximum limit
-            pageSize = (pageSize > MaxPageSize) ? MaxPageSize : pageSize;
+                // Filter by Governorate
+                if (!string.IsNullOrWhiteSpace(governorate))
+                    query = query.Where(x => x.Governorate == governorate);
 
-            // Total record count
-            var count = await query.CountAsync();
+                // Filter by GymName
+                if (!string.IsNullOrWhiteSpace(gymName))
+                    query = query.Where(x => x.GymName.Contains(gymName));
 
-            // Apply pagination using Skip and Take
-            var data = await query
-                            .Skip((pageNumber - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync();
+                // Sorting (default: number of subscriptions)
+                query = sortBy switch
+                {
+                    "rating" => query.OrderByDescending(g => g.Ratings!.Any() ? g.Ratings!.Average(r => r.RatingValue) : 0), // Sort by highest rating
+                    "highestPrice" => query.OrderByDescending(g => g.MonthlyPrice), // Sort by highest monthly price
+                    "lowestPrice" => query.OrderBy(g => g.MonthlyPrice), // Sort by lowest monthly price
+                    _ => query.OrderByDescending(g => g.GymSubscriptions!.Count) // Default: Sort by number of subscriptions
+                };
 
-            // Map the data to GymResponseDto
-            var dtoData = data.Select(g => g.ToResponseDto()).ToList();
+                // Ensure the pageSize does not exceed the maximum limit
+                pageSize = (pageSize > MaxPageSize) ? MaxPageSize : pageSize;
 
-            return new PagedResult<GymResponseDto>(dtoData, count, pageNumber, pageSize);
+                // Total record count
+                var count = await query.CountAsync();
+
+                // Apply pagination using Skip and Take
+                var data = await query
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                // Map the data to GymResponseDto
+                var dtoData = data.Select(g => g.ToResponseDto()).ToList();
+
+                return new PagedResult<GymResponseDto>(dtoData, count, pageNumber, pageSize);
+            }
         }
 
         public bool GymExists(int id)

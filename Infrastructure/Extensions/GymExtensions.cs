@@ -16,7 +16,7 @@ public static class GymExtensions
                 PictureUrl = gym.PictureUrl,
                 Address = gym.Address,
                 City = gym.City,
-                Country = gym.Country,
+                Governorate = gym.Governorate,
                 MonthlyPrice = gym.MonthlyPrice,
                 YearlyPrice = gym.YearlyPrice,
                 FortnightlyPrice = gym.FortnightlyPrice,
@@ -26,7 +26,8 @@ public static class GymExtensions
                 CoachID = gym.CoachID,
                 CoachFullName = $"{gym.Owner?.FirstName} {gym.Owner?.LastName}",
                 CoachProfilePictureUrl = gym.Owner?.ProfilePictureUrl,
-                AverageRating = (decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0)
+                AverageRating = (decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0),
+                SubscriptionsCount = gym.GymSubscriptions?.Count ?? 0 // Calculate the number of subscriptions
             };
     }
 }

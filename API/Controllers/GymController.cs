@@ -10,8 +10,19 @@ public class GymController(IGymRepository repo) : BaseApiController
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<Gym>>> GetGyms([FromQuery] GetGymDTO GymDTO)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-        var pagedResult = await repo.GetGymsAsync(GymDTO.City, GymDTO.PageNumber, GymDTO.PageSize);
+        var pagedResult = await repo.GetGymsAsync(
+            GymDTO.City,
+            GymDTO.Governorate,  // Filter by Governorate
+            GymDTO.GymName,      // GymName for searching
+            GymDTO.PageNumber,
+            GymDTO.PageSize,
+            GymDTO.SortBy        // Sort by "subscriptions", "rating", "highestPrice", or "lowestPrice"
+        );
 
         return Ok(pagedResult);
     }
