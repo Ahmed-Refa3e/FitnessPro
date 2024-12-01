@@ -1,7 +1,7 @@
-﻿using Core.Interfaces;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System.Net.Mail;
 using System.Net;
+using Core.Interfaces.Services;
 
 namespace Infrastructure.Services
 {

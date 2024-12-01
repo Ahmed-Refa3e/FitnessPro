@@ -1,11 +1,7 @@
-﻿using Core.DTOs;
-using Core.Entities.GymEntities;
-using Core.Helpers;
-using Core.Interfaces;
+﻿using Core.Entities.GymEntities;
+using Core.Interfaces.Repositories;
 using Infrastructure.Data;
-using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 
 namespace Infrastructure.Repositories
 {
@@ -35,56 +31,36 @@ namespace Infrastructure.Repositories
             return await context.Gyms!.FindAsync(id);
         }
 
-        public async Task<PagedResult<GymResponseDto>> GetGymsAsync(string? city, string? governorate,
-            string? gymName, int pageNumber, int pageSize, string? sortBy)
+        public async Task<IQueryable<Gym>> GetGymsQueryAsync(string? city, string? governorate, string? gymName, string? sortBy)
         {
+            var query = context.Gyms!
+                .Include("Ratings")
+                .Include("Owner")
+                .Include(g => g.GymSubscriptions)
+                .AsQueryable();
+
+            // Filtering logic
+            if (!string.IsNullOrWhiteSpace(city))
+                query = query.Where(x => x.City == city);
+
+            if (!string.IsNullOrWhiteSpace(governorate))
+                query = query.Where(x => x.Governorate == governorate);
+
+            if (!string.IsNullOrWhiteSpace(gymName))
+                query = query.Where(x => x.GymName.Contains(gymName));
+
+            // Sorting logic
+            query = sortBy switch
             {
-                // Build the query
-                var query = context.Gyms!
-                    .Include("Ratings")
-                    .Include("Owner")
-                    .Include(g => g.GymSubscriptions) // Include subscriptions for sorting
-                    .AsQueryable();
+                "rating" => query.OrderByDescending(g => g.Ratings!.Any() ? g.Ratings!.Average(r => r.RatingValue) : 0),
+                "highestPrice" => query.OrderByDescending(g => g.MonthlyPrice),
+                "lowestPrice" => query.OrderBy(g => g.MonthlyPrice),
+                _ => query.OrderByDescending(g => g.GymSubscriptions!.Count)
+            };
 
-                // Filter by City
-                if (!string.IsNullOrWhiteSpace(city))
-                    query = query.Where(x => x.City == city);
-
-                // Filter by Governorate
-                if (!string.IsNullOrWhiteSpace(governorate))
-                    query = query.Where(x => x.Governorate == governorate);
-
-                // Filter by GymName
-                if (!string.IsNullOrWhiteSpace(gymName))
-                    query = query.Where(x => x.GymName.Contains(gymName));
-
-                // Sorting (default: number of subscriptions)
-                query = sortBy switch
-                {
-                    "rating" => query.OrderByDescending(g => g.Ratings!.Any() ? g.Ratings!.Average(r => r.RatingValue) : 0), // Sort by highest rating
-                    "highestPrice" => query.OrderByDescending(g => g.MonthlyPrice), // Sort by highest monthly price
-                    "lowestPrice" => query.OrderBy(g => g.MonthlyPrice), // Sort by lowest monthly price
-                    _ => query.OrderByDescending(g => g.GymSubscriptions!.Count) // Default: Sort by number of subscriptions
-                };
-
-                // Ensure the pageSize does not exceed the maximum limit
-                pageSize = (pageSize > MaxPageSize) ? MaxPageSize : pageSize;
-
-                // Total record count
-                var count = await query.CountAsync();
-
-                // Apply pagination using Skip and Take
-                var data = await query
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
-
-                // Map the data to GymResponseDto
-                var dtoData = data.Select(g => g.ToResponseDto()).ToList();
-
-                return new PagedResult<GymResponseDto>(dtoData, count, pageNumber, pageSize);
-            }
+            return await Task.FromResult(query); // Return queryable data
         }
+
 
         public bool GymExists(int id)
         {

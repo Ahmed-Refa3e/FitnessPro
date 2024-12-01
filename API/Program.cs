@@ -1,11 +1,13 @@
 using Core.Entities.Identity;
-using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Infrastructure.Services;
 using System.Security.Claims;
 using Infrastructure.Repositories;
+using Core.Interfaces.Services;
+using Core.Interfaces.Repositories;
+using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +68,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IGymRepository, GymRepository>();
+builder.Services.AddScoped<IGymService, GymService>();
 
 var app = builder.Build();
 

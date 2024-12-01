@@ -1,96 +1,70 @@
 ﻿using Core.DTOs;
 using Core.Entities.GymEntities;
-using Core.Interfaces;
+using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-
-public class GymController(IGymRepository repo) : BaseApiController
+namespace API.Controllers
 {
-    [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Gym>>> GetGyms([FromQuery] GetGymDTO GymDTO)
+    public class GymController(IGymService service) : BaseApiController
     {
-        if (!ModelState.IsValid)
+
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyList<Gym>>> GetGyms([FromQuery] GetGymDTO GetGymDTO)
         {
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var pagedResult = await service.GetGymsAsync(GetGymDTO);
+
+            return Ok(pagedResult);
         }
 
-        var pagedResult = await repo.GetGymsAsync(
-            GymDTO.City,
-            GymDTO.Governorate,  // Filter by Governorate
-            GymDTO.GymName,      // GymName for searching
-            GymDTO.PageNumber,
-            GymDTO.PageSize,
-            GymDTO.SortBy        // Sort by "subscriptions", "rating", "highestPrice", or "lowestPrice"
-        );
-
-        return Ok(pagedResult);
-    }
-
-    [HttpGet("{id:int}")] // api/products/2
-    public async Task<ActionResult<Gym>> GetGymById(int id)
-    {
-        var product = await repo.GetGymByIdAsync(id);
-
-        if (product == null) return NotFound();
-
-        return product;
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<Gym>> CreateGym(Gym Gym)
-    {
-        repo.AddGym(Gym);
-
-        if (await repo.SaveChangesAsync())
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Gym>> GetGymById(int id)
         {
-            return CreatedAtAction("CreateGym", new { id = Gym.GymID }, Gym);
+            var gym = await service.GetGymByIdAsync(id);
+
+            if (gym == null) return NotFound();
+
+            return gym;
         }
 
-        return BadRequest("Problem creating Gym");
-    }
-
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult> UpdateGym(int id, Gym Gym)
-    {
-        if (Gym.GymID != id || !GymExists(id))
-            return BadRequest("Cannot update this Gym");
-
-        repo.UpdateGym(Gym);
-
-        if (await repo.SaveChangesAsync())
+        [HttpPost]
+        public async Task<ActionResult<Gym>> CreateGym(Gym Gym)
         {
+            var success = await service.CreateGymAsync(Gym);
+
+            if (success)
+                return CreatedAtAction("CreateGym", new { id = Gym.GymID }, Gym);
+
+            return BadRequest("Problem creating Gym");
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> UpdateGym(int id, Gym Gym)
+        {
+            var success = await service.UpdateGymAsync(id, Gym);
+
+            if (!success)
+                return BadRequest("Cannot update this Gym");
+
             return NoContent();
         }
 
-        return BadRequest("Problem updating the Gym");
-    }
-
-    [HttpDelete("{id:int}")]
-    public async Task<ActionResult> DeleteGym(int id)
-    {
-        var Gym = await repo.GetGymByIdAsync(id);
-
-        if (Gym == null) return NotFound();
-
-        repo.DeleteGym(Gym);
-
-        if (await repo.SaveChangesAsync())
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> DeleteGym(int id)
         {
+            var success = await service.DeleteGymAsync(id);
+
+            if (!success) return NotFound();
+
             return NoContent();
         }
 
-        return BadRequest("Problem deleting the Gym");
-    }
-
-    [HttpGet("Cities")]
-    public async Task<ActionResult<IReadOnlyList<string>>> GetCities()
-    {
-        return Ok(await repo.GetCitiesAsync());
-    }
-
-    private bool GymExists(int id)
-    {
-        return repo.GymExists(id);
+        [HttpGet("Cities")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetCities()
+        {
+            return Ok(await service.GetCitiesAsync());
+        }
     }
 }

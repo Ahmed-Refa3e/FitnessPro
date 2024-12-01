@@ -1,12 +1,10 @@
-﻿using Core.DTOs;
-using Core.Entities.GymEntities;
-using Core.Helpers;
+﻿using Core.Entities.GymEntities;
 
-namespace Core.Interfaces
+namespace Core.Interfaces.Repositories
 {
     public interface IGymRepository
     {
-        Task<PagedResult<GymResponseDto>> GetGymsAsync(string? city, string? governorate, string? gymName, int pageNumber, int pageSize, string? sortBy);
+        Task<IQueryable<Gym>> GetGymsQueryAsync(string? city, string? governorate, string? gymName, string? sortBy);
         Task<Gym?> GetGymByIdAsync(int id);
         Task<IReadOnlyList<string>> GetCitiesAsync();
         void AddGym(Gym Gym);
