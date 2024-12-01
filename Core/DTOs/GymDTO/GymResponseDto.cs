@@ -1,4 +1,4 @@
-﻿namespace Core.DTOs
+﻿namespace Core.DTOs.GymDTO
 {
     public class GymResponseDto
     {

@@ -1,12 +1,8 @@
 ﻿using Core.DTOs;
-using Core.Entities.Identity;
-using Core.Entities.OnlineTrainingEntities;
+using Core.DTOs.GymDTO;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -49,7 +45,7 @@ namespace API.Controllers
 
                 var user = new Trainee
                 {
-                    UserName = model.FirstName+" " + model.LastName,
+                    UserName = model.FirstName + " " + model.LastName,
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -101,7 +97,7 @@ namespace API.Controllers
 
                 Coach coach = new Coach
                 {
-                    UserName = model.FirstName +" " + model.LastName,
+                    UserName = model.FirstName + " " + model.LastName,
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -320,9 +316,9 @@ namespace API.Controllers
         [HttpGet("CoachDetails/{CoachId}")]
         public async Task<IActionResult> GetCoachDetails(string CoachId)
         {
-           var user = await userRepository.GetAsync(e => e.Id == CoachId
-                        ,includeProperties:"Gym"
-           );
+            var user = await userRepository.GetAsync(e => e.Id == CoachId
+                         , includeProperties: "Gym"
+            );
             if (user == null)
                 return BadRequest();
 
@@ -330,13 +326,13 @@ namespace API.Controllers
             {
                 Id = CoachId,
                 FirstName = user.FirstName,
-                LastName= user.LastName,
+                LastName = user.LastName,
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Bio = user.Bio,
                 Gender = user.Gender,
                 JoinedDate = user.JoinedDate,
                 AvailableForOnlineTraining = ((Coach)user).AvailableForOnlineTraining,
-                Gym = ((Coach)user).Gym != null ? new GymResponseDto{  }: null,
+                Gym = ((Coach)user).Gym != null ? new GymResponseDto { } : null,
                 OnlineTrainings = ((Coach)user).OnlineTrainings
             };
             return Ok(UserDto);
@@ -387,7 +383,7 @@ namespace API.Controllers
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken(TokenRequestDTO request)
         {
-            var user =await  userRepository
+            var user = await userRepository
                 .GetAsync(e => e.refreshTokens.Any(t => t.Token == request.RefreshToken));
             if (user == null)
                 return Unauthorized("Invalid refresh token.");
@@ -430,7 +426,7 @@ namespace API.Controllers
 
             foreach (var item in user.refreshTokens)
             {
-                if(item.IsActive)
+                if (item.IsActive)
                     item.Revoked = DateTime.UtcNow;
             }
 

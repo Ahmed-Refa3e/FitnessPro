@@ -1,4 +1,4 @@
-﻿using Core.DTOs;
+﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
