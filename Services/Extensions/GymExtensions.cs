@@ -1,7 +1,7 @@
-﻿using Core.DTOs;
+﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
 
-namespace Infrastructure.Extensions;
+namespace Services.Extensions;
 
 public static class GymExtensions
 {
