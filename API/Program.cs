@@ -28,6 +28,7 @@ builder.Services.AddIdentity<ApplicationUser,IdentityRole>()
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 
@@ -96,17 +97,17 @@ app.MapControllers();
 
 
 //Apply any pending migrations
-//try
-//{
-//    using var scope = app.Services.CreateScope();
-//    var services = scope.ServiceProvider;
-//    var context = services.GetRequiredService<FitnessContext>();
-//    await context.Database.MigrateAsync();
-//}
-//catch (Exception ex)
-//{
-//    Console.WriteLine(ex);
-//    throw;
-//}
+try
+{
+    using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+var context = services.GetRequiredService<FitnessContext>();
+await context.Database.MigrateAsync();
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex);
+throw;
+}
 
 app.Run();

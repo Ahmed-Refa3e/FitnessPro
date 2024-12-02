@@ -1,7 +1,7 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.Entities.OnlineTrainingEntities;
 
-namespace Core.DTOs
+namespace Core.DTOs.UserDTO
 {
     public class GetCoachDTO
     {

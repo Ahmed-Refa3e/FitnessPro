@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Core.DTOs
+namespace Core.DTOs.UserDTO
 {
-    public class RegisterCoachDTO
+    public class RegisterDTO
     {
         [Required]
         [MaxLength(30)]
@@ -33,5 +33,6 @@ namespace Core.DTOs
         public string? Bio { get; set; }
 
         public string? ProfilePictureUrl { get; set; }
+
     }
 }

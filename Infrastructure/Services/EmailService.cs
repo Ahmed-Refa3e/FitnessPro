@@ -1,7 +1,10 @@
-﻿using Core.Interfaces.Services;
+﻿using Core.Interfaces;
 using Microsoft.Extensions.Configuration;
-using System.Net;
 using System.Net.Mail;
+using System.Net;
+using System.Security.Cryptography;
+using System.Collections;
+using Core.Interfaces.Services;
 
 namespace Infrastructure.Services
 {
@@ -36,6 +39,13 @@ namespace Infrastructure.Services
             };
             mailMessage.To.Add(toEmail);
             await client.SendMailAsync(mailMessage);
+        }
+        public string GenerateVerificatonCode(int length = 6)
+        {
+            var randomNumber = new byte[length];
+            RandomNumberGenerator.Fill(randomNumber);
+
+            return string.Join("", randomNumber.Select(b => (b % 10).ToString()));
         }
     }
 }
