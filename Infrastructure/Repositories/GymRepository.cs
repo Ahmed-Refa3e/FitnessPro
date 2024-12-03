@@ -8,14 +8,10 @@ public class GymRepository(FitnessContext context) : IGymRepository
 {
     public IQueryable<Gym> GetQueryable()
     {
-        return context.Gyms!
-            .Include(g => g.Ratings)
-            .Include(g => g.Owner)
-            .Include(g => g.GymSubscriptions)
-            .AsQueryable();
+        return context.Gyms!;
     }
 
-    public async Task<List<Gym>> ExecuteQueryAsync(IQueryable<Gym> query)
+    public async Task<IReadOnlyList<Gym>> ExecuteQueryAsync(IQueryable<Gym> query)
     {
         return await query.ToListAsync();
     }

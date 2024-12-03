@@ -5,7 +5,7 @@ namespace Core.Interfaces.Repositories
     public interface IGymRepository
     {
         IQueryable<Gym> GetQueryable();
-        Task<List<Gym>> ExecuteQueryAsync(IQueryable<Gym> query);
+        Task<IReadOnlyList<Gym>> ExecuteQueryAsync(IQueryable<Gym> query);
         Task<Gym?> GetGymByIdAsync(int id);
         Task<IReadOnlyList<string>> GetCitiesAsync();
         void AddGym(Gym Gym);

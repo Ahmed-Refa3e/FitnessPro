@@ -17,6 +17,12 @@ namespace Services
             // Start with the base queryable from the repository
             var query = repository.GetQueryable();
 
+            // Include related entities
+            query = query
+                .Include(g => g.GymSubscriptions)
+                .Include(g => g.Ratings)
+                .Include(g => g.Owner);
+
             // Apply filters
             if (!string.IsNullOrWhiteSpace(GymDTO.City))
                 query = query.Where(x => x.City == GymDTO.City);

@@ -18,6 +18,24 @@ public static class GymExtensions
                 City = gym.City,
                 Governorate = gym.Governorate,
                 MonthlyPrice = gym.MonthlyPrice,
+                AverageRating = (decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0),
+                SubscriptionsCount = gym.GymSubscriptions?.Count ?? 0 // Calculate the number of subscriptions
+            };
+    }
+
+    public static GymResponseDtoDetails ToResponseDtoDetails(this Gym gym)
+    {
+        return gym == null
+            ? throw new ArgumentNullException(nameof(gym))
+            : new GymResponseDtoDetails
+            {
+                GymID = gym.GymID,
+                GymName = gym.GymName,
+                PictureUrl = gym.PictureUrl,
+                Address = gym.Address,
+                City = gym.City,
+                Governorate = gym.Governorate,
+                MonthlyPrice = gym.MonthlyPrice,
                 YearlyPrice = gym.YearlyPrice,
                 FortnightlyPrice = gym.FortnightlyPrice,
                 SessionPrice = gym.SessionPrice,

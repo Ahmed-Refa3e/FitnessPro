@@ -1,5 +1,4 @@
 ﻿using Core.DTOs.UserDTO;
-using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -8,7 +7,7 @@ namespace API.Controllers
 {
     public class AccountController : BaseApiController
     {
-        
+
         private readonly IAuthService service;
 
         public AccountController(IAuthService service)
@@ -24,11 +23,11 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
             var result = await service.RegisterTraineeAsync(model);
-            if(result.IsSuccess)
+            if (result.IsSuccess)
                 return Ok(result);
             else
                 return BadRequest(result);
-            
+
         }
 
         [HttpPost("RegisterCoach")]
@@ -104,7 +103,7 @@ namespace API.Controllers
         }
 
         [HttpPost("ForgetPassword")]
-        public async Task<IActionResult> ForgetPassword([FromBody]string email)
+        public async Task<IActionResult> ForgetPassword([FromBody] string email)
         {
             var result = await service.ForgetPasswordAsync(email);
 
@@ -138,7 +137,7 @@ namespace API.Controllers
         }
 
         [HttpPost("resend-reset-password-code")]
-        public async Task<IActionResult> ResendResetPasswordCode([FromBody]string Email)
+        public async Task<IActionResult> ResendResetPasswordCode([FromBody] string Email)
         {
 
             var result = await service.ResendResetPasswordCodeAsync(Email);
@@ -185,7 +184,7 @@ namespace API.Controllers
 
             try
             {
-                var result = await service.SetOnlineAvailabilityAsync(userId,isAvailable);
+                var result = await service.SetOnlineAvailabilityAsync(userId, isAvailable);
 
                 if (result.IsSuccess)
                     return Ok(result);
