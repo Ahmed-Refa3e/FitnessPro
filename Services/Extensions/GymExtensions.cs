@@ -48,4 +48,24 @@ public static class GymExtensions
                 SubscriptionsCount = gym.GymSubscriptions?.Count ?? 0 // Calculate the number of subscriptions
             };
     }
+
+    public static Gym ToEntity(this CreateGymDTO CreateGymDTO)
+    {
+        return CreateGymDTO == null
+            ? throw new ArgumentNullException(nameof(CreateGymDTO))
+            : new Gym
+            {
+                GymName = CreateGymDTO.GymName,
+                PictureUrl = CreateGymDTO.PictureUrl,
+                Address = CreateGymDTO.Address,
+                City = CreateGymDTO.City,
+                Governorate = CreateGymDTO.Governorate,
+                MonthlyPrice = CreateGymDTO.MonthlyPrice,
+                YearlyPrice = CreateGymDTO.YearlyPrice,
+                FortnightlyPrice = CreateGymDTO.FortnightlyPrice,
+                SessionPrice = CreateGymDTO.SessionPrice,
+                PhoneNumber = CreateGymDTO.PhoneNumber,
+                Description = CreateGymDTO.Description
+            };
+    }
 }

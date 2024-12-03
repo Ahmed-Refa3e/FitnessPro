@@ -9,7 +9,7 @@ namespace Core.Interfaces.Services
         Task<PagedResult<GymResponseDto>> GetGymsAsync(GetGymDTO GymDTO);
         Task<Gym?> GetGymByIdAsync(int id);
         Task<IReadOnlyList<string>> GetCitiesAsync();
-        Task<bool> CreateGymAsync(Gym Gym);
+        Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO);
         Task<bool> UpdateGymAsync(int id, Gym Gym);
         Task<bool> DeleteGymAsync(int id);
     }

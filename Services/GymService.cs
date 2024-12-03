@@ -1,14 +1,16 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
+using Core.Entities.Identity;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Services.Extensions;
 
 namespace Services
 {
-    public class GymService(IGymRepository repository) : IGymService
+    public class GymService(IGymRepository repository, SignInManager<ApplicationUser> signInManager) : IGymService
     {
         private const int MaxPageSize = 50;
 
@@ -61,7 +63,7 @@ namespace Services
 
         public async Task<Gym?> GetGymByIdAsync(int id)
         {
-            return await repository.GetGymByIdAsync(id);
+            return await repository.GetByIdAsync(id);
         }
 
         public async Task<IReadOnlyList<string>> GetCitiesAsync()
@@ -69,27 +71,37 @@ namespace Services
             return await repository.GetCitiesAsync();
         }
 
-        public async Task<bool> CreateGymAsync(Gym Gym)
+        public async Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO)
         {
-            repository.AddGym(Gym);
+            // Get the current user from UserManager
+            var user = await signInManager.UserManager.GetUserAsync(signInManager.Context.User)
+                ?? throw new UnauthorizedAccessException("User is not authenticated.");
+
+            // Map DTO to entity
+            var gym = CreateGymDTO.ToEntity();
+
+            // Assign the current user's ID as the CoachID
+            gym.CoachID = user.Id;
+
+            repository.Add(gym);
             return await repository.SaveChangesAsync();
         }
 
         public async Task<bool> UpdateGymAsync(int id, Gym Gym)
         {
-            if (!repository.GymExists(id) || Gym.GymID != id)
+            if (await repository.ExistsAsync(id) || Gym.GymID != id)
                 return false;
 
-            repository.UpdateGym(Gym);
+            repository.Update(Gym);
             return await repository.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteGymAsync(int id)
         {
-            var gym = await repository.GetGymByIdAsync(id);
+            var gym = await repository.GetByIdAsync(id);
             if (gym == null) return false;
 
-            repository.DeleteGym(gym);
+            repository.Delete(gym);
             return await repository.SaveChangesAsync();
         }
     }
