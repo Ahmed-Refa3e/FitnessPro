@@ -1,6 +1,7 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
 using Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -26,16 +27,16 @@ namespace API.Controllers
 
             if (gym == null) return NotFound();
 
-            return gym;
+            return Ok(gym);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Gym>> CreateGym(Gym Gym)
+        public async Task<IActionResult> CreateGym(CreateGymDTO CreateGymDTO)
         {
-            var success = await service.CreateGymAsync(Gym);
+            var success = await service.CreateGymAsync(CreateGymDTO);
 
-            if (success)
-                return CreatedAtAction("CreateGym", new { id = Gym.GymID }, Gym);
+            if (success) return Created();
+            //to do: return created gym
 
             return BadRequest("Problem creating Gym");
         }

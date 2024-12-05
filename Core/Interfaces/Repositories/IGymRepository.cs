@@ -2,16 +2,8 @@
 
 namespace Core.Interfaces.Repositories
 {
-    public interface IGymRepository
+    public interface IGymRepository : IGenericRepository<Gym>
     {
-        IQueryable<Gym> GetQueryable();
-        Task<IReadOnlyList<Gym>> ExecuteQueryAsync(IQueryable<Gym> query);
-        Task<Gym?> GetGymByIdAsync(int id);
         Task<IReadOnlyList<string>> GetCitiesAsync();
-        void AddGym(Gym Gym);
-        void UpdateGym(Gym Gym);
-        void DeleteGym(Gym Gym);
-        bool GymExists(int id);
-        Task<bool> SaveChangesAsync();
     }
 }

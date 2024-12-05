@@ -8,7 +8,7 @@ using Core.Interfaces.Services;
 using Core.Helpers;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Services
+namespace Services
 {
     public class EmailService : IEmailService
     {

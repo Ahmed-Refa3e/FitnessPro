@@ -1,13 +1,8 @@
-using Core.Entities.Identity;
-using Infrastructure.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Services;
-using System.Security.Claims;
-using Infrastructure.Repositories;
-using Core.Interfaces.Services;
 using Core.Interfaces.Repositories;
+using Core.Interfaces.Services;
+using Infrastructure.Repositories;
 using Services;
+using System.Security.Claims;
 using Core.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +19,7 @@ builder.Services.AddDbContext<FitnessContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddIdentity<ApplicationUser,IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<FitnessContext>().AddDefaultTokenProviders(); ;
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -75,6 +70,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
 
 var app = builder.Build();
 
@@ -105,14 +102,14 @@ app.MapControllers();
 try
 {
     using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
-var context = services.GetRequiredService<FitnessContext>();
-await context.Database.MigrateAsync();
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<FitnessContext>();
+    await context.Database.MigrateAsync();
 }
 catch (Exception ex)
 {
     Console.WriteLine(ex);
-throw;
+    throw;
 }
 
 app.Run();
