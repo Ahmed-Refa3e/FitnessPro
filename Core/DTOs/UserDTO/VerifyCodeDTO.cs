@@ -2,11 +2,11 @@
 
 namespace Core.DTOs.UserDTO
 {
-    public class LoginDTO
+    public class VerifyCodeDTO
     {
-        [EmailAddress]
+        [Required]
         public required string Email { get; set; }
-        [DataType(DataType.Password)]
-        public required string Password { get; set; }
+        [Required]
+        public required string verificationCode { get; set; }
     }
 }

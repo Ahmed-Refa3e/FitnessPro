@@ -8,7 +8,7 @@ namespace Core.DTOs.UserDTO
 {
     public class ConfirmEmailDTO
     {
-        public string Email { get; set; }
-        public string VerificationCode { get; set; }
+        public required string Email { get; set; }
+        public required string VerificationCode { get; set; }
     }
 }

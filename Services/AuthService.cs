@@ -1,10 +1,12 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
+using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -17,23 +19,23 @@ namespace Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IConfiguration configuration;
         private readonly IEmailService emailService;
         private readonly IUserRepository repository;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly JwtSettings _jwtSettings;
 
         public AuthService(UserManager<ApplicationUser> userManager,
                            RoleManager<IdentityRole> roleManager,
-                           IConfiguration configuration,
-                           IEmailService emailService,IUserRepository repository
-                           ,SignInManager<ApplicationUser> signInManager)
+                           IEmailService emailService, IUserRepository repository
+                           , SignInManager<ApplicationUser> signInManager,
+                           IOptions<JwtSettings> options)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            this.configuration = configuration;
             this.emailService = emailService;
             this.repository = repository;
             this.signInManager = signInManager;
+            _jwtSettings = options.Value;
         }
 
         public async Task<Generalresponse> RegisterTraineeAsync(RegisterDTO model)
@@ -50,7 +52,7 @@ namespace Services
 
             var user = new Trainee
             {
-                UserName = model.FirstName,
+                UserName = model.Email,
                 Email = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -101,7 +103,7 @@ namespace Services
 
             Coach coach = new Coach
             {
-                UserName = model.FirstName,
+                UserName = model.Email,
                 Email = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -159,7 +161,7 @@ namespace Services
                 {
                     var token = await GenerateJwtToken(user);
                     var refreshToken = GenerateRefreshToken();
-                    user.refreshTokens.Add(new RefreshToken()
+                    user.refreshTokens?.Add(new RefreshToken()
                     {
                         Token = refreshToken,
                         Expires = DateTime.UtcNow.AddDays(3),
@@ -192,10 +194,12 @@ namespace Services
             if (user == null)
                 throw new UnauthorizedAccessException();
 
-
-            foreach (var item in user.refreshTokens)
+            if (user.refreshTokens != null)
             {
-                item.Revoked = DateTime.UtcNow;
+                foreach (var item in user.refreshTokens)
+                {
+                    item.Revoked = DateTime.UtcNow;
+                }
             }
 
             await repository.SaveAsync();
@@ -205,7 +209,7 @@ namespace Services
             response.Data = "SignOut Successfully";
 
             return response;
-        }       
+        }
 
         public async Task<Generalresponse> ConfirmEmailAsync(ConfirmEmailDTO request)
         {
@@ -217,7 +221,7 @@ namespace Services
                 response.IsSuccess = false;
                 response.Data = "User not found.";
                 return response;
-            } 
+            }
 
             var storedCode = await _userManager.GetAuthenticationTokenAsync(user,
                 "EmailVerification", "VerificationCode");
@@ -301,45 +305,67 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ResetPasswordAsync(string Email, string verificationCode, string newPassword)
+        public async Task<Generalresponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO)
         {
             Generalresponse response = new Generalresponse();
-            var userModel = await _userManager.FindByEmailAsync(Email);
-            if (userModel != null)
+
+            var userModel = await _userManager.FindByEmailAsync(codeDTO.Email);
+            if (userModel == null)
             {
-                var savedCode = await _userManager.GetAuthenticationTokenAsync(userModel,
+                response.IsSuccess = false;
+                response.Data = "User not found.";
+                return response;
+            }
+
+            var savedCode = await _userManager.GetAuthenticationTokenAsync(userModel,
                     "ResetPassword", "ResetPasswordCode");
 
-                if (savedCode == verificationCode)
-                {
-                    var removePasswordResult = await _userManager.RemovePasswordAsync(userModel);
+            if (savedCode == codeDTO.verificationCode)
+            {
+                await _userManager.RemoveAuthenticationTokenAsync(userModel, "ResetPassword", "ResetPasswordCode");
 
-                    if (!removePasswordResult.Succeeded)
-                    {
-                        response.IsSuccess = false;
-                        response.Data = "Failed to reset password.";
-                        return response;
-                    }
+                var token = GenerateJwtToken(userModel,true);
 
-                    var addPasswordResult = await _userManager.AddPasswordAsync(userModel, newPassword);
-
-                    if (addPasswordResult.Succeeded)
-                    {
-                        response.IsSuccess = true;
-                        response.Data = "Password has been changed successfully.";
-                        return response;
-                    }
-
-                    response.IsSuccess = false;
-                    response.Data = "Invalid password format.";
-                    return response;
-                }
-                response.IsSuccess = false;
-                response.Data = "Invalid verification code.";
+                response.IsSuccess = true;
+                response.Data = token;
                 return response;
             }
             response.IsSuccess = false;
-            response.Data = "User not found.";
+            response.Data = "Invalid verification code.";
+            return response;
+        }
+
+        public async Task<Generalresponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO)
+        {
+            Generalresponse response = new Generalresponse();
+            var userModel = await _userManager.FindByEmailAsync(resetPasswordDTO.Email);
+            if (userModel == null)
+            {
+                response.IsSuccess = false;
+                response.Data = "User not found.";
+                return response;
+            }
+
+            var removePasswordResult = await _userManager.RemovePasswordAsync(userModel);
+
+            if (!removePasswordResult.Succeeded)
+            {
+                response.IsSuccess = false;
+                response.Data = "Failed to reset password.";
+                return response;
+            }
+
+            var addPasswordResult = await _userManager.AddPasswordAsync(userModel, resetPasswordDTO.NewPassword);
+
+            if (addPasswordResult.Succeeded)
+            {
+                response.IsSuccess = true;
+                response.Data = "Password has been changed successfully.";
+                return response;
+            }
+
+            response.IsSuccess = false;
+            response.Data = "Invalid password format.";
             return response;
         }
 
@@ -352,6 +378,13 @@ namespace Services
             {
                 response.IsSuccess = false;
                 response.Data = "User not found.";
+                return response;
+            }
+
+            if (string.IsNullOrEmpty(user.Email))
+            {
+                response.IsSuccess = false;
+                response.Data = "User email is not set.";
                 return response;
             }
 
@@ -381,6 +414,13 @@ namespace Services
             {
                 response.IsSuccess = false;
                 response.Data = "User not found.";
+                return response;
+            }
+
+            if (string.IsNullOrEmpty(user.Email))
+            {
+                response.IsSuccess = false;
+                response.Data = "User email is not set.";
                 return response;
             }
 
@@ -448,7 +488,7 @@ namespace Services
                 Gym = ((Coach)user).Gym != null ? new GymResponseDto { } : null,
                 OnlineTrainings = ((Coach)user).OnlineTrainings
             };
-            
+
             response.IsSuccess = true;
             response.Data = UserDto;
             return response;
@@ -511,19 +551,20 @@ namespace Services
             Generalresponse response = new Generalresponse();
 
             var user = await repository
-                .GetAsync(e => e.refreshTokens.Any(t => t.Token == request.RefreshToken));
+                .GetAsync(e => e.refreshTokens != null 
+                                    && e.refreshTokens.Any(t => t.Token == request.RefreshToken));
             if (user == null)
                 throw new UnauthorizedAccessException("Invalid refresh token.");
 
-            var refreshtoken = user.refreshTokens.Single(e => e.Token == request.RefreshToken);
-            if (!refreshtoken.IsActive)
+            var refreshtoken = user.refreshTokens?.Single(e => e.Token == request.RefreshToken);
+            if (refreshtoken == null || !refreshtoken.IsActive)
                 throw new UnauthorizedAccessException("Refresh token has expired.");
 
             var newjwttoken = await GenerateJwtToken(user);
             var newRefreshToken = GenerateRefreshToken();
             refreshtoken.Revoked = DateTime.UtcNow;
 
-            user.refreshTokens.Add(new RefreshToken
+            user.refreshTokens?.Add(new RefreshToken
             {
                 Token = newRefreshToken,
                 Created = DateTime.UtcNow,
@@ -552,10 +593,13 @@ namespace Services
             if (user == null)
                 throw new UnauthorizedAccessException();
 
-            foreach (var item in user.refreshTokens)
+            if (user.refreshTokens != null)
             {
-                if (item.IsActive)
-                    item.Revoked = DateTime.UtcNow;
+                foreach (var item in user.refreshTokens)
+                {
+                    if (item.IsActive)
+                        item.Revoked = DateTime.UtcNow;
+                }
             }
 
             await repository.SaveAsync();
@@ -570,6 +614,13 @@ namespace Services
         {
             Generalresponse response = new Generalresponse();
 
+            if (string.IsNullOrEmpty(user.Email))
+            {
+                response.IsSuccess = false;
+                response.Data = "User email is not set.";
+                return response;
+            }
+
             var verificationCode = emailService.GenerateVerificatonCode();
             user.EmailConfirmed = false;
 
@@ -583,25 +634,33 @@ namespace Services
             response.Data = "Confirmation Email send";
             return response;
         }
-        private async Task<string> GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user,bool? resetPassword = false)
         {
             List<Claim> userclaims = new();
             userclaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
             userclaims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
-            userclaims.Add(new Claim(ClaimTypes.Name, user.UserName));
-            var Roles = await _userManager.GetRolesAsync(user);
-            foreach (var Role in Roles)
+            userclaims.Add(new Claim(ClaimTypes.Name, user.UserName ?? string.Empty));
+
+            if (resetPassword == true)
             {
-                userclaims.Add(new Claim(ClaimTypes.Role, Role));
+                userclaims.Add(new Claim("Purpose", "ResetPassword"));
+            }
+            else
+            {
+                var Roles = await _userManager.GetRolesAsync(user);
+                foreach (var Role in Roles)
+                {
+                    userclaims.Add(new Claim(ClaimTypes.Role, Role));
+                }
             }
 
-            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:SecritKey"]));
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecritKey));
             SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             JwtSecurityToken token = new JwtSecurityToken(
-               issuer: configuration["JWT:IssuerIP"],
-               audience: configuration["JWT:AudienceIP"],
-               expires: DateTime.Now.AddHours(1),
+               issuer: _jwtSettings.IssuerIP,
+               audience: _jwtSettings.AudienceIP,
+               expires: DateTime.Now.AddMinutes(30),
                claims: userclaims,
                signingCredentials: credentials
             );

@@ -1,5 +1,6 @@
 ﻿using Core.DTOs.UserDTO;
 using Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -64,6 +65,9 @@ namespace API.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            if (userId == null)
+                return Unauthorized();
+
             try
             {
                 var result = await service.LogOutAsync(userId);
@@ -113,10 +117,35 @@ namespace API.Controllers
                 return NotFound(result);
 
         }
+        [HttpPost("VerifyResetCode")]
+        public async Task<IActionResult> VerifyResetCode(VerifyCodeDTO codeDTO)
+        {
+            var result = await service.VerifyResetCodeAsync(codeDTO);
+
+            if (result.IsSuccess)
+                return Ok(result);
+            else
+                return BadRequest(result);
+        }
+
+        [Authorize]
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDTO resetPassword)
         {
-            var result = await service.ResetPasswordAsync(resetPassword.Email, resetPassword.verificationCode, resetPassword.newPassword);
+            var emailClaim = User.FindFirst(ClaimTypes.Email)?.Value;
+            var purposeClaim = User.FindFirst("Purpose")?.Value;
+
+            if (string.IsNullOrEmpty(emailClaim) || purposeClaim != "ResetPassword")
+            {
+                return Unauthorized(new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = "Unauthorized access or invalid token purpose."
+                });
+            }
+
+
+            var result = await service.ResetPasswordAsync(resetPassword);
 
             if (result.IsSuccess)
                 return Ok(result);
@@ -176,11 +205,14 @@ namespace API.Controllers
             else
                 return NotFound(result);
         }
-
+        [Authorize]
         [HttpPut("SetOnlineAvailability")]
         public async Task<IActionResult> SetOnlineAvailability(bool isAvailable)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                return Unauthorized();
 
             try
             {
@@ -211,18 +243,21 @@ namespace API.Controllers
                 return Unauthorized(ex.Message);
             }
         }
-
+        [Authorize]
         [HttpPost("RevokeAllTokens")]
         public async Task<ActionResult> RevokeAllTokens()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                return Unauthorized();
 
             try
             {
                 var result = await service.RevokeAllTokensAsync(userId);
                 return Ok(result);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
                 return Unauthorized();
             }

@@ -5,24 +5,26 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Collections;
 using Core.Interfaces.Services;
+using Core.Helpers;
+using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _configuration;
+        private readonly EmailSettings emailSettings;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IOptions<EmailSettings> emailSettings)
         {
-            _configuration = configuration;
+            this.emailSettings = emailSettings.Value;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
-            var email = _configuration["EmailSettings:Email"];
-            var password = _configuration["EmailSettings:Password"];
+            string? email = emailSettings.Email;
+            var password = emailSettings.Password;
 
-            var client = new SmtpClient(_configuration["EmailSettings:SmtpServer"])
+            var client = new SmtpClient(emailSettings.SmtpServer)
             {
                 Port = 587,
                 Credentials = new NetworkCredential(email, password),

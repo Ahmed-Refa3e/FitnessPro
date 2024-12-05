@@ -12,7 +12,8 @@ namespace Core.Interfaces.Services
         Task<Generalresponse> ConfirmEmailAsync(ConfirmEmailDTO request);
         Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto);
         Task<Generalresponse> ForgetPasswordAsync(string email);
-        Task<Generalresponse> ResetPasswordAsync(string Email, string verificationCode, string newPassword);
+        Task<Generalresponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO);
+        Task<Generalresponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);
         Task<Generalresponse> ResendConfirmationCodeAsync(ConfirmEmailDTO request);
         Task<Generalresponse> ResendResetPasswordCodeAsync(string Email);
         Task<Generalresponse> GetAllCoachesAsync();

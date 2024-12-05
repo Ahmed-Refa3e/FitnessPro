@@ -8,6 +8,7 @@ using Infrastructure.Repositories;
 using Core.Interfaces.Services;
 using Core.Interfaces.Repositories;
 using Services;
+using Core.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -44,12 +49,12 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["JWT:IssuerIP"],
+        ValidIssuer = jwtSettings?.IssuerIP,
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["JWT:AudienceIP"],
+        ValidAudience = jwtSettings?.AudienceIP,
         IssuerSigningKey =
             new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecritKey"]))
+                Encoding.UTF8.GetBytes(jwtSettings?.SecritKey ?? string.Empty))
 
     };
     options.Events = new JwtBearerEvents
@@ -57,10 +62,10 @@ builder.Services.AddAuthentication(options =>
         OnTokenValidated = async context =>
         {
             var userRepository = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
-            var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var user = await userRepository.GetAsync(e => e.Id == userId, includeProperties: "refreshTokens");
 
-            if (user == null || user.refreshTokens.All(t => t.Revoked != null))
+            if (user == null || user.refreshTokens == null || user.refreshTokens.All(t => t.Revoked != null))
             {
                 context.Fail("Token has been revoked.");
             }
