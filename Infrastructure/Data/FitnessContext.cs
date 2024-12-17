@@ -16,10 +16,13 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
     public DbSet<GymRating>? GymRatings { get; set; }
 
+    public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
+    public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
+        builder.ApplyConfigurationsFromAssembly(typeof(FitnessContext).Assembly);
         #region relationships
         // Gym Relationships
         builder.Entity<Gym>()
@@ -34,7 +37,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasForeignKey(gs => gs.TraineeID)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // OnlineTraining Relationships
+       /* // OnlineTraining Relationships
         builder.Entity<OnlineTraining>()
             .HasOne(ot => ot.Coach)
             .WithMany(c => c.OnlineTrainings)
@@ -42,7 +45,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .OnDelete(DeleteBehavior.Cascade);
 
         // OnlineTrainingSubscription Relationships
-        builder.Entity<OnlineTrainingSubscription>()
+        /*builder.Entity<OnlineTrainingSubscription>()
             .HasOne(ots => ots.Training)
             .WithMany()
             .HasForeignKey(ots => ots.TrainingID)
@@ -52,7 +55,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(ots => ots.Trainee)
             .WithMany(t => t.OnlineTrainingSubscriptions)
             .HasForeignKey(ots => ots.TraineeID)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade);*/
 
         // GymRating relationships
         builder.Entity<GymRating>()

@@ -1,18 +1,46 @@
-﻿using Core.Entities.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using Core.DTOs.OnlineTrainingSubscriptionDTO;
+using Core.Entities.Identity;
+using Core.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Core.Entities.OnlineTrainingEntities
 {
     public class OnlineTrainingSubscription
     {
-        [Key]
-        public int SubscriptionID { get; set; }
-        public int TrainingID { get; set; }
-        public required OnlineTraining Training { get; set; }
-        public required string TraineeID { get; set; }
-        public required Trainee Trainee { get; set; }
-        public required DateTime StartDate { get; set; }
-        public required DateTime EndDate { get; set; }
-        public required string Status { get; set; } // Active, Completed, Cancelled
+        public int Id { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public decimal Cost { get; set; }
+        public int? OnlineTrainingId { get; set; }
+        public OnlineTraining? OnlineTraining { get; set; }
+        public string? TraineeID { get; set; }
+        public Trainee? Trainee { get; set; }
+        public OnlineTrainingSubscription()
+        {
+            
+        }
+        public OnlineTrainingSubscription(AddSubscriptionDTO subscription,OnlineTraining training)
+        {
+            this.OnlineTrainingId=subscription.OnlineTrainingId;
+            this.TraineeID=subscription.TraineeID;
+            this.StartDate=DateTime.Now;
+            this.EndDate = (training.DurationUnit == DurationUnit.Week) ? StartDate.AddDays(7) :
+                (training.DurationUnit == DurationUnit.Month) ? StartDate.AddMonths(1) :
+                (training.DurationUnit == DurationUnit.QuarterYear) ? StartDate.AddMonths(3) :
+                (training.DurationUnit == DurationUnit.HalfYear) ? StartDate.AddMonths(6) :
+                StartDate.AddYears(1);
+            if(training.OfferEnded is not null && training.OfferEnded>=DateTime.Now)
+            {
+                this.Cost = training.OfferPrice ?? training.Price;
+            }
+            else
+            {
+                this.Cost =training.Price;
+            }
+        }
     }
 }
