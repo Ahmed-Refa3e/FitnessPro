@@ -4,6 +4,7 @@ using Core.Entities.Identity;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Services.Extensions;
@@ -71,28 +72,45 @@ namespace Services
             return await repository.GetCitiesAsync();
         }
 
-        public async Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO)
+        public async Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO, ApplicationUser user)
         {
-            // Get the current user from UserManager
-            var user = await signInManager.UserManager.GetUserAsync(signInManager.Context.User)
-                ?? throw new UnauthorizedAccessException("User is not authenticated.");
 
             // Map DTO to entity
             var gym = CreateGymDTO.ToEntity();
 
             // Assign the current user's ID as the CoachID
-            gym.CoachID = user.Id;
+            //gym.CoachID = user.Id;
 
             repository.Add(gym);
             return await repository.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateGymAsync(int id, Gym Gym)
+        public async Task<bool> UpdateGymAsync(int id, UpdateGymDTO gymDto)
         {
-            if (await repository.ExistsAsync(id) || Gym.GymID != id)
-                return false;
+            // Check if the gym exists
+            var existingGym = await repository.GetByIdAsync(id);
+            if (existingGym == null)
+            {
+                return false; // Gym not found
+            }
 
-            repository.Update(Gym);
+            // Update the properties of the gym entity
+            existingGym.GymName = gymDto.GymName;
+            existingGym.Address = gymDto.Address;
+            existingGym.City = gymDto.City;
+            existingGym.Governorate = gymDto.Governorate;
+            existingGym.MonthlyPrice = gymDto.MonthlyPrice;
+            existingGym.Description = gymDto.Description;
+            existingGym.PictureUrl = gymDto.PictureUrl;
+            existingGym.PhoneNumber = gymDto.PhoneNumber;
+            existingGym.SessionPrice = gymDto.SessionPrice;
+            existingGym.FortnightlyPrice = gymDto.FortnightlyPrice;
+            existingGym.YearlyPrice = gymDto.YearlyPrice;
+
+            // Update the entity in the repository
+            repository.Update(existingGym);
+
+            // Save changes to the database
             return await repository.SaveChangesAsync();
         }
 

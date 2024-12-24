@@ -1,12 +1,11 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
 using Core.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class GymController(IGymService service) : BaseApiController
+    public class GymController(IGymService service, SignInManager<ApplicationUser> signInManager) : BaseApiController
     {
 
         [HttpGet]
@@ -25,31 +24,46 @@ namespace API.Controllers
         {
             var gym = await service.GetGymByIdAsync(id);
 
-            if (gym == null) return NotFound();
+            if (gym == null) return NotFound("Gym not found");
 
             return Ok(gym);
         }
 
         [HttpPost]
+        //[Authorize]
         public async Task<IActionResult> CreateGym(CreateGymDTO CreateGymDTO)
         {
-            var success = await service.CreateGymAsync(CreateGymDTO);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if (success) return Created();
+            //if (signInManager.IsSignedIn(User))
+            //{
+            ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
+            var success = await service.CreateGymAsync(CreateGymDTO, user!);
+
             //to do: return created gym
+            if (success) return Created();
 
             return BadRequest("Problem creating Gym");
+            //}
+            //else
+            //{
+            //    return Unauthorized();
+            //}
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> UpdateGym(int id, Gym Gym)
+        public async Task<ActionResult> UpdateGym(int id, UpdateGymDTO Gym)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var success = await service.UpdateGymAsync(id, Gym);
 
             if (!success)
-                return BadRequest("Cannot update this Gym");
+                return NotFound("Gym not found");
 
-            return NoContent();
+            return Created();
         }
 
         [HttpDelete("{id:int}")]
@@ -57,7 +71,7 @@ namespace API.Controllers
         {
             var success = await service.DeleteGymAsync(id);
 
-            if (!success) return NotFound();
+            if (!success) return NotFound("Gym not found");
 
             return NoContent();
         }

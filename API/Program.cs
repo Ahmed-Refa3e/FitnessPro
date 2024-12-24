@@ -1,9 +1,9 @@
+using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Infrastructure.Repositories;
 using Services;
 using System.Security.Claims;
-using Core.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
