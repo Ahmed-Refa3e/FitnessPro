@@ -1,7 +1,9 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
 using Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Extensions;
 
 namespace API.Controllers
 {
@@ -22,37 +24,46 @@ namespace API.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Gym>> GetGymById(int id)
         {
-            var gym = await service.GetGymByIdAsync(id);
+            Gym? gym = await service.GetGymByIdAsync(id);
 
             if (gym == null) return NotFound("Gym not found");
+            //convert to response dto using extension method
+            GymResponseDetailsDto gymResponse = gym.ToResponseDetailsDto();
 
-            return Ok(gym);
+            return Ok(gymResponse);
+        }
+
+        [HttpGet("ByCoachId")]
+        public async Task<ActionResult<Gym>> GetGymByCoachId(string CoachId)
+        {
+            Gym? gym = await service.GetGymByCoachIdAsync(CoachId);
+            if (gym == null) return NotFound("Gym not found");
+            //convert to response dto using extension method
+            GymResponseDetailsDto gymResponse = gym.ToResponseDetailsDto();
+
+            return Ok(gymResponse);
         }
 
         [HttpPost]
-        //[Authorize]
+        [Authorize(Roles ="Coach")]
         public async Task<IActionResult> CreateGym(CreateGymDTO CreateGymDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            //if (signInManager.IsSignedIn(User))
-            //{
-            ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
-            var success = await service.CreateGymAsync(CreateGymDTO, user!);
+                ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
+                var success = await service.CreateGymAsync(CreateGymDTO, user!);
 
-            //to do: return created gym
             if (success) return Created();
+                   // CreatedAtAction(nameof(GetGymById), CreateGymDTO);
 
-            return BadRequest("Problem creating Gym");
-            //}
-            //else
-            //{
-            //    return Unauthorized();
-            //}
+                return BadRequest("Problem creating Gym");
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles ="Coach")]
+
+        //ToDo th update method should be updated to allow only the coach who created the gym to update it
         public async Task<ActionResult> UpdateGym(int id, UpdateGymDTO Gym)
         {
             if (!ModelState.IsValid)
@@ -63,10 +74,12 @@ namespace API.Controllers
             if (!success)
                 return NotFound("Gym not found");
 
-            return Created();
+            return NoContent();
         }
 
+        //ToDo th delete method should be updated to allow only the coach who created the gym to delete it
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Coach")]
         public async Task<ActionResult> DeleteGym(int id)
         {
             var success = await service.DeleteGymAsync(id);
@@ -80,6 +93,6 @@ namespace API.Controllers
         public async Task<ActionResult<IReadOnlyList<string>>> GetCities()
         {
             return Ok(await service.GetCitiesAsync());
-        }
+        } 
     }
 }

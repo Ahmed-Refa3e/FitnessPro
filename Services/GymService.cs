@@ -4,14 +4,12 @@ using Core.Entities.Identity;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Infrastructure.Repositories;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Services.Extensions;
 
 namespace Services
 {
-    public class GymService(IGymRepository repository, SignInManager<ApplicationUser> signInManager) : IGymService
+    public class GymService(IGymRepository repository) : IGymService
     {
         private const int MaxPageSize = 50;
 
@@ -74,12 +72,16 @@ namespace Services
 
         public async Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO, ApplicationUser user)
         {
-
+            var GymByCoachId = repository.GetByCoachIdAsync(user.Id);
+            if (GymByCoachId.Result != null)
+            {
+                return false;
+            }
             // Map DTO to entity
             var gym = CreateGymDTO.ToEntity();
 
-            // Assign the current user's ID as the CoachID
-            //gym.CoachID = user.Id;
+            //Assign the current user's ID as the CoachID
+            gym.CoachID = user.Id;
 
             repository.Add(gym);
             return await repository.SaveChangesAsync();
@@ -121,6 +123,11 @@ namespace Services
 
             repository.Delete(gym);
             return await repository.SaveChangesAsync();
+        }
+
+        public async Task<Gym?> GetGymByCoachIdAsync(string CoachId)
+        {
+            return await repository.GetByCoachIdAsync(CoachId);
         }
     }
 }
