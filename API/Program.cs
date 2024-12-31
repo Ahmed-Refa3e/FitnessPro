@@ -1,10 +1,15 @@
 using Core.Helpers;
 using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.PostRepositories;
 using Core.Interfaces.Services;
 using Infrastructure.Repositories;
 using Services;
 using System.Security.Claims;
-
+using Infrastructure.Repositories.PostRepositoy;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
+using Infrastructure.Repositories.OnlineTrainingRepositories;
+using Core.Interfaces.Repositories.ShopRepositories;
+using Infrastructure.Repositories.IShopRepositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -27,7 +32,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
-
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostRepresentationRepository, PostRepresentationRepository>();
+builder.Services.AddScoped<IShopRepository,ShopRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
@@ -102,7 +109,7 @@ app.MapControllers();
 
 
 //Apply any pending migrations
-try
+/*try
 {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
@@ -113,6 +120,6 @@ catch (Exception ex)
 {
     Console.WriteLine(ex);
     throw;
-}
+}*/
 
 app.Run();

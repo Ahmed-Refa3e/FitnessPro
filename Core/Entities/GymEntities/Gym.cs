@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Identity;
+using Core.Entities.PostEntities;
 using System.ComponentModel.DataAnnotations;
 
 namespace Core.Entities.GymEntities
@@ -28,5 +29,7 @@ namespace Core.Entities.GymEntities
         public ICollection<GymSubscription>? GymSubscriptions { get; set; }
 
         public ICollection<GymRating>? Ratings { get; set; }
+        //Posts
+        public List<GymPost>?Posts { get; set; }
     }
 }

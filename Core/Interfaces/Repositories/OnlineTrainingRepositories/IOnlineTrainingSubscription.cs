@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Interfaces.Repositories
+namespace Core.Interfaces.Repositories.OnlineTrainingRepositories
 {
     public interface IOnlineTrainingSubscriptionRepository
     {
         ShowSubscriptionDTO Get(int id);
         IntResult Add(AddSubscriptionDTO subscription);
-        List<ShowSubscriptionForTraineDTO> ShowForTraineActivePagination(string traineId,int page,int pageSize);
+        List<ShowSubscriptionForTraineDTO> ShowForTraineActivePagination(string traineId, int page, int pageSize);
         List<ShowSubscriptionForTraineDTO> ShowForTraineAllPagination(string traineId, int page, int pageSize);
         List<ShowSubscriptionForTraineDTO> ShowForTraineCompletedPagination(string traineId, int page, int pageSize);
         List<ShowSubscriptionOfOnlineTrainingDTO> ShowForOnlineTrainingCompletedPagination(int onlineTrainingId, int page, int pageSize);

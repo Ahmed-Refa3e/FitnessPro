@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    [Migration("20241223160407_Initial")]
-    partial class Initial
+    [Migration("20241225195319_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -346,7 +346,7 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(6,2)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
@@ -367,6 +367,49 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TraineeID");
 
                     b.ToTable("OnlineTrainingSubscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PostType")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Posts", (string)null);
+
+                    b.HasDiscriminator<string>("PostType").HasValue("Post");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Shops");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -516,20 +559,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1fd8af83-faff-408e-81f1-0041f1a0cd9d",
+                            ConcurrencyStamp = "8b2e651d-3256-454c-953d-d1ddab07311b",
                             DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "johndoe@example.com",
                             EmailConfirmed = false,
                             FirstName = "John",
                             Gender = "Male",
-                            JoinedDate = new DateTime(2024, 12, 23, 18, 4, 7, 77, DateTimeKind.Local).AddTicks(1289),
+                            JoinedDate = new DateTime(2024, 12, 25, 14, 53, 19, 35, DateTimeKind.Local).AddTicks(7617),
                             LastName = "Doe",
                             LockoutEnabled = false,
                             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "129de0be-2a77-4a21-b8e5-471673aba3f0",
+                            SecurityStamp = "f6702139-ae15-4711-b315-c12ca752119d",
                             TwoFactorEnabled = false,
                             UserName = "johndoe",
                             AvailableForOnlineTraining = true
@@ -538,20 +581,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "aac607f2-b904-4424-94a3-d2b08b88d246",
+                            ConcurrencyStamp = "5f688165-ff1a-40fe-bdae-7cd2bd653c61",
                             DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "janesmith@example.com",
                             EmailConfirmed = false,
                             FirstName = "Jane",
                             Gender = "Female",
-                            JoinedDate = new DateTime(2024, 12, 23, 18, 4, 7, 77, DateTimeKind.Local).AddTicks(1422),
+                            JoinedDate = new DateTime(2024, 12, 25, 14, 53, 19, 35, DateTimeKind.Local).AddTicks(7729),
                             LastName = "Smith",
                             LockoutEnabled = false,
                             NormalizedEmail = "JANESMITH@EXAMPLE.COM",
                             NormalizedUserName = "JANESMITH",
                             PhoneNumber = "0987654321",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fb8ebbf7-9d3f-4001-a85d-988cb7243dbd",
+                            SecurityStamp = "2eb31271-86a3-43da-94da-20a41fd0029c",
                             TwoFactorEnabled = false,
                             UserName = "janesmith",
                             AvailableForOnlineTraining = false
@@ -586,6 +629,43 @@ namespace Infrastructure.Migrations
                     b.HasBaseType("Core.Entities.OnlineTrainingEntities.OnlineTraining");
 
                     b.HasDiscriminator().HasValue("PRIVT");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.CoachPost", b =>
+                {
+                    b.HasBaseType("Core.Entities.PostEntities.Post");
+
+                    b.Property<string>("CoachId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasIndex("CoachId");
+
+                    b.HasDiscriminator().HasValue("COH");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.GymPost", b =>
+                {
+                    b.HasBaseType("Core.Entities.PostEntities.Post");
+
+                    b.Property<int>("GymId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("GymId");
+
+                    b.HasDiscriminator().HasValue("GYM");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.ShopPost", b =>
+                {
+                    b.HasBaseType("Core.Entities.PostEntities.Post");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("ShopId");
+
+                    b.HasDiscriminator().HasValue("SHP");
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
@@ -751,9 +831,44 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Core.Entities.PostEntities.CoachPost", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.Coach", "Coach")
+                        .WithMany("Posts")
+                        .HasForeignKey("CoachId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Coach");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.GymPost", b =>
+                {
+                    b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
+                        .WithMany("Posts")
+                        .HasForeignKey("GymId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Gym");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.ShopPost", b =>
+                {
+                    b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
+                        .WithMany("Posts")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shop");
+                });
+
             modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
                 {
                     b.Navigation("GymSubscriptions");
+
+                    b.Navigation("Posts");
 
                     b.Navigation("Ratings");
                 });
@@ -763,11 +878,18 @@ namespace Infrastructure.Migrations
                     b.Navigation("OnlineTrainingSubscriptions");
                 });
 
+            modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
+                {
+                    b.Navigation("Posts");
+                });
+
             modelBuilder.Entity("Core.Entities.Identity.Coach", b =>
                 {
                     b.Navigation("Gym");
 
                     b.Navigation("OnlineTrainings");
+
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.Trainee", b =>

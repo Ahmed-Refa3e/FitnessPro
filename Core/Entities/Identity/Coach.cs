@@ -1,5 +1,7 @@
 ﻿using Core.Entities.GymEntities;
 using Core.Entities.OnlineTrainingEntities;
+using Core.Entities.PostEntities;
+using Core.Entities.ShopEntities;
 
 namespace Core.Entities.Identity
 {
@@ -8,6 +10,7 @@ namespace Core.Entities.Identity
         public Gym? Gym { get; set; }
         public ICollection<OnlineTraining>? OnlineTrainings { get; set; }
         public bool AvailableForOnlineTraining { get; set; } = false;
-
+        public List<CoachPost>? Posts { get; set; }
+        public List<Shop>? Shops { get; set; }
     }
 }

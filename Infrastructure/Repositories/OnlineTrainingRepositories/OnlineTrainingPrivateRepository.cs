@@ -1,7 +1,7 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.OnlineTrainingDTO;
 using Core.Entities.OnlineTrainingEntities;
-using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,14 +10,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.OnlineTrainingRepositories
 {
     public class OnlineTrainingPrivateRepository : IOnlineTrainingPrivateRepository
     {
         private readonly FitnessContext _context;
         public OnlineTrainingPrivateRepository(FitnessContext context)
         {
-            this._context = context;
+            _context = context;
         }
         public IntResult Add(AddOnlineTrainingPrivateDTO privt)
         {
@@ -65,21 +65,22 @@ namespace Infrastructure.Repositories
                 SubscriptionClosed = p.SubscriptionClosed,
                 OfferEnded = p.OfferEnded,
                 CoachName = p.Coach.FirstName + p.Coach.LastName
-            }).FirstOrDefault(p=>p.Id==id);
+            }).FirstOrDefault(p => p.Id == id);
             return privt;
         }
 
-        public List<GetOnlineTrainingPrivateDTO> ShowTrainingPrivateForCouchPagination(string coachID,int page, int pageSize)
+        public List<GetOnlineTrainingPrivateDTO> ShowTrainingPrivateForCouchPagination(string coachID, int page, int pageSize)
         {
             page = Math.Max(page, 1);
             if (pageSize <= 0)
             {
                 pageSize = 5;
             }
-            page = Math.Min(page, NumOfPagesForTrainingPrivateOfCoach(coachID,pageSize));
-            var paginate = _context.OnlineTrainingPrivates.Where(x=>x.CoachID==coachID).Skip(Math.Max((page - 1) * pageSize, 0)).
+            page = Math.Min(page, NumOfPagesForTrainingPrivateOfCoach(coachID, pageSize));
+            var paginate = _context.OnlineTrainingPrivates.Where(x => x.CoachID == coachID).Skip(Math.Max((page - 1) * pageSize, 0)).
                 Take(pageSize).
-                Select(p => new GetOnlineTrainingPrivateDTO() {
+                Select(p => new GetOnlineTrainingPrivateDTO()
+                {
                     Id = p.Id,
                     Title = p.Title,
                     Description = p.Description,

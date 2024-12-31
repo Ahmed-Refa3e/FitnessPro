@@ -1,6 +1,8 @@
 ﻿using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
+using Core.Entities.PostEntities;
+using Core.Entities.ShopEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,11 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
 
     public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
     public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
+    public DbSet<Post>? Posts { get; set; }
+    public DbSet<GymPost>? GymPosts { get; set; }
+    public DbSet<ShopPost>? ShopPosts { get; set; }
+    public DbSet<CoachPost>? CoachPosts { get; set; }
+    public DbSet<Shop> Shops { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

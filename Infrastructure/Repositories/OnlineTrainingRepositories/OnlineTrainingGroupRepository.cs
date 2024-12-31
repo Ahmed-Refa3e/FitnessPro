@@ -1,7 +1,7 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.OnlineTrainingDTO;
 using Core.Entities.OnlineTrainingEntities;
-using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -9,14 +9,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.OnlineTrainingRepositories
 {
     public class OnlineTrainingGroupRepository : IOnlineTrainingGroupRepository
     {
         private readonly FitnessContext _context;
         public OnlineTrainingGroupRepository(FitnessContext context)
         {
-            this._context = context;
+            _context = context;
         }
         public IntResult Add(AddOnlineTrainingGroupDTO group)
         {
@@ -30,13 +30,13 @@ namespace Infrastructure.Repositories
             {
                 return new IntResult { Massage = ex.Message };
             }
-            return new IntResult { Id=newGroup.Id};
+            return new IntResult { Id = newGroup.Id };
         }
 
         public IntResult Delete(int id)
         {
             var group = _context.OnlineTrainingGroups.Find(id);
-            if(group is null)
+            if (group is null)
             {
                 return new IntResult { Massage = "No Group has this Id" };
             }
@@ -65,8 +65,8 @@ namespace Infrastructure.Repositories
                 SubscriptionClosed = g.SubscriptionClosed,
                 DurationOfSession = g.DurationOfSession,
                 OfferEnded = g.OfferEnded,
-                CoachName=g.Coach.FirstName+g.Coach.LastName
-            }).FirstOrDefault(g=>g.Id==id);
+                CoachName = g.Coach.FirstName + g.Coach.LastName
+            }).FirstOrDefault(g => g.Id == id);
             return group;
         }
         public List<GetOnlineTrainingGroupDTO> ShowAvailableTrainingGroupForCouchPagination(string coachID, int page, int pageSize)
@@ -76,8 +76,8 @@ namespace Infrastructure.Repositories
             {
                 pageSize = 5;
             }
-            page = Math.Min(page, NumOfPagesForAvailableTrainingGroupsOfCoach(coachID,pageSize));
-            var paginate = _context.OnlineTrainingGroups.Where(x => x.CoachID == coachID&&x.IsAvailable).Skip(Math.Max((page - 1) * pageSize, 0)).
+            page = Math.Min(page, NumOfPagesForAvailableTrainingGroupsOfCoach(coachID, pageSize));
+            var paginate = _context.OnlineTrainingGroups.Where(x => x.CoachID == coachID && x.IsAvailable).Skip(Math.Max((page - 1) * pageSize, 0)).
                 Take(pageSize).
                 Select(p => new GetOnlineTrainingGroupDTO()
                 {
@@ -90,39 +90,40 @@ namespace Infrastructure.Repositories
                     OfferEnded = p.OfferEnded,
                     NoOfSessionsPerWeek = p.NoOfSessionsPerWeek,
                     DurationOfSession = p.DurationOfSession
-                    
+
                 }).ToList();
             return paginate;
         }
-        public int NumOfPagesForAvailableTrainingGroupsOfCoach(string coachID,int pageSize)
+        public int NumOfPagesForAvailableTrainingGroupsOfCoach(string coachID, int pageSize)
         {
-           /* var list = _context.OnlineTrainingGroups.Where(x => x.CoachID.Equals(coachID)).ToList();
-            var count = (decimal)_context.OnlineTrainingGroups.Where(x => x.CoachID.Equals(coachID)).Count();
-            var size = (decimal)pageSize;
-            return (int)Math.Ceiling(count / size);*/
-            return (int)Math.Ceiling((decimal)_context.OnlineTrainingGroups.Where(x => x.CoachID == coachID&&x.IsAvailable).Count() / pageSize);
+            /* var list = _context.OnlineTrainingGroups.Where(x => x.CoachID.Equals(coachID)).ToList();
+             var count = (decimal)_context.OnlineTrainingGroups.Where(x => x.CoachID.Equals(coachID)).Count();
+             var size = (decimal)pageSize;
+             return (int)Math.Ceiling(count / size);*/
+            return (int)Math.Ceiling((decimal)_context.OnlineTrainingGroups.Where(x => x.CoachID == coachID && x.IsAvailable).Count() / pageSize);
         }
-        public IntResult Update(UpdateOnlineTrainingGroupDTO group,int id)
+        public IntResult Update(UpdateOnlineTrainingGroupDTO group, int id)
         {
             var newGroup = _context.OnlineTrainingGroups.Find(id);
-            if(newGroup is null)
+            if (newGroup is null)
             {
                 return new IntResult { Massage = "No Group has this Id" };
             }
-            newGroup.Title= group.Title;
-            newGroup.Description= group.Description;
-            newGroup.Price= group.Price;
-            newGroup.OfferPrice= group.OfferPrice;
-            newGroup.NoOfSessionsPerWeek= group.NoOfSessionsPerWeek;
-            newGroup.DurationOfSession= group.DurationOfSession;
-            newGroup.OfferEnded= group.OfferEnded;
-            newGroup.SubscriptionClosed= group.SubscriptionClosed;
+            newGroup.Title = group.Title;
+            newGroup.Description = group.Description;
+            newGroup.Price = group.Price;
+            newGroup.OfferPrice = group.OfferPrice;
+            newGroup.NoOfSessionsPerWeek = group.NoOfSessionsPerWeek;
+            newGroup.DurationOfSession = group.DurationOfSession;
+            newGroup.OfferEnded = group.OfferEnded;
+            newGroup.SubscriptionClosed = group.SubscriptionClosed;
             try
             {
                 _context.SaveChanges();
             }
-            catch (Exception ex) {
-                return new IntResult { Massage=ex.Message};
+            catch (Exception ex)
+            {
+                return new IntResult { Massage = ex.Message };
             }
             return new IntResult { Id = 1 };
         }

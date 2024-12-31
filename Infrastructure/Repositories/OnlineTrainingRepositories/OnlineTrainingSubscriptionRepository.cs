@@ -2,7 +2,7 @@
 using Core.DTOs.OnlineTrainingSubscriptionDTO;
 using Core.Entities.OnlineTrainingEntities;
 using Core.Enums;
-using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.OnlineTrainingRepositories
 {
     public class OnlineTrainingSubscriptionRepository : IOnlineTrainingSubscriptionRepository
     {
@@ -21,17 +21,17 @@ namespace Infrastructure.Repositories
             _context = context;
         }
         public IntResult Add(AddSubscriptionDTO subscription)
-        { 
+        {
             var training = _context.OnlineTrainings.Find(subscription.OnlineTrainingId);
-            if(training is null)
+            if (training is null)
             {
                 return new IntResult { Massage = "No Training has this Id" };
             }
             if (training.IsAvailable)
             {
-                return new IntResult { Massage="this Training is not available to subscripe"};
+                return new IntResult { Massage = "this Training is not available to subscripe" };
             }
-            var oldSubscription=_context.OnlineTrainings.Include(x=>x.OnlineTrainingSubscriptions).Where(x=>x.Id==subscription.OnlineTrainingId).
+            var oldSubscription = _context.OnlineTrainings.Include(x => x.OnlineTrainingSubscriptions).Where(x => x.Id == subscription.OnlineTrainingId).
                 FirstOrDefault().OnlineTrainingSubscriptions.FirstOrDefault(x => x.TraineeID == subscription.TraineeID && x.EndDate >= DateTime.Now);
             if (oldSubscription is not null)
             {
@@ -52,7 +52,7 @@ namespace Infrastructure.Repositories
             {
                 return new IntResult { Massage = ex.Message };
             }
-            return new IntResult { Id=newSubscription.Id};
+            return new IntResult { Id = newSubscription.Id };
         }
 
         public ShowSubscriptionDTO Get(int id)
@@ -71,7 +71,7 @@ namespace Infrastructure.Repositories
             return result;
         }
 
-        public List<ShowSubscriptionOfOnlineTrainingDTO> ShowForOnlineTrainingActivePagination(int OnlineTrainingId, int page, int pageSize )
+        public List<ShowSubscriptionOfOnlineTrainingDTO> ShowForOnlineTrainingActivePagination(int OnlineTrainingId, int page, int pageSize)
         {
             page = Math.Max(page, 1);
             if (pageSize == 0)

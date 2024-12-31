@@ -1,9 +1,9 @@
 ﻿using Core.DTOs.OnlineTrainingDTO;
-using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers.OnlineTraining
 {
     [Route("api/[controller]")]
     [ApiController]

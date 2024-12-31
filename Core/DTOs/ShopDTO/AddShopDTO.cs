@@ -1,0 +1,29 @@
+﻿using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.DTOs.ShopDTO
+{
+    public class AddShopDTO
+    {
+        [Required]
+        public string Name { get; set; }
+        public IFormFile? Image { get; set; }
+        [Required]
+        public string Address { get; set; }
+        [Required]
+        public required string City { get; set; }
+        [Required]
+        public required string Governorate { get; set; }
+        [MaxLength(15)]
+        public string? PhoneNumber { get; set; }
+        [MaxLength(500)]
+        public string? Description { get; set; }
+        [Required]
+        public string CoachID { get; set; }
+    }
+}

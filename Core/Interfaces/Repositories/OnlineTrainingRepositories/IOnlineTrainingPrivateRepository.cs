@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Interfaces.Repositories
+namespace Core.Interfaces.Repositories.OnlineTrainingRepositories
 {
     public interface IOnlineTrainingPrivateRepository
     {

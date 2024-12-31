@@ -1,9 +1,9 @@
 ﻿using Core.DTOs.OnlineTrainingSubscriptionDTO;
-using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers.OnlineTraining
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -12,7 +12,7 @@ namespace API.Controllers
         private readonly IOnlineTrainingSubscriptionRepository _subscriptionRepository;
         public OnlineTrainingSubscriptionController(IOnlineTrainingSubscriptionRepository subscriptionRepository)
         {
-            this._subscriptionRepository = subscriptionRepository;
+            _subscriptionRepository = subscriptionRepository;
         }
         [HttpGet("{id:int}")]
         public ActionResult GetById(int id)
@@ -57,7 +57,7 @@ namespace API.Controllers
         [HttpGet("CompletedForOnlineTraining/{onlineTrainingId:int}/{page:int}/{pageSize:int}")]
         public ActionResult ShowForOnlineTrainingCompletedPagination(int onlineTrainingId, int page, int pageSize)
         {
-            return Ok(_subscriptionRepository.ShowForOnlineTrainingCompletedPagination(onlineTrainingId,page,pageSize));
+            return Ok(_subscriptionRepository.ShowForOnlineTrainingCompletedPagination(onlineTrainingId, page, pageSize));
         }
         [HttpGet("ActiveForOnlineTraining/{onlineTrainingId:int}/{page:int}/{pageSize:int}")]
         public ActionResult ShowForOnlineTrainingActivePagination(int onlineTrainingId, int page, int pageSize)

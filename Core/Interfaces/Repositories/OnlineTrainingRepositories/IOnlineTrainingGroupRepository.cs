@@ -6,15 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Interfaces.Repositories
+namespace Core.Interfaces.Repositories.OnlineTrainingRepositories
 {
     public interface IOnlineTrainingGroupRepository
     {
         IntResult Add(AddOnlineTrainingGroupDTO group);
-        IntResult Update(UpdateOnlineTrainingGroupDTO group,int id);
+        IntResult Update(UpdateOnlineTrainingGroupDTO group, int id);
         IntResult Delete(int id);
         GetOnlineTrainingGroupWithDetailsDTO Get(int id);
-        List<GetOnlineTrainingGroupDTO> ShowAvailableTrainingGroupForCouchPagination(string coachID,int page,int pageSize);
+        List<GetOnlineTrainingGroupDTO> ShowAvailableTrainingGroupForCouchPagination(string coachID, int page, int pageSize);
         int NumOfPagesForAvailableTrainingGroupsOfCoach(string coachID, int pageSize);
     }
 }
