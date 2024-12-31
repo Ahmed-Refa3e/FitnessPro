@@ -1,6 +1,6 @@
 ﻿namespace Core.DTOs.GymDTO
 {
-    public class GymResponseDtoDetails
+    public class GymResponseDetailsDto
     {
         public int GymID { get; set; }
         public string? GymName { get; set; }

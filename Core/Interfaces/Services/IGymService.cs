@@ -13,5 +13,6 @@ namespace Core.Interfaces.Services
         Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO,ApplicationUser user);
         Task<bool> UpdateGymAsync(int id, UpdateGymDTO Gym);
         Task<bool> DeleteGymAsync(int id);
+        Task<Gym?> GetGymByCoachIdAsync(string CoachId);
     }
 }

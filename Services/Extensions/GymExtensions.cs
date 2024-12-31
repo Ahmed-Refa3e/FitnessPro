@@ -23,11 +23,11 @@ public static class GymExtensions
             };
     }
 
-    public static GymResponseDtoDetails ToResponseDtoDetails(this Gym gym)
+    public static GymResponseDetailsDto ToResponseDetailsDto(this Gym gym)
     {
         return gym == null
             ? throw new ArgumentNullException(nameof(gym))
-            : new GymResponseDtoDetails
+            : new GymResponseDetailsDto
             {
                 GymID = gym.GymID,
                 GymName = gym.GymName,
@@ -47,6 +47,7 @@ public static class GymExtensions
                 AverageRating = (decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0),
                 SubscriptionsCount = gym.GymSubscriptions?.Count ?? 0 // Calculate the number of subscriptions
             };
+
     }
 
     public static Gym ToEntity(this CreateGymDTO CreateGymDTO)
@@ -65,7 +66,7 @@ public static class GymExtensions
                 FortnightlyPrice = CreateGymDTO.FortnightlyPrice,
                 SessionPrice = CreateGymDTO.SessionPrice,
                 PhoneNumber = CreateGymDTO.PhoneNumber,
-                Description = CreateGymDTO.Description
+                Description = CreateGymDTO.Description,
             };
     }
 }

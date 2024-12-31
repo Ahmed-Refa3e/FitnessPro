@@ -17,7 +17,6 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<OnlineTraining>? OnlineTrainings { get; set; }
     public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
     public DbSet<GymRating>? GymRatings { get; set; }
-
     public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
     public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
     public DbSet<Post>? Posts { get; set; }
