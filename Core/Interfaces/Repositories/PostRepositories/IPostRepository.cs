@@ -10,8 +10,8 @@ namespace Core.Interfaces.Repositories.PostRepositories
 {
     public interface IPostRepository
     {
-        public IntResult Add(AddPostDTO post);
-        public IntResult Delete(int id);
+        Task<IntResult> Add(AddPostDTO post);
+        IntResult Delete(int id);
         //public ShowPostDTO Get(int id);
     }
 }

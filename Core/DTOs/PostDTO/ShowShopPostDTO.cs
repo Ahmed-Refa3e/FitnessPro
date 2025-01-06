@@ -22,6 +22,7 @@ namespace Core.DTOs.PostDTO
             this.PhotoPass = post.Shop.PictureUrl;
             this.Name = post.Shop.Name;
             this.ShopId = post.ShopId;
+            this.PictureUrls = post.PictureUrls.Select(x => x.Url).ToList();
         }
     }
 }

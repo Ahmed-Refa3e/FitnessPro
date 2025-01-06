@@ -15,7 +15,7 @@ namespace Infrastructure.Repositories.IShopRepositories
 {
     public class ShopRepository : IShopRepository
     {
-        private readonly string _storagePath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedImages");
+        private readonly string _storagePath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedImagesForShop");
         private readonly FitnessContext _context;
         public ShopRepository(FitnessContext context)
         {

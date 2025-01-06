@@ -14,6 +14,7 @@ namespace Core.DTOs.PostDTO
         public DateTime CreatedAt { get; set; }
         public string PhotoPass { get; set;}
         public string Name { get; set;}
+        public List<string>? PictureUrls { get; set;}
         public ShowPostDTO()
         {
             

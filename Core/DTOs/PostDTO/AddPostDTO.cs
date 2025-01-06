@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace Core.DTOs.PostDTO
     {
         [Required]
         public string Content { get; set; }
+        public List<IFormFile>? Images { get; set; }
     }
 }

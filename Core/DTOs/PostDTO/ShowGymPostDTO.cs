@@ -22,6 +22,7 @@ namespace Core.DTOs.PostDTO
             this.PhotoPass = post.Gym.PictureUrl;
             this.Name = post.Gym.GymName;
             this.GymId = post.GymId;
+            this.PictureUrls = post.PictureUrls.Select(x => x.Url).ToList();
         }
     }
 }

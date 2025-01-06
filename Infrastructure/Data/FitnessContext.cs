@@ -20,6 +20,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
     public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
     public DbSet<Post>? Posts { get; set; }
+    public DbSet<PictureUrl>? PictureUrls { get; set; }
     public DbSet<GymPost>? GymPosts { get; set; }
     public DbSet<ShopPost>? ShopPosts { get; set; }
     public DbSet<CoachPost>? CoachPosts { get; set; }

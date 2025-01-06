@@ -13,6 +13,7 @@ namespace Core.Entities.PostEntities
         public int Id { get; set; }
         public string Content { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<PictureUrl>? PictureUrls { get; set; }
         public Post()
         {
             
@@ -21,6 +22,7 @@ namespace Core.Entities.PostEntities
         {
             this.Content = post.Content;
             this.CreatedAt= DateTime.Now;
+            PictureUrls=new List<PictureUrl>();
         }
     }
 }

@@ -21,11 +21,11 @@ namespace API.Controllers.Posts
         }
 
         [HttpPost]
-        public IActionResult AddPost([FromBody] TPostDto postDto)
+        public async Task<IActionResult> AddPost([FromForm] TPostDto postDto)
         {
             if (ModelState.IsValid)
             {
-                var result = _repository.Add(postDto);
+                var result = await _repository.Add(postDto);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);

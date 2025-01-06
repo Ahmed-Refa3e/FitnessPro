@@ -22,6 +22,7 @@ namespace Core.DTOs.PostDTO
             this.PhotoPass = post.Coach.ProfilePictureUrl;
             this.Name = post.Coach.FirstName + " " + post.Coach.FirstName;
             this.CoachId = post.CoachId;
+            this.PictureUrls = post.PictureUrls.Select(x => x.Url).ToList();
         }
     }
 }

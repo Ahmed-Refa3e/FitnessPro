@@ -30,9 +30,9 @@ namespace Infrastructure.Repositories.PostRepositoy
 
             return post switch
             {
-                CoachPost coachPost => new ShowCoachPostDTO(_context.CoachPosts.Where(x=>x.Id==id).Include(x=>x.Coach).FirstOrDefault()),
-                GymPost gymPost => new ShowGymPostDTO(_context.GymPosts.Where(x => x.Id == id).Include(x => x.Gym).FirstOrDefault()),
-                ShopPost shopPost => new ShowShopPostDTO(_context.ShopPosts.Where(x => x.Id == id).Include(x => x.Shop).FirstOrDefault()),
+                CoachPost coachPost => new ShowCoachPostDTO(_context.CoachPosts.Where(x=>x.Id==id).Include(x => x.PictureUrls).Include(x=>x.Coach).FirstOrDefault()),
+                GymPost gymPost => new ShowGymPostDTO(_context.GymPosts.Where(x => x.Id == id).Include(x => x.PictureUrls).Include(x => x.Gym).FirstOrDefault()),
+                ShopPost shopPost => new ShowShopPostDTO(_context.ShopPosts.Where(x => x.Id == id).Include(x => x.Shop).Include(x=>x.PictureUrls).FirstOrDefault()),
                 _ => null
             };
         }

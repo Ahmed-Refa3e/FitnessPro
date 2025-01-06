@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    partial class FitnessContextModelSnapshot : ModelSnapshot
+    [Migration("20241231193606_AddImagesToPost")]
+    partial class AddImagesToPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -366,28 +369,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("OnlineTrainingSubscriptions", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Entities.PostEntities.PictureUrl", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("PictureUrls");
-                });
-
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -403,6 +384,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("PictureUrls")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostType")
                         .IsRequired()
@@ -615,20 +599,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9fa8b20b-578c-4850-83a3-da205a8d61fa",
+                            ConcurrencyStamp = "99a1ba57-aaec-4781-95b5-57b8d389970e",
                             DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "johndoe@example.com",
                             EmailConfirmed = false,
                             FirstName = "John",
                             Gender = "Male",
-                            JoinedDate = new DateTime(2025, 1, 6, 13, 40, 6, 983, DateTimeKind.Local).AddTicks(1626),
+                            JoinedDate = new DateTime(2024, 12, 31, 14, 36, 4, 435, DateTimeKind.Local).AddTicks(2708),
                             LastName = "Doe",
                             LockoutEnabled = false,
                             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "165b9ef6-07df-41ea-b566-cbffbfda344d",
+                            SecurityStamp = "cd8b8600-85b4-4e37-93ac-39180f4b76ad",
                             TwoFactorEnabled = false,
                             UserName = "johndoe",
                             AvailableForOnlineTraining = true
@@ -637,20 +621,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "13055474-db0c-40ba-bed5-2fdb7195d82e",
+                            ConcurrencyStamp = "3d49598a-aa1e-4b8d-8fc5-41586ba4b387",
                             DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "janesmith@example.com",
                             EmailConfirmed = false,
                             FirstName = "Jane",
                             Gender = "Female",
-                            JoinedDate = new DateTime(2025, 1, 6, 13, 40, 6, 983, DateTimeKind.Local).AddTicks(1725),
+                            JoinedDate = new DateTime(2024, 12, 31, 14, 36, 4, 435, DateTimeKind.Local).AddTicks(2802),
                             LastName = "Smith",
                             LockoutEnabled = false,
                             NormalizedEmail = "JANESMITH@EXAMPLE.COM",
                             NormalizedUserName = "JANESMITH",
                             PhoneNumber = "0987654321",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "74a5b6d7-b30b-4155-8c61-dc9dd12c7c1b",
+                            SecurityStamp = "093e0e64-907e-4882-a048-f48fca5c94a8",
                             TwoFactorEnabled = false,
                             UserName = "janesmith",
                             AvailableForOnlineTraining = false
@@ -836,17 +820,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Trainee");
                 });
 
-            modelBuilder.Entity("Core.Entities.PostEntities.PictureUrl", b =>
-                {
-                    b.HasOne("Core.Entities.PostEntities.Post", "Post")
-                        .WithMany("PictureUrls")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-                });
-
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Coach", "Owner")
@@ -952,11 +925,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
                 {
                     b.Navigation("OnlineTrainingSubscriptions");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
-                {
-                    b.Navigation("PictureUrls");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
