@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data.PostsConfiguration
 {
-    public class PictureUrlConfiguration : IEntityTypeConfiguration<PictureUrl>
+    public class PictureUrlConfiguration : IEntityTypeConfiguration<PostPictureUrl>
     {
-        public void Configure(EntityTypeBuilder<PictureUrl> builder)
+        public void Configure(EntityTypeBuilder<PostPictureUrl> builder)
         {
             builder.Property(x => x.Url).IsRequired();
             builder.HasOne(x=>x.Post).WithMany(x=>x.PictureUrls).HasForeignKey(x=>x.PostId).OnDelete(DeleteBehavior.Cascade);
+            builder.ToTable("PostPictureUrl");
         }
     }
 }

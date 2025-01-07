@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.PostEntities
 {
-    public class PictureUrl
+    public class PostPictureUrl
     {
         public int Id { get; set; }
         public string Url {  get; set; }

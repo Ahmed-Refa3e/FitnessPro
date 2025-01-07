@@ -62,7 +62,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                                 await image.CopyToAsync(stream);
                                 uploadedFilePaths.Add(filePath.Id);
                             }
-                            newPost.PictureUrls.Add(new PictureUrl { Url = filePath.Id });
+                            newPost.PictureUrls.Add(new PostPictureUrl { Url = filePath.Id });
                         }
                     }
                     _context.SaveChanges();
