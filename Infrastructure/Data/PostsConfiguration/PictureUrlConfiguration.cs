@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data.PostsConfiguration
 {
-    public class PictureUrlConfiguration : IEntityTypeConfiguration<PostPictureUrl>
+    public class PostPictureUrlConfiguration : IEntityTypeConfiguration<PostPictureUrl>
     {
         public void Configure(EntityTypeBuilder<PostPictureUrl> builder)
         {
