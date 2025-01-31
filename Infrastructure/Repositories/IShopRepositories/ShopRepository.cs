@@ -4,6 +4,7 @@ using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,7 +85,7 @@ namespace Infrastructure.Repositories.IShopRepositories
 
         public ShowShopDTO GetShop(int id)
         {
-            return _context.Shops.Where(x => x.Id == id).Select(x => new ShowShopDTO
+            return _context.Shops.Include(e=>e.Followers).Where(x => x.Id == id).Select(x => new ShowShopDTO
             {
                 Address = x.Address,
                 City = x.City,

@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    partial class FitnessContextModelSnapshot : ModelSnapshot
+    [Migration("20250131163851_Adduserfollow")]
+    partial class Adduserfollow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,36 +285,6 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("ApplicationUser");
 
                     b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("Core.Entities.Identity.GymFollow", b =>
-                {
-                    b.Property<int>("GymId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FollowerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("GymId", "FollowerId");
-
-                    b.HasIndex("FollowerId");
-
-                    b.ToTable("gymFollows");
-                });
-
-            modelBuilder.Entity("Core.Entities.Identity.ShopFollow", b =>
-                {
-                    b.Property<int>("ShopId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FollowerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ShopId", "FollowerId");
-
-                    b.HasIndex("FollowerId");
-
-                    b.ToTable("ShopFollows");
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.UserFollow", b =>
@@ -660,20 +633,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "98ee4d14-f7f0-4ccb-9e46-cc177501e3e8",
+                            ConcurrencyStamp = "04313ca5-4b2a-47d0-b026-6853fb7f2a9a",
                             DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "johndoe@example.com",
                             EmailConfirmed = false,
                             FirstName = "John",
                             Gender = "Male",
-                            JoinedDate = new DateTime(2025, 1, 31, 19, 50, 46, 881, DateTimeKind.Local).AddTicks(3572),
+                            JoinedDate = new DateTime(2025, 1, 31, 18, 38, 50, 841, DateTimeKind.Local).AddTicks(7396),
                             LastName = "Doe",
                             LockoutEnabled = false,
                             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "58a37aee-ce88-4164-81ee-b9759a1d2c91",
+                            SecurityStamp = "13b70b77-35d1-4319-a5fe-8c65ecccabe3",
                             TwoFactorEnabled = false,
                             UserName = "johndoe",
                             AvailableForOnlineTraining = true
@@ -682,20 +655,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6576c74a-179f-41dd-b5d6-5f4b86a05a36",
+                            ConcurrencyStamp = "9b53944a-4fff-4a75-b320-644e93d42d91",
                             DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "janesmith@example.com",
                             EmailConfirmed = false,
                             FirstName = "Jane",
                             Gender = "Female",
-                            JoinedDate = new DateTime(2025, 1, 31, 19, 50, 46, 881, DateTimeKind.Local).AddTicks(3698),
+                            JoinedDate = new DateTime(2025, 1, 31, 18, 38, 50, 841, DateTimeKind.Local).AddTicks(7520),
                             LastName = "Smith",
                             LockoutEnabled = false,
                             NormalizedEmail = "JANESMITH@EXAMPLE.COM",
                             NormalizedUserName = "JANESMITH",
                             PhoneNumber = "0987654321",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3607ac05-a524-40e2-a2af-5629898b7354",
+                            SecurityStamp = "488cf300-0006-4ecf-be0e-f1cfb0d4024c",
                             TwoFactorEnabled = false,
                             UserName = "janesmith",
                             AvailableForOnlineTraining = false
@@ -854,44 +827,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("refreshTokens");
                 });
 
-            modelBuilder.Entity("Core.Entities.Identity.GymFollow", b =>
-                {
-                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
-                        .WithMany("FollowedGyms")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
-                        .WithMany("Followers")
-                        .HasForeignKey("GymId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FollowerUser");
-
-                    b.Navigation("Gym");
-                });
-
-            modelBuilder.Entity("Core.Entities.Identity.ShopFollow", b =>
-                {
-                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
-                        .WithMany("FollowedShops")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
-                        .WithMany("Followers")
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FollowerUser");
-
-                    b.Navigation("Shop");
-                });
-
             modelBuilder.Entity("Core.Entities.Identity.UserFollow", b =>
                 {
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
@@ -1044,8 +979,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
                 {
-                    b.Navigation("Followers");
-
                     b.Navigation("GymSubscriptions");
 
                     b.Navigation("Posts");
@@ -1055,10 +988,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
                 {
-                    b.Navigation("FollowedGyms");
-
-                    b.Navigation("FollowedShops");
-
                     b.Navigation("Followers");
 
                     b.Navigation("Following");
@@ -1076,8 +1005,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
                 {
-                    b.Navigation("Followers");
-
                     b.Navigation("Posts");
                 });
 

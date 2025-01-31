@@ -25,6 +25,9 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<ShopPost>? ShopPosts { get; set; }
     public DbSet<CoachPost>? CoachPosts { get; set; }
     public DbSet<Shop> Shops { get; set; }
+    public DbSet<UserFollow> userFollows { get; set; }
+    public DbSet<GymFollow> gymFollows { get; set; }
+    public DbSet<ShopFollow> ShopFollows { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -76,6 +79,46 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .WithMany()
             .HasForeignKey(gr => gr.TraineeID)
             .OnDelete(DeleteBehavior.Cascade); // if a trainee is deleted, all associated ratings are also deleted
+
+        builder.Entity<UserFollow>().HasKey(e => new { e.FollowingId, e.FollowerId });
+
+        builder.Entity<UserFollow>()
+            .HasOne(e => e.FollowerUser)
+            .WithMany(e => e.Following)
+            .HasForeignKey(e => e.FollowerId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<UserFollow>()
+            .HasOne(e => e.FollowingUser)
+            .WithMany(e => e.Followers)
+            .HasForeignKey(e => e.FollowingId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<GymFollow>().HasKey(e => new {e.GymId, e.FollowerId});
+        builder.Entity<GymFollow>()
+            .HasOne(f => f.FollowerUser)
+            .WithMany(u => u.FollowedGyms)
+            .HasForeignKey(f => f.FollowerId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<GymFollow>()
+            .HasOne(f => f.Gym)
+            .WithMany(g => g.Followers)
+            .HasForeignKey(f => f.GymId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ShopFollow>().HasKey(e => new { e.ShopId, e.FollowerId });
+        builder.Entity<ShopFollow>()
+            .HasOne(f => f.FollowerUser)
+            .WithMany(u => u.FollowedShops)
+            .HasForeignKey(f => f.FollowerId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<ShopFollow>()
+            .HasOne(f => f.Shop)
+            .WithMany(g => g.Followers)
+            .HasForeignKey(f => f.ShopId)
+            .OnDelete(DeleteBehavior.Cascade);
         #endregion
 
         #region seeding data

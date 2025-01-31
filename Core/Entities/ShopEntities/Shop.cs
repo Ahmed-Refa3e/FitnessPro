@@ -23,6 +23,7 @@ namespace Core.Entities.ShopEntities
         public string? CoachID { get; set; }
         public Coach? Owner { get; set; }
         public List<ShopPost>? Posts { get; set; }
+        public List<ShopFollow>? Followers { get; set; }
         public Shop()
         {
             

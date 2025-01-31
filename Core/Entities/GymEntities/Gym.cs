@@ -31,5 +31,6 @@ namespace Core.Entities.GymEntities
         public ICollection<GymRating>? Ratings { get; set; }
         //Posts
         public List<GymPost>?Posts { get; set; }
+        public List<GymFollow>? Followers { get; set; }
     }
 }

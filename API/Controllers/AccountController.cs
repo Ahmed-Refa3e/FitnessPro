@@ -177,59 +177,6 @@ namespace API.Controllers
                 return NotFound(result);
         }
 
-        [HttpGet("GetAllCoaches")]
-        public async Task<IActionResult> GetAllCoaches()
-        {
-            var result = await service.GetAllCoachesAsync();
-            return Ok(result);
-        }
-
-        [HttpGet("CoachDetails/{CoachId}")]
-        public async Task<IActionResult> GetCoachDetails(string CoachId)
-        {
-            var result = await service.GetCoachDetailsAsync(CoachId);
-
-            if (result.IsSuccess)
-                return Ok(result);
-            else
-                return NotFound(result);
-        }
-
-        [HttpGet("TraineeDetails/{TraineeId}")]
-        public async Task<IActionResult> GetTraineeDetails(string TraineeId)
-        {
-            var result = await service.GetTraineeDetailsAsync(TraineeId);
-
-            if (result.IsSuccess)
-                return Ok(result);
-            else
-                return NotFound(result);
-        }
-        [Authorize]
-        [HttpPut("SetOnlineAvailability")]
-        public async Task<IActionResult> SetOnlineAvailability(bool isAvailable)
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userId == null)
-                return Unauthorized();
-
-            try
-            {
-                var result = await service.SetOnlineAvailabilityAsync(userId, isAvailable);
-
-                if (result.IsSuccess)
-                    return Ok(result);
-                else
-                    return BadRequest(result);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized();
-            }
-        }
-
-
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken(TokenRequestDTO request)
         {

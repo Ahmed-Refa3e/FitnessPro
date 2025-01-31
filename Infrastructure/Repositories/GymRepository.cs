@@ -28,6 +28,7 @@ namespace Infrastructure.Repositories
                 .Include(g => g.Owner)
                 .Include(g => g.GymSubscriptions)
                 .Include(g => g.Ratings)
+                .Include(g=>g.Followers)
                 .FirstOrDefaultAsync(g => g.GymID == id);
         }
     }

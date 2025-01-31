@@ -1,4 +1,5 @@
-﻿using Core.Entities.Identity;
+﻿using Core.Entities.GymEntities;
+using Core.Entities.Identity;
 using Core.Interfaces.Repositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -75,6 +76,60 @@ namespace Infrastructure.Repositories
         public async Task SaveAsync()
         {
             await context.SaveChangesAsync();
+        }
+
+        public async Task AddFollower(UserFollow follow)
+        {
+            await context.userFollows.AddAsync(follow);
+        }
+
+        public async Task<UserFollow> GetFollow(string userId, string FollowedUd)
+        {
+            var Follow= await context.userFollows
+                 .FirstOrDefaultAsync(e => e.FollowingId == FollowedUd && e.FollowerId == userId);
+
+                return Follow;
+        }
+
+        public void RemoveFollow(UserFollow follow)
+        {
+            context.userFollows.Remove(follow);
+        }
+
+        public async Task AddGymFollower(GymFollow follow)
+        {
+            await context.gymFollows.AddAsync(follow);
+        }
+
+        public async Task<GymFollow> GetGymFollow(string userId, int gymId)
+        {
+            var Follow = await context.gymFollows
+                 .FirstOrDefaultAsync(e => e.FollowerId == userId && e.GymId == gymId);
+
+            return Follow;
+        }
+
+        public void RemoveGymFollow(GymFollow follow)
+        {
+            context.gymFollows.Remove(follow);
+        }
+
+        public async Task AddShopFollower(ShopFollow shopFollow)
+        {
+            await context.ShopFollows.AddAsync(shopFollow);
+        }
+
+        public async Task<ShopFollow> GetShopFollow(string userId, int shopId)
+        {
+            var Follow = await context.ShopFollows
+                 .FirstOrDefaultAsync(e => e.FollowerId == userId && e.ShopId == shopId);
+
+            return Follow;
+        }
+
+        public void RemoveShopFollow(ShopFollow follow)
+        {
+            context.ShopFollows.Remove(follow);
         }
     }
 }

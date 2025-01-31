@@ -19,4 +19,9 @@ public class ApplicationUser : IdentityUser
     public required DateTime DateOfBirth { get; set; }
     public DateTime JoinedDate { get; set; } = DateTime.Now;
     public List<RefreshToken>? refreshTokens { get; set; }
+
+    public List<UserFollow>? Followers { get; set; } //people that follow this user
+    public List<UserFollow>? Following { get; set; } //people the user follow thim
+    public List<GymFollow>? FollowedGyms { get; set; }
+    public List<ShopFollow>? FollowedShops { get; set; }
 }
