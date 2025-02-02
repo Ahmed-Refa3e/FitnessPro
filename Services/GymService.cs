@@ -87,7 +87,7 @@ namespace Services
             return await repository.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateGymAsync(int id, UpdateGymDTO gymDto)
+        public async Task<bool> UpdateGymAsync(int id, UpdateGymDTO Gym)
         {
             // Check if the gym exists
             var existingGym = await repository.GetByIdAsync(id);
@@ -97,17 +97,17 @@ namespace Services
             }
 
             // Update the properties of the gym entity
-            existingGym.GymName = gymDto.GymName;
-            existingGym.Address = gymDto.Address;
-            existingGym.City = gymDto.City;
-            existingGym.Governorate = gymDto.Governorate;
-            existingGym.MonthlyPrice = gymDto.MonthlyPrice;
-            existingGym.Description = gymDto.Description;
-            existingGym.PictureUrl = gymDto.PictureUrl;
-            existingGym.PhoneNumber = gymDto.PhoneNumber;
-            existingGym.SessionPrice = gymDto.SessionPrice;
-            existingGym.FortnightlyPrice = gymDto.FortnightlyPrice;
-            existingGym.YearlyPrice = gymDto.YearlyPrice;
+            existingGym.GymName = Gym.GymName;
+            existingGym.Address = Gym.Address;
+            existingGym.City = Gym.City;
+            existingGym.Governorate = Gym.Governorate;
+            existingGym.MonthlyPrice = Gym.MonthlyPrice;
+            existingGym.Description = Gym.Description;
+            existingGym.PictureUrl = Gym.PictureUrl;
+            existingGym.PhoneNumber = Gym.PhoneNumber;
+            existingGym.SessionPrice = Gym.SessionPrice;
+            existingGym.FortnightlyPrice = Gym.FortnightlyPrice;
+            existingGym.YearlyPrice = Gym.YearlyPrice;
 
             // Update the entity in the repository
             repository.Update(existingGym);

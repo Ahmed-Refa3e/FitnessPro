@@ -45,29 +45,36 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles ="Coach")]
+        [Authorize(Roles = "Coach")]
         public async Task<IActionResult> CreateGym(CreateGymDTO CreateGymDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-                ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
-                var success = await service.CreateGymAsync(CreateGymDTO, user!);
+            ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
+
+            var success = await service.CreateGymAsync(CreateGymDTO, user!);
 
             if (success) return Created();
-                   // CreatedAtAction(nameof(GetGymById), CreateGymDTO);
+            // CreatedAtAction(nameof(GetGymById), CreateGymDTO);
 
-                return BadRequest("Problem creating Gym");
+            return BadRequest("Problem creating Gym");
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles ="Coach")]
+        [Authorize(Roles = "Coach")]
 
-        //ToDo th update method should be updated to allow only the coach who created the gym to update it
         public async Task<ActionResult> UpdateGym(int id, UpdateGymDTO Gym)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var gymToBeUpdated = service.GetGymByIdAsync(id);
+            var user = await signInManager.UserManager.GetUserAsync(User);
+            if (gymToBeUpdated.Result!.CoachID != user!.Id)
+            {
+                return Unauthorized("You are not authorized to update this gym");
+            }
 
             var success = await service.UpdateGymAsync(id, Gym);
 
@@ -77,11 +84,17 @@ namespace API.Controllers
             return NoContent();
         }
 
-        //ToDo th delete method should be updated to allow only the coach who created the gym to delete it
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Coach")]
         public async Task<ActionResult> DeleteGym(int id)
         {
+            var gymToBeDeleted = service.GetGymByIdAsync(id);
+            var user = await signInManager.UserManager.GetUserAsync(User);
+            if (gymToBeDeleted.Result!.CoachID != user!.Id)
+            {
+                return Unauthorized("You are not authorized to Delete this gym");
+            }
+
             var success = await service.DeleteGymAsync(id);
 
             if (!success) return NotFound("Gym not found");
@@ -93,6 +106,6 @@ namespace API.Controllers
         public async Task<ActionResult<IReadOnlyList<string>>> GetCities()
         {
             return Ok(await service.GetCitiesAsync());
-        } 
+        }
     }
 }
