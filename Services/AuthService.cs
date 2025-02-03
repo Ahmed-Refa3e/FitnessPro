@@ -1,6 +1,10 @@
-﻿using Core.DTOs.GymDTO;
+﻿using Azure.Core;
+using Core.DTOs.GymDTO;
+using Core.DTOs.OnlineTrainingDTO;
 using Core.DTOs.UserDTO;
+using Core.Entities.GymEntities;
 using Core.Entities.Identity;
+using Core.Entities.OnlineTrainingEntities;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
@@ -59,9 +63,13 @@ namespace Services
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
                 Bio = model.Bio,
-                ProfilePictureUrl = model.ProfilePictureUrl,
                 JoinedDate = DateTime.Now
             };
+
+            if (model.ProfilePicture != null)
+            {
+                user.ProfilePictureUrl = await ImageHelper.SaveImageAsync(model.ProfilePicture, "Trainees");
+            }
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -110,9 +118,13 @@ namespace Services
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
                 Bio = model.Bio,
-                ProfilePictureUrl = model.ProfilePictureUrl,
                 JoinedDate = DateTime.Now
             };
+
+            if (model.ProfilePicture != null)
+            {
+                coach.ProfilePictureUrl = await ImageHelper.SaveImageAsync(model.ProfilePicture, "Coaches");
+            }
 
             var result = await _userManager.CreateAsync(coach, model.Password);
             if (!result.Succeeded)
@@ -324,7 +336,7 @@ namespace Services
             {
                 await _userManager.RemoveAuthenticationTokenAsync(userModel, "ResetPassword", "ResetPasswordCode");
 
-                var token = GenerateJwtToken(userModel,true);
+                var token = GenerateJwtToken(userModel, true);
 
                 response.IsSuccess = true;
                 response.Data = token;
@@ -453,8 +465,51 @@ namespace Services
                 Gender = coach.Gender,
                 JoinedDate = coach.JoinedDate,
                 AvailableForOnlineTraining = ((Coach)coach).AvailableForOnlineTraining,
-                Gym = ((Coach)coach).Gym != null ? new GymResponseDto { } : null,
-                OnlineTrainings = ((Coach)coach).OnlineTrainings
+                Gym = coach is Coach returnCoach && returnCoach.Gym != null
+                    ? new GymResponseDto
+                    {
+                        GymID = returnCoach.Gym.GymID,
+                        GymName = returnCoach.Gym.GymName,
+                        Address = returnCoach.Gym.Address,
+                        City = returnCoach.Gym.City,
+                        PictureUrl = returnCoach.Gym.PictureUrl,
+                        Governorate = returnCoach.Gym.Governorate,
+                        SubscriptionsCount = returnCoach.Gym.GymSubscriptions?.Count ?? 0,
+                        AverageRating = (decimal)(returnCoach.Gym.Ratings != null &&
+                                                  returnCoach.Gym.Ratings.Count != 0 ?
+                                                  returnCoach.Gym.Ratings.Average(r => r.RatingValue) : 0)
+                    }
+                    : null,
+                OnlineTrainingsGroup = ((Coach)coach).OnlineTrainings != null
+                    ? ((Coach)coach).OnlineTrainings?.OfType<OnlineTrainingGroup>()
+                    .Select(training => new GetOnlineTrainingGroupDTO
+                    {
+                        Id = training.Id,
+                        Title = training.Title??"No Title",
+                        Description = training.Description ?? "No Description",
+                        Price = training.Price,
+                        OfferPrice = training.OfferPrice,
+                        NoOfSessionsPerWeek = training.NoOfSessionsPerWeek,
+                        DurationOfSession = training.DurationOfSession,
+                        OfferEnded = training.OfferEnded,
+                        SubscriptionClosed = training.SubscriptionClosed,
+                        IsAvailable = training.IsAvailable
+                    }).ToList()
+                    : null,
+                OnlineTrainingsPrivate = ((Coach)coach).OnlineTrainings != null
+                    ? ((Coach)coach).OnlineTrainings?.OfType<OnlineTrainingPrivate>()
+                    .Select(training => new GetOnlineTrainingPrivateDTO
+                    {
+                        Id = training.Id,
+                        Title = training.Title ?? "No Title",
+                        Description = training.Description ?? "No Description",
+                        Price = training.Price,
+                        OfferPrice = training.OfferPrice,
+                        OfferEnded = training.OfferEnded,
+                        SubscriptionClosed = training.SubscriptionClosed,
+                        IsAvailable = training.IsAvailable
+                    }).ToList()
+                    : null
             });
             response.IsSuccess = true;
             response.Data = coachDtos;
@@ -485,8 +540,51 @@ namespace Services
                 Gender = user.Gender,
                 JoinedDate = user.JoinedDate,
                 AvailableForOnlineTraining = ((Coach)user).AvailableForOnlineTraining,
-                Gym = ((Coach)user).Gym != null ? new GymResponseDto { } : null,
-                OnlineTrainings = ((Coach)user).OnlineTrainings
+                Gym = user is Coach returnCoach && returnCoach.Gym != null
+                    ? new GymResponseDto
+                    {
+                        GymID = returnCoach.Gym.GymID,
+                        GymName = returnCoach.Gym.GymName,
+                        Address = returnCoach.Gym.Address,
+                        City = returnCoach.Gym.City,
+                        PictureUrl = returnCoach.Gym.PictureUrl,
+                        Governorate = returnCoach.Gym.Governorate,
+                        SubscriptionsCount = returnCoach.Gym.GymSubscriptions?.Count ?? 0,
+                        AverageRating = (decimal)(returnCoach.Gym.Ratings != null &&
+                                                  returnCoach.Gym.Ratings.Count != 0 ?
+                                                  returnCoach.Gym.Ratings.Average(r => r.RatingValue) : 0)
+                    }
+                    : null,
+                OnlineTrainingsGroup = ((Coach)user).OnlineTrainings != null
+                    ? ((Coach)user).OnlineTrainings?.OfType<OnlineTrainingGroup>()
+                    .Select(training => new GetOnlineTrainingGroupDTO
+                    {
+                        Id = training.Id,
+                        Title = training.Title ?? "No Title",
+                        Description = training.Description ?? "No Description",
+                        Price = training.Price,
+                        OfferPrice = training.OfferPrice,
+                        NoOfSessionsPerWeek = training.NoOfSessionsPerWeek,
+                        DurationOfSession = training.DurationOfSession,
+                        OfferEnded = training.OfferEnded,
+                        SubscriptionClosed = training.SubscriptionClosed,
+                        IsAvailable = training.IsAvailable
+                    }).ToList()
+                    : null,
+                OnlineTrainingsPrivate = ((Coach)user).OnlineTrainings != null
+                    ? ((Coach)user).OnlineTrainings?.OfType<OnlineTrainingPrivate>()
+                    .Select(training => new GetOnlineTrainingPrivateDTO
+                    {
+                        Id = training.Id,
+                        Title = training.Title ?? "No Title",
+                        Description = training.Description ?? "No Description",
+                        Price = training.Price,
+                        OfferPrice = training.OfferPrice,
+                        OfferEnded = training.OfferEnded,
+                        SubscriptionClosed = training.SubscriptionClosed,
+                        IsAvailable = training.IsAvailable
+                    }).ToList()
+                    : null
             };
 
             response.IsSuccess = true;
@@ -551,7 +649,7 @@ namespace Services
             Generalresponse response = new Generalresponse();
 
             var user = await repository
-                .GetAsync(e => e.refreshTokens != null 
+                .GetAsync(e => e.refreshTokens != null
                                     && e.refreshTokens.Any(t => t.Token == request.RefreshToken));
             if (user == null)
                 throw new UnauthorizedAccessException("Invalid refresh token.");
@@ -634,7 +732,7 @@ namespace Services
             response.Data = "Confirmation Email send";
             return response;
         }
-        private async Task<string> GenerateJwtToken(ApplicationUser user,bool? resetPassword = false)
+        private async Task<string> GenerateJwtToken(ApplicationUser user, bool? resetPassword = false)
         {
             List<Claim> userclaims = new();
             userclaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));

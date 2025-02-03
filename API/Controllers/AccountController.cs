@@ -17,7 +17,7 @@ namespace API.Controllers
         }
 
         [HttpPost("RegisterTrainee")]
-        public async Task<ActionResult> RegisterTrainee(RegisterDTO model)
+        public async Task<ActionResult> RegisterTrainee([FromForm]RegisterDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -32,9 +32,8 @@ namespace API.Controllers
         }
 
         [HttpPost("RegisterCoach")]
-        public async Task<ActionResult> RegisterCoach(RegisterCoachDTO model)
+        public async Task<ActionResult> RegisterCoach([FromForm]RegisterCoachDTO model)
         {
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

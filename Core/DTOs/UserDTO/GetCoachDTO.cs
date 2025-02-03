@@ -1,4 +1,5 @@
 ﻿using Core.DTOs.GymDTO;
+using Core.DTOs.OnlineTrainingDTO;
 using Core.Entities.OnlineTrainingEntities;
 
 namespace Core.DTOs.UserDTO
@@ -14,6 +15,7 @@ namespace Core.DTOs.UserDTO
         public DateTime JoinedDate { get; set; }
         public GymResponseDto? Gym { get; set; }
         public bool AvailableForOnlineTraining { get; set; }
-        public IEnumerable<OnlineTraining>? OnlineTrainings { get; set; }
+        public IEnumerable<GetOnlineTrainingGroupDTO>? OnlineTrainingsGroup { get; set; }
+        public IEnumerable<GetOnlineTrainingPrivateDTO>? OnlineTrainingsPrivate { get; set; }
     }
 }
