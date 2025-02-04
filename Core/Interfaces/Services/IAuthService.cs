@@ -16,10 +16,6 @@ namespace Core.Interfaces.Services
         Task<Generalresponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);
         Task<Generalresponse> ResendConfirmationCodeAsync(ConfirmEmailDTO request);
         Task<Generalresponse> ResendResetPasswordCodeAsync(string Email);
-        Task<Generalresponse> GetAllCoachesAsync();
-        Task<Generalresponse> GetCoachDetailsAsync(string CoachId);
-        Task<Generalresponse> GetTraineeDetailsAsync(string TraineeId);
-        Task<Generalresponse> SetOnlineAvailabilityAsync(string userId, bool isAvailable);
         Task<Generalresponse> RefreshTokenAsync(TokenRequestDTO request);
         Task<Generalresponse> RevokeAllTokensAsync(string userId);
     }

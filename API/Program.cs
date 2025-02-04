@@ -65,6 +65,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
@@ -113,7 +114,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
 
 builder.Services.AddScoped<IOnlineTrainingGroupRepository, OnlineTrainingGroupRepository>();
 builder.Services.AddScoped<IOnlineTrainingPrivateRepository, OnlineTrainingPrivateRepository>();

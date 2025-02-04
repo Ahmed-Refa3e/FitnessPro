@@ -1,9 +1,12 @@
-﻿using Core.Entities.ShopEntities;
+﻿using Core.DTOs.UserDTO;
+using Core.Entities.ShopEntities;
+using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -13,18 +16,21 @@ namespace API.Controllers
     [ApiController]
     public class UserController : BaseApiController
     {
-        private readonly IAuthService service;
+        private readonly IUserService service;
         private readonly IUserRepository userRepository;
         private readonly IGymRepository gymRepository;
         private readonly FitnessContext context;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public UserController(IAuthService service,
-            IUserRepository userRepository,IGymRepository gymRepository,FitnessContext context)
+        public UserController(IUserService service,
+            IUserRepository userRepository,IGymRepository gymRepository,FitnessContext context
+                    ,UserManager<ApplicationUser> userManager)
         {
             this.service = service;
             this.userRepository = userRepository;
             this.gymRepository = gymRepository;
             this.context = context;
+            this.userManager = userManager;
         }
 
         [HttpGet("GetAllCoaches")]
@@ -55,6 +61,48 @@ namespace API.Controllers
             else
                 return NotFound(result);
         }
+
+        [Authorize]
+        [HttpPatch("UpdateProfileDetails")]
+        public async Task<IActionResult> UpdateProfileDetails(UpdateProfileDTO model)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized();
+            try
+            {
+                var result = await service.UpdateProfileDetailsAsync(model, userId);
+                if(result.IsSuccess)
+                    return Ok(result);
+                return BadRequest(result);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return BadRequest("User Not Found");
+            }
+        }
+
+        [Authorize]
+        [HttpPost("UpdateProfilePicture")]
+        public async Task<IActionResult> UpdateProfilePicture([FromForm] UpdateProfilePictureDTO pictureDTO)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized();
+
+            try
+            {
+                var result = await service.ChangeProfilePictureAsync(pictureDTO.ProfilePicture, userId);
+                if (result.IsSuccess)
+                    return Ok(result);
+                return BadRequest(result);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return BadRequest("User Not Found");
+            }
+        }
+
         [Authorize]
         [HttpPut("SetOnlineAvailability")]
         public async Task<IActionResult> SetOnlineAvailability(bool isAvailable)
