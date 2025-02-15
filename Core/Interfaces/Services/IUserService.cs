@@ -16,6 +16,7 @@ namespace Core.Interfaces.Services
         Task<Generalresponse> GetTraineeDetailsAsync(string TraineeId);
         Task<Generalresponse> SetOnlineAvailabilityAsync(string userId, bool isAvailable);
         Task<Generalresponse> ChangeProfilePictureAsync(IFormFile profilePicture,string userId);
+        Task<Generalresponse> DeleteProfilePictureAsync(ApplicationUser user);
         Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO,string userId);
     }
 }

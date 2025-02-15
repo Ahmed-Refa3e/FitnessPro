@@ -102,6 +102,18 @@ namespace API.Controllers
                 return BadRequest("User Not Found");
             }
         }
+        [Authorize]
+        [HttpPost("DeleteProfilePicture")]
+        public async Task<IActionResult> DeleteProfilePicture()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+            var result = await service.DeleteProfilePictureAsync(user);
+            if (result.IsSuccess)
+                return Ok(result);
+            return NotFound(result);
+        }
 
         [Authorize]
         [HttpPut("SetOnlineAvailability")]

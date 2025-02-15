@@ -292,6 +292,28 @@ namespace Services
             return generalresponse;
         }
 
+        public async Task<Generalresponse> DeleteProfilePictureAsync(ApplicationUser user)
+        {
+            Generalresponse generalresponse = new Generalresponse();
+            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+            {
+                var oldFilePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName,
+                                               "Infrastructure", user.ProfilePictureUrl.TrimStart('/'));
+
+                if (System.IO.File.Exists(oldFilePath))
+                {
+                    System.IO.File.Delete(oldFilePath);
+                }
+                generalresponse.IsSuccess = true;
+                generalresponse.Data = "Your Photo has been removed";
+                return generalresponse;
+            }
+            generalresponse.IsSuccess= false;
+            generalresponse.Data = "There is no Photo";
+            return generalresponse;
+        }
+        
+
 
     }
 }

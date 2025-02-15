@@ -66,11 +66,6 @@ namespace Services
                 JoinedDate = DateTime.Now
             };
 
-            if (model.ProfilePicture != null)
-            {
-                user.ProfilePictureUrl = await ImageHelper.SaveImageAsync(model.ProfilePicture, "ProfilePictures");
-            }
-
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
@@ -120,11 +115,6 @@ namespace Services
                 Bio = model.Bio,
                 JoinedDate = DateTime.Now
             };
-
-            if (model.ProfilePicture != null)
-            {
-                coach.ProfilePictureUrl = await ImageHelper.SaveImageAsync(model.ProfilePicture, "ProfilePictures");
-            }
 
             var result = await _userManager.CreateAsync(coach, model.Password);
             if (!result.Succeeded)

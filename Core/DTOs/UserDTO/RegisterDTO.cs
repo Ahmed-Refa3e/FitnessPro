@@ -27,7 +27,6 @@ namespace Core.DTOs.UserDTO
         public DateTime DateOfBirth { get; set; }
 
         public string? Bio { get; set; }
-        public IFormFile? ProfilePicture { get; set; }
 
     }
 }
