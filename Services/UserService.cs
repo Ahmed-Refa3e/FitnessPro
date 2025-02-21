@@ -1,4 +1,5 @@
-﻿using Core.DTOs.GymDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.GymDTO;
 using Core.DTOs.OnlineTrainingDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;

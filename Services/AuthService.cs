@@ -1,10 +1,7 @@
-﻿using Azure.Core;
+﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.GymDTO;
-using Core.DTOs.OnlineTrainingDTO;
 using Core.DTOs.UserDTO;
-using Core.Entities.GymEntities;
 using Core.Entities.Identity;
-using Core.Entities.OnlineTrainingEntities;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
@@ -63,6 +60,7 @@ namespace Services
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
                 Bio = model.Bio,
+                ProfilePictureUrl = model.ProfilePictureUrl,
                 JoinedDate = DateTime.Now
             };
 
@@ -113,6 +111,7 @@ namespace Services
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
                 Bio = model.Bio,
+                ProfilePictureUrl = model.ProfilePictureUrl,
                 JoinedDate = DateTime.Now
             };
 
@@ -326,7 +325,7 @@ namespace Services
             {
                 await _userManager.RemoveAuthenticationTokenAsync(userModel, "ResetPassword", "ResetPasswordCode");
 
-                var token = GenerateJwtToken(userModel, true);
+                var token = GenerateJwtToken(userModel,true);
 
                 response.IsSuccess = true;
                 response.Data = token;
@@ -437,12 +436,123 @@ namespace Services
             return response;
         }
 
+        public async Task<Generalresponse> GetAllCoachesAsync()
+        {
+            Generalresponse response = new Generalresponse();
+            var coaches = await repository.GetAllAsync(
+                    expression: user => user is Coach,
+                    includeProperties: "Gym,OnlineTrainings"
+             );
+
+            var coachDtos = coaches.Select(coach => new GetCoachDTO
+            {
+                Id = coach.Id,
+                FirstName = coach.FirstName,
+                LastName = coach.LastName,
+                ProfilePictureUrl = coach.ProfilePictureUrl,
+                Bio = coach.Bio,
+                Gender = coach.Gender,
+                JoinedDate = coach.JoinedDate,
+                AvailableForOnlineTraining = ((Coach)coach).AvailableForOnlineTraining,
+                Gym = ((Coach)coach).Gym != null ? new GymResponseDto { } : null,
+                OnlineTrainings = ((Coach)coach).OnlineTrainings
+            });
+            response.IsSuccess = true;
+            response.Data = coachDtos;
+            return response;
+        }
+
+        public async Task<Generalresponse> GetCoachDetailsAsync(string CoachId)
+        {
+            Generalresponse response = new Generalresponse();
+
+            var user = await repository.GetAsync(e => e.Id == CoachId
+                        , includeProperties: "Gym"
+           );
+            if (user == null)
+            {
+                response.IsSuccess = true;
+                response.Data = "User Not Found.";
+                return response;
+            }
+
+            var UserDto = new GetCoachDTO
+            {
+                Id = CoachId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Bio = user.Bio,
+                Gender = user.Gender,
+                JoinedDate = user.JoinedDate,
+                AvailableForOnlineTraining = ((Coach)user).AvailableForOnlineTraining,
+                Gym = ((Coach)user).Gym != null ? new GymResponseDto { } : null,
+                OnlineTrainings = ((Coach)user).OnlineTrainings
+            };
+
+            response.IsSuccess = true;
+            response.Data = UserDto;
+            return response;
+        }
+
+        public async Task<Generalresponse> GetTraineeDetailsAsync(string TraineeId)
+        {
+            Generalresponse response = new Generalresponse();
+
+            var user = await repository.GetAsync(e => e.Id == TraineeId);
+            if (user == null)
+            {
+                response.IsSuccess = true;
+                response.Data = "User Not Found.";
+                return response;
+            }
+
+            var UserDto = new GetTraineeDTO
+            {
+                Id = TraineeId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Bio = user.Bio,
+                Gender = user.Gender,
+                JoinedDate = user.JoinedDate
+            };
+
+            response.IsSuccess = true;
+            response.Data = UserDto;
+            return response;
+        }
+
+        public async Task<Generalresponse> SetOnlineAvailabilityAsync(string userId, bool isAvailable)
+        {
+            Generalresponse response = new Generalresponse();
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new UnauthorizedAccessException();
+
+            if (user is Coach coach)
+            {
+                coach.AvailableForOnlineTraining = isAvailable;
+
+                await _userManager.UpdateAsync(coach);
+
+                response.IsSuccess = true;
+                response.Data = $"Availability status updated to: {isAvailable}";
+                return response;
+            }
+
+            response.IsSuccess = false;
+            response.Data = "Only coaches can set online availability.";
+            return response;
+        }
+
         public async Task<Generalresponse> RefreshTokenAsync(TokenRequestDTO request)
         {
             Generalresponse response = new Generalresponse();
 
             var user = await repository
-                .GetAsync(e => e.refreshTokens != null
+                .GetAsync(e => e.refreshTokens != null 
                                     && e.refreshTokens.Any(t => t.Token == request.RefreshToken));
             if (user == null)
                 throw new UnauthorizedAccessException("Invalid refresh token.");
@@ -525,7 +635,7 @@ namespace Services
             response.Data = "Confirmation Email send";
             return response;
         }
-        private async Task<string> GenerateJwtToken(ApplicationUser user, bool? resetPassword = false)
+        private async Task<string> GenerateJwtToken(ApplicationUser user,bool? resetPassword = false)
         {
             List<Claim> userclaims = new();
             userclaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));

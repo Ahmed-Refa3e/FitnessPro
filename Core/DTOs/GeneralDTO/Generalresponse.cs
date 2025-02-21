@@ -1,4 +1,4 @@
-﻿namespace Core.Entities.Identity
+﻿namespace Core.DTOs.GeneralDTO
 {
     public class Generalresponse
     {

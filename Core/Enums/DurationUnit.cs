@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Core.Enums
+﻿namespace Core.Enums
 {
-    public enum DurationUnit:byte
+    public enum TrainingType
     {
-        Week,
-        Month,
-        QuarterYear,
-        HalfYear,
-        Year
+        Online,
+        Private
     }
 }

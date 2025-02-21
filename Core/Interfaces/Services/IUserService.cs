@@ -1,4 +1,5 @@
-﻿using Core.DTOs.UserDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
 using Microsoft.AspNetCore.Http;
 using System;

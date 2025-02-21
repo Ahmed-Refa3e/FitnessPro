@@ -14,13 +14,13 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<ApplicationUser> applicationUsers { get; set; }
     public DbSet<Gym>? Gyms { get; set; }
     public DbSet<GymSubscription>? GymSubscriptions { get; set; }
+    public DbSet<GymRating>? GymRatings { get; set; }
     public DbSet<OnlineTraining>? OnlineTrainings { get; set; }
     public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
-    public DbSet<GymRating>? GymRatings { get; set; }
     public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
     public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
     public DbSet<Post>? Posts { get; set; }
-    public DbSet<PostPictureUrl>? PictureUrls { get; set; }
+    public DbSet<PostPictureUrl>? PictureUrls { get; set; } 
     public DbSet<GymPost>? GymPosts { get; set; }
     public DbSet<ShopPost>? ShopPosts { get; set; }
     public DbSet<CoachPost>? CoachPosts { get; set; }

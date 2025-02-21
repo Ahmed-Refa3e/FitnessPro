@@ -11,18 +11,8 @@ namespace Core.Entities.PostEntities
     public class Post
     {
         public int Id { get; set; }
-        public string Content { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public required string Content { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public List<PostPictureUrl>? PictureUrls { get; set; }
-        public Post()
-        {
-            
-        }
-        public Post(AddPostDTO post)
-        {
-            this.Content = post.Content;
-            this.CreatedAt= DateTime.Now;
-            PictureUrls=new List<PostPictureUrl>();
-        }
     }
 }
