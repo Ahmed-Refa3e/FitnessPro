@@ -1,4 +1,5 @@
-﻿using Core.Entities.GymEntities;
+﻿using Core.Entities.FollowEntities;
+using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
 using Core.Entities.PostEntities;

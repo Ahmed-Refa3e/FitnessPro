@@ -1,4 +1,5 @@
-﻿using Core.Entities.GymEntities;
+﻿using Core.Entities.FollowEntities;
+using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Interfaces.Repositories;
 using Infrastructure.Data;

@@ -1,4 +1,5 @@
-﻿using Core.DTOs.GymDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.GymDTO;
 using Core.DTOs.OnlineTrainingDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
@@ -107,7 +108,7 @@ namespace Services
            );
             if (user == null)
             {
-                response.IsSuccess = true;
+                response.IsSuccess = false;
                 response.Data = "User Not Found.";
                 return response;
             }

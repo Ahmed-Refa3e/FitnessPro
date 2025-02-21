@@ -1,4 +1,5 @@
-﻿using Core.Entities.Identity;
+﻿using Core.Entities.FollowEntities;
+using Core.Entities.Identity;
 using System.Linq.Expressions;
 
 namespace Core.Interfaces.Repositories

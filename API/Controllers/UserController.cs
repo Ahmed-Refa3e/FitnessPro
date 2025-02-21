@@ -1,5 +1,5 @@
 ﻿using Core.DTOs.UserDTO;
-using Core.Entities.ShopEntities;
+using Core.Entities.FollowEntities;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Repositories.ShopRepositories;

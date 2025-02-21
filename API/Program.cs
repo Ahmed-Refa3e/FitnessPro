@@ -1,4 +1,4 @@
-using Core.Helpers;
+ï»¿using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Repositories.PostRepositories;
 using Core.Interfaces.Services;
@@ -11,6 +11,7 @@ using Infrastructure.Repositories.OnlineTrainingRepositories;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Infrastructure.Repositories.IShopRepositories;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,14 +22,14 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(swagger =>
 {
-    //This is to generate the Default UI of Swagger Documentation    
+    //ThisÂ isÂ toÂ generateÂ theÂ DefaultÂ UIÂ ofÂ SwaggerÂ DocumentationÂ Â Â Â 
     swagger.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "ASP.NET 8 Web API",
+        Title = "ASP.NETÂ 8Â WebÂ API",
         Description = "Store"
     });
-    // To Enable authorization using Swagger (JWT)    
+    //Â ToÂ EnableÂ authorizationÂ usingÂ SwaggerÂ (JWT)Â Â Â Â 
     swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
         Name = "Authorization",
@@ -36,7 +37,7 @@ builder.Services.AddSwaggerGen(swagger =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"",
+        Description = "EnterÂ 'Bearer'Â [space]Â andÂ thenÂ yourÂ validÂ tokenÂ inÂ theÂ textÂ inputÂ below.\r\n\r\nExample:Â \"BearerÂ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"",
     });
     swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
@@ -70,10 +71,12 @@ builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostRepresentationRepository, PostRepresentationRepository>();
-builder.Services.AddScoped<IShopRepository,ShopRepository>();
+builder.Services.AddScoped<IShopRepository, ShopRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+//builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
 var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
+//var googleSettings = builder.Configuration.GetSection("Authentication:Google").Get<GoogleSettings>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -110,6 +113,11 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+//}).AddGoogle(options =>
+//{
+//    options.ClientId = googleSettings?.ClientID ?? string.Empty;
+//    options.ClientSecret = googleSettings?.ClientSecret ?? string.Empty;
+//});
 
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymService, GymService>();

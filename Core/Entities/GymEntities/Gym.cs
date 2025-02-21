@@ -1,4 +1,5 @@
-﻿using Core.Entities.Identity;
+﻿using Core.Entities.FollowEntities;
+using Core.Entities.Identity;
 using Core.Entities.PostEntities;
 using System.ComponentModel.DataAnnotations;
 

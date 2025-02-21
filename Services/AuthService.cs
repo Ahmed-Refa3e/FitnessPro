@@ -1,15 +1,11 @@
-﻿using Azure.Core;
-using Core.DTOs.GymDTO;
-using Core.DTOs.OnlineTrainingDTO;
+﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.UserDTO;
-using Core.Entities.GymEntities;
 using Core.Entities.Identity;
-using Core.Entities.OnlineTrainingEntities;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -187,6 +183,71 @@ namespace Services
             response.Data = "Invalid email or password";
             return response;
         }
+
+        public async Task<Generalresponse> GoogleLoginAsync(string IdToken)
+        {
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(IdToken);
+                if (payload == null)
+                    return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
+
+                var user = await _userManager.FindByEmailAsync(payload.Email);
+
+                if (user == null)
+                {
+                    user = new Trainee()
+                    {
+                        Email = payload.Email,
+                        FirstName = payload.GivenName,
+                        LastName = payload.FamilyName,
+                        UserName = payload.Email,
+                        EmailConfirmed = true,
+                        JoinedDate = DateTime.UtcNow,
+                    };
+
+                    var result = await _userManager.CreateAsync(user);
+                    if (!result.Succeeded)
+                    {
+                        return new Generalresponse
+                        {
+                            IsSuccess = false,
+                            Data = result.Errors.Select(e => e.Description).ToList()
+                        };
+                    }
+                    var roleExists = await _roleManager.RoleExistsAsync("Trainee");
+                    if (roleExists)
+                    {
+                        await _userManager.AddToRoleAsync(user, "Trainee");
+                    }
+                }
+                var token = await GenerateJwtToken(user);
+                var refreshToken = GenerateRefreshToken();
+                user.refreshTokens?.Add(new RefreshToken()
+                {
+                    Token = refreshToken,
+                    Expires = DateTime.UtcNow.AddDays(3),
+                    Created = DateTime.UtcNow
+                });
+
+                await repository.SaveAsync();
+                return new Generalresponse
+                {
+                    IsSuccess = true,
+                    Data = new
+                    {
+                        token,
+                        refreshToken,
+                        exipiration = DateTime.Now.AddHours(1)
+                    }
+                };
+
+            }
+            catch
+            {
+                return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
+            }
+        }
         public async Task<Generalresponse> LogOutAsync(string userId)
         {
             Generalresponse response = new Generalresponse();
@@ -287,7 +348,14 @@ namespace Services
             Generalresponse response = new Generalresponse();
 
             var user = await _userManager.FindByEmailAsync(email);
-            if (user != null)
+            if (user == null)
+            {
+                response.IsSuccess = false;
+                response.Data = "User not found.";
+                return response;
+            }
+
+            try
             {
                 var verificationCode = emailService.GenerateVerificatonCode();
 
@@ -298,13 +366,16 @@ namespace Services
                 $"Your verification code is: <b>{verificationCode}</b>");
 
                 response.IsSuccess = true;
-                response.Data = "Verification code sent for password reset";
+                response.Data = "If this email is registered, a verification code has been sent.";
                 return response;
-
             }
-            response.IsSuccess = false;
-            response.Data = "User not found.";
-            return response;
+            catch (Exception)
+            {
+                response.IsSuccess = false;
+                response.Data = "An error occurred while sending the verification code. Please try again later.";
+                return response;
+            }
+
         }
 
         public async Task<Generalresponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO)
@@ -326,7 +397,7 @@ namespace Services
             {
                 await _userManager.RemoveAuthenticationTokenAsync(userModel, "ResetPassword", "ResetPasswordCode");
 
-                var token = GenerateJwtToken(userModel, true);
+                var token = await GenerateJwtToken(userModel, true);
 
                 response.IsSuccess = true;
                 response.Data = token;
@@ -470,7 +541,7 @@ namespace Services
                 RefreshToken = newRefreshToken,
             };
 
-            response.IsSuccess = false;
+            response.IsSuccess = true;
             response.Data = tokenRequest;
             return response;
         }
@@ -495,7 +566,7 @@ namespace Services
 
             await repository.SaveAsync();
 
-            response.IsSuccess = false;
+            response.IsSuccess = true;
             response.Data = "All tokens have been revoked";
             return response;
         }

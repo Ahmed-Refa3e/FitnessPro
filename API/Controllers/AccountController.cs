@@ -1,8 +1,10 @@
-﻿using Core.DTOs.UserDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.UserDTO;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+
 
 namespace API.Controllers
 {
@@ -23,9 +25,15 @@ namespace API.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             var result = await service.RegisterTraineeAsync(model);
+
             if (result.IsSuccess)
-                return Ok(result);
+                return Created("", result);
+            else if (result.Data is string message && message.Contains("already taken"))
+                return Conflict(result);
+            else if (result.Data is string roleMessage && roleMessage.Contains("does not exist"))
+                return StatusCode(500, result);
             else
                 return BadRequest(result);
 
@@ -38,9 +46,15 @@ namespace API.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             var result = await service.RegisterCoachAsync(model);
+
             if (result.IsSuccess)
-                return Ok(result);
+                return Created("", result);
+            else if (result.Data is string message && message.Contains("already taken"))
+                return Conflict(result);
+            else if (result.Data is string roleMessage && roleMessage.Contains("does not exist"))
+                return StatusCode(500, result);
             else
                 return BadRequest(result);
         }
@@ -49,15 +63,30 @@ namespace API.Controllers
         public async Task<ActionResult> Login(LoginDTO loginDTO)
         {
             if (!ModelState.IsValid)
-            {
+
                 return BadRequest(ModelState);
-            }
+
             var result = await service.LoginAsync(loginDTO);
+
             if (result.IsSuccess)
                 return Ok(result);
+            else if (result.Data is string message && message.Contains("confirm your account"))
+                return Forbid(result.Data);
+            else if (result.Data is string newMessage && newMessage.Contains("Invalid email or password"))
+                return Unauthorized(result);
             else
                 return BadRequest(result);
+
         }
+
+        //[HttpPost("GoogleLogin")]
+        //public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDTO authDTO)
+        //{
+        //    var result = await service.GoogleLoginAsync(authDTO.IdToken);
+        //    if (result.IsSuccess)
+        //        return Ok(result);
+        //    return BadRequest(result);
+        //}
 
         [HttpGet("LogOut")]
         public async Task<ActionResult> LogOut()
@@ -65,7 +94,7 @@ namespace API.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null)
-                return Unauthorized();
+                return Unauthorized("User is not authenticated");
 
             try
             {
@@ -74,7 +103,7 @@ namespace API.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                return Unauthorized();
+                return Unauthorized("Invalid user or session expired");
             }
         }
 
@@ -85,8 +114,12 @@ namespace API.Controllers
 
             if (result.IsSuccess)
                 return Ok(result);
-            else
+            else if (result.Data is string message && message.Contains("User not found"))
+                return NotFound(result);
+            else if (result.Data is string newMessage && newMessage.Contains("Invalid verification code"))
                 return BadRequest(result);
+            else
+                return StatusCode(500, result);
         }
 
         [HttpPost("ChangePassword")]
@@ -101,8 +134,12 @@ namespace API.Controllers
 
             if (result.IsSuccess)
                 return Ok(result);
-            else
+            else if (result.Data is string message && message.Contains("User not found"))
+                return NotFound(result);
+            else if (result.Data is string newMessage && newMessage.Contains("The old password is incorrect"))
                 return BadRequest(result);
+            else
+                return StatusCode(500, result);
         }
 
         [HttpPost("ForgetPassword")]
@@ -112,10 +149,12 @@ namespace API.Controllers
 
             if (result.IsSuccess)
                 return Ok(result);
-            else
+            else if (result.Data is string message && message.Contains("User not found"))
                 return NotFound(result);
-
+            else
+                return StatusCode(500, result);
         }
+
         [HttpPost("VerifyResetCode")]
         public async Task<IActionResult> VerifyResetCode(VerifyCodeDTO codeDTO)
         {
@@ -123,8 +162,10 @@ namespace API.Controllers
 
             if (result.IsSuccess)
                 return Ok(result);
+            else if (result.Data is string message && message.Contains("User not found"))
+                return NotFound(result);
             else
-                return BadRequest(result);
+                return Unauthorized(result);
         }
 
         [Authorize]
@@ -148,6 +189,10 @@ namespace API.Controllers
 
             if (result.IsSuccess)
                 return Ok(result);
+            else if (result.Data == "User not found.")
+                return NotFound(result);
+            else if (result.Data == "Failed to reset password.")
+                return Conflict(result);
             else
                 return BadRequest(result);
 
@@ -160,8 +205,14 @@ namespace API.Controllers
 
             if (result.IsSuccess)
                 return Ok(result);
-            else
+            if (result.Data == "User not found.")
+                return NotFound(result);
+            if (result.Data == "User email is not set.")
+                return Conflict(result);
+            if (result.Data == "Email already confirmed.")
                 return BadRequest(result);
+
+            return BadRequest(result);
         }
 
         [HttpPost("resend-reset-password-code")]
@@ -172,8 +223,11 @@ namespace API.Controllers
 
             if (result.IsSuccess)
                 return Ok(result);
-            else
+            if (result.Data == "User not found.")
                 return NotFound(result);
+            if (result.Data == "User email is not set.")
+                return Conflict(result);
+            return BadRequest(result);
         }
 
         [HttpPost("RefreshToken")]
@@ -186,17 +240,26 @@ namespace API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(ex.Message);
+                return Unauthorized(new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = ex.Message
+                });
             }
         }
+
         [Authorize]
         [HttpPost("RevokeAllTokens")]
         public async Task<ActionResult> RevokeAllTokens()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userId == null)
-                return Unauthorized();
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = "User ID is missing."
+                });
 
             try
             {
@@ -205,7 +268,11 @@ namespace API.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                return Unauthorized();
+                return Unauthorized(new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = "User not found or not allowed."
+                });
             }
         }
     }
