@@ -1,7 +1,6 @@
 ﻿using Core.DTOs.PostDTO;
 using Core.Entities.PostEntities;
 using Core.Interfaces.Repositories.PostRepositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Posts
@@ -10,7 +9,7 @@ namespace API.Controllers.Posts
     [ApiController]
     public class CoachPostController : PostControllerBase<AddCoachPostDTO, CoachPost>
     {
-        public CoachPostController(IPostRepository repository,IPostRepresentationRepository representationRepository) : base(repository, representationRepository)
+        public CoachPostController(IPostRepository repository, IPostRepresentationRepository representationRepository) : base(repository, representationRepository)
         {
         }
     }

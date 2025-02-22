@@ -1,7 +1,6 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.UserDTO;
 namespace Core.Interfaces.Services
-
 {
     public interface IAuthService
     {
