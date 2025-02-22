@@ -1,5 +1,5 @@
-﻿using Core.DTOs.GeneralDTO;
-using Core.DTOs.UserDTO;
+﻿using Core.DTOs.AuthDTO;
+using Core.DTOs.GeneralDTO;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -22,19 +22,19 @@ namespace Core.Entities.OnlineTrainingEntities
             this.OnlineTrainingId = subscription.OnlineTrainingId;
             this.TraineeID = subscription.TraineeID;
             this.StartDate = DateTime.Now;
-            this.EndDate = (training.DurationUnit == DurationUnit.Week) ? StartDate.AddDays(7) :
-                (training.DurationUnit == DurationUnit.Month) ? StartDate.AddMonths(1) :
-                (training.DurationUnit == DurationUnit.QuarterYear) ? StartDate.AddMonths(3) :
-                (training.DurationUnit == DurationUnit.HalfYear) ? StartDate.AddMonths(6) :
+            //this.EndDate = (training.DurationUnit == DurationUnit.Week) ? StartDate.AddDays(7) :
+            //    (training.DurationUnit == DurationUnit.Month) ? StartDate.AddMonths(1) :
+            //    (training.DurationUnit == DurationUnit.QuarterYear) ? StartDate.AddMonths(3) :
+            //    (training.DurationUnit == DurationUnit.HalfYear) ? StartDate.AddMonths(6) :
                 StartDate.AddYears(1);
-            if (training.OfferEnded is not null && training.OfferEnded >= DateTime.Now)
-            {
-                this.Cost = training.OfferPrice ?? training.Price;
-            }
-            else
-            {
-                this.Cost = training.Price;
-            }
+            //if (training.OfferEnded is not null && training.OfferEnded >= DateTime.Now)
+            //{
+            //    //this.Cost = training.OfferPrice ?? training.Price;
+            //}
+            //else
+            //{
+            //    //this.Cost = training.Price;
+            //}
         }
     }
 }

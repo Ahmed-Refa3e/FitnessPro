@@ -1,21 +1,14 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.GymDTO;
-using Core.DTOs.OnlineTrainingDTO;
 using Core.DTOs.UserDTO;
+using Core.Entities.GymEntities;
 using Core.Entities.Identity;
-using Core.Entities.OnlineTrainingEntities;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
@@ -23,6 +16,7 @@ namespace Services
     {
         private readonly IUserRepository repository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private const int MaxPageSize = 50;
 
         public UserService(IUserRepository repository, UserManager<ApplicationUser> _userManager)
         {
@@ -30,73 +24,70 @@ namespace Services
             this._userManager = _userManager;
         }
 
-        public async Task<Generalresponse> GetAllCoachesAsync()
+        public async Task<PagedResult<CoachResponseDTO>> GetAllCoachesAsync(GetCoachesDTO getCoachesDTO)
         {
-            Generalresponse response = new Generalresponse();
-            var coaches = await repository.GetAllAsync(
-                    expression: user => user is Coach,
-                    includeProperties: "Gym,OnlineTrainings"
-             );
+            var query = repository.GetAll(user => user is Coach)
+                                        .Select(c => (Coach)c); ;
 
-            var coachDtos = coaches.Select(coach => new GetCoachDTO
+            if (getCoachesDTO.MinRating.HasValue)
             {
-                Id = coach.Id,
-                FirstName = coach.FirstName,
-                LastName = coach.LastName,
-                ProfilePictureUrl = coach.ProfilePictureUrl,
-                Bio = coach.Bio,
-                Gender = coach.Gender,
-                JoinedDate = coach.JoinedDate,
-                AvailableForOnlineTraining = ((Coach)coach).AvailableForOnlineTraining,
-                Gym = coach is Coach returnCoach && returnCoach.Gym != null
-                    ? new GymResponseDto
-                    {
-                        GymID = returnCoach.Gym.GymID,
-                        GymName = returnCoach.Gym.GymName,
-                        Address = returnCoach.Gym.Address,
-                        City = returnCoach.Gym.City,
-                        PictureUrl = returnCoach.Gym.PictureUrl,
-                        Governorate = returnCoach.Gym.Governorate,
-                        SubscriptionsCount = returnCoach.Gym.GymSubscriptions?.Count ?? 0,
-                        AverageRating = (decimal)(returnCoach.Gym.Ratings != null &&
-                                                  returnCoach.Gym.Ratings.Count != 0 ?
-                                                  returnCoach.Gym.Ratings.Average(r => r.RatingValue) : 0)
-                    }
-                    : null,
-                OnlineTrainingsGroup = ((Coach)coach).OnlineTrainings != null
-                    ? ((Coach)coach).OnlineTrainings?.OfType<OnlineTrainingGroup>()
-                    .Select(training => new GetOnlineTrainingGroupDTO
-                    {
-                        Id = training.Id,
-                        Title = training.Title ?? "No Title",
-                        Description = training.Description ?? "No Description",
-                        Price = training.Price,
-                        OfferPrice = training.OfferPrice,
-                        NoOfSessionsPerWeek = training.NoOfSessionsPerWeek,
-                        DurationOfSession = training.DurationOfSession,
-                        OfferEnded = training.OfferEnded,
-                        SubscriptionClosed = training.SubscriptionClosed,
-                        IsAvailable = training.IsAvailable
-                    }).ToList()
-                    : null,
-                OnlineTrainingsPrivate = ((Coach)coach).OnlineTrainings != null
-                    ? ((Coach)coach).OnlineTrainings?.OfType<OnlineTrainingPrivate>()
-                    .Select(training => new GetOnlineTrainingPrivateDTO
-                    {
-                        Id = training.Id,
-                        Title = training.Title ?? "No Title",
-                        Description = training.Description ?? "No Description",
-                        Price = training.Price,
-                        OfferPrice = training.OfferPrice,
-                        OfferEnded = training.OfferEnded,
-                        SubscriptionClosed = training.SubscriptionClosed,
-                        IsAvailable = training.IsAvailable
-                    }).ToList()
-                    : null
-            });
-            response.IsSuccess = true;
-            response.Data = coachDtos;
-            return response;
+                query = query.Where(e => e.Ratings != null && e.Ratings.Any()
+                        && e.Ratings.Average(e => e.Rating) >= getCoachesDTO.MinRating.Value);
+            }
+
+            if (getCoachesDTO.MaxRating.HasValue)
+            {
+                query = query.Where(e => e.Ratings != null && e.Ratings.Any()
+                         && e.Ratings.Average(e => e.Rating) <= getCoachesDTO.MaxRating.Value);
+            }
+
+            if (string.IsNullOrWhiteSpace(getCoachesDTO.SortBy))
+            {
+                getCoachesDTO.SortBy = "joineddate";
+            }
+
+            switch (getCoachesDTO.SortBy.ToLower())
+            {
+                case "firstname":
+                    query = query.OrderBy(e => e.FirstName);
+                    break;
+                case "rating":
+                    query = query.OrderByDescending(e => e.Ratings != null && e.Ratings.Any()
+                                ? e.Ratings.Average(k => k.Rating)
+                                : 0);
+                    break;
+                case "joineddate":
+                default:
+                    query = query.OrderByDescending(c => c.JoinedDate);
+                    break;
+            }
+
+            var pageSize = getCoachesDTO.PageSize > MaxPageSize ? MaxPageSize : getCoachesDTO.PageSize;
+            var totalCount = await query.CountAsync();
+
+            var PaginatedCoaches = await query
+                                            .Skip((getCoachesDTO.PageNumber - 1) * getCoachesDTO.PageSize)
+                                            .Take(getCoachesDTO.PageSize).ToListAsync();
+
+            var Coaches = new List<CoachResponseDTO>();
+            foreach(var coach in PaginatedCoaches)
+            {
+                var newcoach = new CoachResponseDTO() 
+                {
+                    Id = coach.Id,
+                    FullName = $"{coach.FirstName} {coach.LastName}",
+                    Bio = coach.Bio,
+                    Gender = coach.Gender,
+                    JoinedDate = coach.JoinedDate,
+                    ProfilePictureUrl = coach.ProfilePictureUrl,
+                    Rating = coach.Ratings != null && coach.Ratings.Any()
+                             ? coach.Ratings.Average(r => r.Rating)
+                             : 0
+                };
+                Coaches.Add(newcoach);
+            }
+
+            return new PagedResult<CoachResponseDTO>(Coaches, totalCount, getCoachesDTO.PageNumber, pageSize);
         }
 
         public async Task<Generalresponse> GetCoachDetailsAsync(string CoachId)
@@ -137,36 +128,6 @@ namespace Services
                                                   returnCoach.Gym.Ratings.Count != 0 ?
                                                   returnCoach.Gym.Ratings.Average(r => r.RatingValue) : 0)
                     }
-                    : null,
-                OnlineTrainingsGroup = ((Coach)user).OnlineTrainings != null
-                    ? ((Coach)user).OnlineTrainings?.OfType<OnlineTrainingGroup>()
-                    .Select(training => new GetOnlineTrainingGroupDTO
-                    {
-                        Id = training.Id,
-                        Title = training.Title ?? "No Title",
-                        Description = training.Description ?? "No Description",
-                        Price = training.Price,
-                        OfferPrice = training.OfferPrice,
-                        NoOfSessionsPerWeek = training.NoOfSessionsPerWeek,
-                        DurationOfSession = training.DurationOfSession,
-                        OfferEnded = training.OfferEnded,
-                        SubscriptionClosed = training.SubscriptionClosed,
-                        IsAvailable = training.IsAvailable
-                    }).ToList()
-                    : null,
-                OnlineTrainingsPrivate = ((Coach)user).OnlineTrainings != null
-                    ? ((Coach)user).OnlineTrainings?.OfType<OnlineTrainingPrivate>()
-                    .Select(training => new GetOnlineTrainingPrivateDTO
-                    {
-                        Id = training.Id,
-                        Title = training.Title ?? "No Title",
-                        Description = training.Description ?? "No Description",
-                        Price = training.Price,
-                        OfferPrice = training.OfferPrice,
-                        OfferEnded = training.OfferEnded,
-                        SubscriptionClosed = training.SubscriptionClosed,
-                        IsAvailable = training.IsAvailable
-                    }).ToList()
                     : null
             };
 
@@ -309,11 +270,11 @@ namespace Services
                 generalresponse.Data = "Your Photo has been removed";
                 return generalresponse;
             }
-            generalresponse.IsSuccess= false;
+            generalresponse.IsSuccess = false;
             generalresponse.Data = "There is no Photo";
             return generalresponse;
         }
-        
+
 
 
     }

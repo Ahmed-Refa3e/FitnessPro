@@ -12,5 +12,6 @@ namespace Core.Entities.Identity
         public bool AvailableForOnlineTraining { get; set; } = false;
         public List<CoachPost>? Posts { get; set; }
         public List<Shop>? Shops { get; set; }
+        public ICollection<CoachRating>? Ratings { get; set; }
     }
 }

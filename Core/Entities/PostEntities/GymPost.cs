@@ -16,9 +16,9 @@ namespace Core.Entities.PostEntities
         {
             
         }
-        public GymPost(AddGymPostDTO post):base(post)
-        {
-            this.GymId=post.GymId;
-        }
+        //public GymPost(AddGymPostDTO post):base(post)
+        //{
+        //    this.GymId=post.GymId;
+        //}
 }
 }

@@ -1,5 +1,5 @@
-﻿using Core.DTOs.GeneralDTO;
-using Core.DTOs.UserDTO;
+﻿using Core.DTOs.AuthDTO;
+using Core.DTOs.GeneralDTO;
 using Core.Entities.Identity;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
@@ -59,7 +59,6 @@ namespace Services
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
                 Bio = model.Bio,
-                ProfilePictureUrl = model.ProfilePictureUrl,
                 JoinedDate = DateTime.Now
             };
 
@@ -197,15 +196,15 @@ namespace Services
 
                 if (user == null)
                 {
-                    user = new Trainee()
-                    {
-                        Email = payload.Email,
-                        FirstName = payload.GivenName,
-                        LastName = payload.FamilyName,
-                        UserName = payload.Email,
-                        EmailConfirmed = true,
-                        JoinedDate = DateTime.UtcNow,
-                    };
+                    //user = new Trainee()
+                    //{
+                    //    Email = payload.Email,
+                    //    FirstName = payload.GivenName,
+                    //    LastName = payload.FamilyName,
+                    //    UserName = payload.Email,
+                    //    EmailConfirmed = true,
+                    //    JoinedDate = DateTime.UtcNow,
+                    //};
 
                     var result = await _userManager.CreateAsync(user);
                     if (!result.Succeeded)

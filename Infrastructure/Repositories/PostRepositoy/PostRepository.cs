@@ -33,9 +33,9 @@ namespace Infrastructure.Repositories.PostRepositoy
 
             Post newPost = postDto switch
             {
-                AddGymPostDTO gymPostDto => new GymPost(gymPostDto),
-                AddCoachPostDTO coachPostDto => new CoachPost(coachPostDto),
-                AddShopPostDTO shopPostDto => new ShopPost(shopPostDto),
+                //AddGymPostDTO gymPostDto => new GymPost(gymPostDto),
+                //AddCoachPostDTO coachPostDto => new CoachPost(coachPostDto),
+                //AddShopPostDTO shopPostDto => new ShopPost(shopPostDto),
                 _ => null
             };
             if (newPost == null)

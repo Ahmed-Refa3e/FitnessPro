@@ -34,9 +34,12 @@ namespace API.Controllers
         }
 
         [HttpGet("GetAllCoaches")]
-        public async Task<IActionResult> GetAllCoaches()
+        public async Task<IActionResult> GetAllCoaches([FromQuery] GetCoachesDTO getCoachesDTO)
         {
-            var result = await service.GetAllCoachesAsync();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await service.GetAllCoachesAsync(getCoachesDTO);
             return Ok(result);
         }
 

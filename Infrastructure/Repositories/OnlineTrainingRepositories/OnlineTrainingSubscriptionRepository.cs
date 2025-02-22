@@ -27,10 +27,10 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
             {
                 return new IntResult { Massage = "No Training has this Id" };
             }
-            if (training.IsAvailable)
-            {
-                return new IntResult { Massage = "this Training is not available to subscripe" };
-            }
+            //if (training.IsAvailable)
+            //{
+            //    return new IntResult { Massage = "this Training is not available to subscripe" };
+            //}
             var oldSubscription = _context.OnlineTrainings.Include(x => x.OnlineTrainingSubscriptions).Where(x => x.Id == subscription.OnlineTrainingId).
                 FirstOrDefault().OnlineTrainingSubscriptions.FirstOrDefault(x => x.TraineeID == subscription.TraineeID && x.EndDate >= DateTime.Now);
             if (oldSubscription is not null)
@@ -66,7 +66,7 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
                 OnlineTrainingTitle = subscription.OnlineTraining.Title,
                 TraineeID = subscription.TraineeID,
                 TraineeName = subscription.Trainee.FirstName + subscription.Trainee.LastName,
-                Cost = subscription.Cost
+               // Cost = subscription.Cost
             }).FirstOrDefault();
             return result;
         }

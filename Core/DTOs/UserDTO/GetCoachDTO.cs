@@ -15,7 +15,5 @@ namespace Core.DTOs.UserDTO
         public DateTime JoinedDate { get; set; }
         public GymResponseDto? Gym { get; set; }
         public bool AvailableForOnlineTraining { get; set; }
-        public IEnumerable<GetOnlineTrainingGroupDTO>? OnlineTrainingsGroup { get; set; }
-        public IEnumerable<GetOnlineTrainingPrivateDTO>? OnlineTrainingsPrivate { get; set; }
     }
 }

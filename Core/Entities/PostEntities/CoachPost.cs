@@ -16,9 +16,9 @@ namespace Core.Entities.PostEntities
         {
             
         }
-        public CoachPost(AddCoachPostDTO post):base(post)
-        {
-            this.CoachId = post.CoachId;
-        }
+        //public CoachPost(AddCoachPostDTO post):base(post)
+        //{
+        //    this.CoachId = post.CoachId;
+        //}
     }
 }

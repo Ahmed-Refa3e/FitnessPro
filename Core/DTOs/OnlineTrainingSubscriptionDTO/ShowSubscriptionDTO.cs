@@ -31,7 +31,7 @@ namespace Core.DTOs.OnlineTrainingSubscriptionDTO
             this.OnlineTrainingTitle = subscription.OnlineTraining.Title;
             this.TraineeID = subscription.TraineeID;
             this.TraineeName = subscription.Trainee.FirstName + subscription.Trainee.LastName;
-            this.Cost = subscription.Cost;
+            //this.Cost = subscription.Cost;
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
-namespace Core.DTOs.UserDTO
+namespace Core.DTOs.AuthDTO
 {
-    public class RegisterCoachDTO
+    public class RegisterDTO
     {
         [Required]
         [MaxLength(30)]
@@ -23,8 +23,10 @@ namespace Core.DTOs.UserDTO
         [Required]
         public required string Gender { get; set; }
 
+        [Required]
         public DateTime DateOfBirth { get; set; }
 
         public string? Bio { get; set; }
+
     }
 }

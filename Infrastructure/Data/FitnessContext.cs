@@ -18,17 +18,18 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<GymRating>? GymRatings { get; set; }
     public DbSet<OnlineTraining>? OnlineTrainings { get; set; }
     public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
-    public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
-    public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
+    //public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
+    //public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
     public DbSet<Post>? Posts { get; set; }
     public DbSet<PostPictureUrl>? PictureUrls { get; set; } 
     public DbSet<GymPost>? GymPosts { get; set; }
     public DbSet<ShopPost>? ShopPosts { get; set; }
     public DbSet<CoachPost>? CoachPosts { get; set; }
     public DbSet<Shop> Shops { get; set; }
-    public DbSet<UserFollow> userFollows { get; set; }
-    public DbSet<GymFollow> gymFollows { get; set; }
-    public DbSet<ShopFollow> ShopFollows { get; set; }
+    public DbSet<UserFollow>? userFollows { get; set; }
+    public DbSet<GymFollow>? gymFollows { get; set; }
+    public DbSet<ShopFollow>? ShopFollows { get; set; }
+    public DbSet<CoachRating>? coachRatings { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -120,6 +121,19 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .WithMany(g => g.Followers)
             .HasForeignKey(f => f.ShopId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CoachRating>()
+           .HasOne(gr => gr.Coach)
+           .WithMany(g => g.Ratings)
+           .HasForeignKey(gr => gr.CoachId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CoachRating>()
+            .HasOne(gr => gr.Trainee)
+            .WithMany()
+            .HasForeignKey(gr => gr.TraineeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         #endregion
 
         #region seeding data

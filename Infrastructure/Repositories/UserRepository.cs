@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
             return await query.FirstOrDefaultAsync(expression);
         }
 
-        public async Task<IEnumerable<ApplicationUser>> GetAllAsync(Expression<Func<ApplicationUser, bool>>? expression = null, string? includeProperties = null)
+        public IQueryable<ApplicationUser> GetAll(Expression<Func<ApplicationUser, bool>>? expression = null, string? includeProperties = null)
         {
             IQueryable<ApplicationUser> query = context.Set<ApplicationUser>();
             if (expression != null)
@@ -60,7 +60,7 @@ namespace Infrastructure.Repositories
                     query = query.Include(property);
                 }
             }
-            return await query.ToListAsync();
+            return  query;
         }
 
         public async Task<ApplicationUser?> GetByIdAsync(int id)

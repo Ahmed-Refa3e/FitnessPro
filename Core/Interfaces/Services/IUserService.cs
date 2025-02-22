@@ -1,6 +1,7 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
+using Core.Helpers;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Core.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<Generalresponse> GetAllCoachesAsync();
+        Task<PagedResult<CoachResponseDTO>> GetAllCoachesAsync(GetCoachesDTO getCoachesDTO);
         Task<Generalresponse> GetCoachDetailsAsync(string CoachId);
         Task<Generalresponse> GetTraineeDetailsAsync(string TraineeId);
         Task<Generalresponse> SetOnlineAvailabilityAsync(string userId, bool isAvailable);

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Core.DTOs.UserDTO
+namespace Core.DTOs.AuthDTO
 {
     public class VerifyCodeDTO
     {

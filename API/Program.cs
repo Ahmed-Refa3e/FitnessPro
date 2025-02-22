@@ -123,8 +123,8 @@ builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-builder.Services.AddScoped<IOnlineTrainingGroupRepository, OnlineTrainingGroupRepository>();
-builder.Services.AddScoped<IOnlineTrainingPrivateRepository, OnlineTrainingPrivateRepository>();
+//builder.Services.AddScoped<IOnlineTrainingGroupRepository, OnlineTrainingGroupRepository>();
+//builder.Services.AddScoped<IOnlineTrainingPrivateRepository, OnlineTrainingPrivateRepository>();
 builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTrainingSubscriptionRepository>();
 var app = builder.Build();
 

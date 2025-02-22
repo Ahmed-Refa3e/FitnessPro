@@ -18,7 +18,7 @@ namespace Infrastructure.Data.Configuration
                 .OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(x => x.OnlineTraining).WithMany(x => x.OnlineTrainingSubscriptions)
                 .HasForeignKey(x => x.OnlineTrainingId).OnDelete(DeleteBehavior.Restrict);
-            builder.Property(x => x.Cost).HasColumnType("decimal(6,2)").IsRequired();
+            //builder.Property(x => x.Cost).HasColumnType("decimal(6,2)").IsRequired();
             builder.ToTable("OnlineTrainingSubscriptions");
         }
     }
