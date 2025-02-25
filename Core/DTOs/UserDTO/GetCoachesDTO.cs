@@ -1,14 +1,9 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Core.DTOs.UserDTO
 {
     public class GetCoachesDTO
+
     {
         [Range(1, 50, ErrorMessage = "Page size must be between 1 and 50.")]
         public int PageSize { get; set; } = 10;

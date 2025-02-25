@@ -1,0 +1,410 @@
+{
+  "Coaches": [
+    {
+      "FirstName": "Ahmed",
+      "LastName": "Hassan",
+      "Email": "ahmedhassan@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Passionate fitness coach with 10 years of experience in strength training.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Mohamed",
+      "LastName": "Salah",
+      "Email": "mohamedsalah@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Certified personal trainer specializing in weight loss and muscle gain.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Omar",
+      "LastName": "Samir",
+      "Email": "omarsamir@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Former professional athlete turned fitness coach.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Khaled",
+      "LastName": "Mostafa",
+      "Email": "khaledmostafa@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Expert in high-intensity interval training and bodyweight exercises.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Youssef",
+      "LastName": "Adel",
+      "Email": "youssefadel@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Dedicated to helping clients achieve their fitness goals through personalized training.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Hassan",
+      "LastName": "Ibrahim",
+      "Email": "hassanibrahim@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Lover of outdoor workouts and functional movement techniques.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Mahmoud",
+      "LastName": "Tarek",
+      "Email": "mahmoudtarek@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Believes in a holistic approach to health and wellness.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Ali",
+      "LastName": "Saeed",
+      "Email": "alisaeed@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Specialist in injury prevention and rehabilitation exercises.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Mostafa",
+      "LastName": "Nabil",
+      "Email": "mostafanabil@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Focuses on building endurance and cardiovascular strength.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    },
+    {
+      "FirstName": "Sherif",
+      "LastName": "Gamal",
+      "Email": "sherifgamal@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Combining science-based training with motivational coaching.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10"
+    }
+  ],
+  "Trainees": [
+    {
+      "FirstName": "Karim",
+      "LastName": "Ehab",
+      "Email": "karimehab@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Aspiring bodybuilder looking to gain muscle and strength.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Amr",
+      "LastName": "Nasser",
+      "Email": "amrnasser@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Beginner in fitness, eager to learn proper techniques.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Hossam",
+      "LastName": "Fathy",
+      "Email": "hossamfathy@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Enjoys group fitness classes and high-energy workouts.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Adel",
+      "LastName": "Samy",
+      "Email": "adelsamy@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Working on weight loss and improving overall health.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Tamer",
+      "LastName": "Mohamed",
+      "Email": "tamermohamed@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Loves running and outdoor activities to stay fit.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Ibrahim",
+      "LastName": "Khaled",
+      "Email": "ibrahimkhaled@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Passionate about yoga and flexibility training.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Youssef",
+      "LastName": "Samir",
+      "Email": "youssefsamir@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Trying to improve stamina and conditioning for sports.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Osama",
+      "LastName": "Reda",
+      "Email": "osamareda@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "A busy professional looking for quick and effective workouts.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Fady",
+      "LastName": "Magdy",
+      "Email": "fadymagdy@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Interested in powerlifting and strength training.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Mina",
+      "LastName": "Essam",
+      "Email": "minaessam@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Focusing on building confidence through fitness.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    }
+  ],
+  "Gyms": [
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "GymName": "Cairo Fit Club",
+      "Address": "Street 1, Cairo",
+      "City": "Cairo",
+      "Governorate": "Cairo",
+      "MonthlyPrice": 500,
+      "YearlyPrice": 5000,
+      "PhoneNumber": "01000123456",
+      "Description": "Cairo Fit Club is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "mohamedsalah@example.com",
+      "GymName": "Alex Muscle Zone",
+      "Address": "Street 2, Alexandria",
+      "City": "Alexandria",
+      "Governorate": "Alexandria",
+      "MonthlyPrice": 550,
+      "YearlyPrice": 5500,
+      "PhoneNumber": "01001123456",
+      "Description": "Alex Muscle Zone is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "omarsamir@example.com",
+      "GymName": "Giza Power Gym",
+      "Address": "Street 3, Giza",
+      "City": "Giza",
+      "Governorate": "Giza",
+      "MonthlyPrice": 600,
+      "YearlyPrice": 6000,
+      "PhoneNumber": "01002123456",
+      "Description": "Giza Power Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "khaledmostafa@example.com",
+      "GymName": "Elite Fitness Hurghada",
+      "Address": "Street 4, Hurghada",
+      "City": "Hurghada",
+      "Governorate": "Hurghada",
+      "MonthlyPrice": 650,
+      "YearlyPrice": 6500,
+      "PhoneNumber": "01003123456",
+      "Description": "Elite Fitness Hurghada is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "youssefadel@example.com",
+      "GymName": "Sharm Strong Gym",
+      "Address": "Street 5, Sharm El Sheikh",
+      "City": "Sharm El Sheikh",
+      "Governorate": "Sharm El Sheikh",
+      "MonthlyPrice": 700,
+      "YearlyPrice": 7000,
+      "PhoneNumber": "01004123456",
+      "Description": "Sharm Strong Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "hassanibrahim@example.com",
+      "GymName": "Port Said Athletes",
+      "Address": "Street 6, Port Said",
+      "City": "Port Said",
+      "Governorate": "Port Said",
+      "MonthlyPrice": 750,
+      "YearlyPrice": 7500,
+      "PhoneNumber": "01005123456",
+      "Description": "Port Said Athletes is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "GymName": "Mansoura Flex Gym",
+      "Address": "Street 7, Mansoura",
+      "City": "Mansoura",
+      "Governorate": "Mansoura",
+      "MonthlyPrice": 800,
+      "YearlyPrice": 8000,
+      "PhoneNumber": "01006123456",
+      "Description": "Mansoura Flex Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "alisaeed@example.com",
+      "GymName": "Luxor Fit Center",
+      "Address": "Street 8, Luxor",
+      "City": "Luxor",
+      "Governorate": "Luxor",
+      "MonthlyPrice": 850,
+      "YearlyPrice": 8500,
+      "PhoneNumber": "01007123456",
+      "Description": "Luxor Fit Center is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "GymName": "Aswan Iron House",
+      "Address": "Street 9, Aswan",
+      "City": "Aswan",
+      "Governorate": "Aswan",
+      "MonthlyPrice": 900,
+      "YearlyPrice": 9000,
+      "PhoneNumber": "01008123456",
+      "Description": "Aswan Iron House is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    },
+    {
+      "CoachEmail": "sherifgamal@example.com",
+      "GymName": "Tanta Pro Gym",
+      "Address": "Street 10, Tanta",
+      "City": "Tanta",
+      "Governorate": "Tanta",
+      "MonthlyPrice": 950,
+      "YearlyPrice": 9500,
+      "PhoneNumber": "01009123456",
+      "Description": "Tanta Pro Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+    }
+  ],
+  "OnlineTrainings": [
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Yoga Training with Ahmedhassan",
+      "Description": "Customized group training program to meet your fitness goals.",
+      "TrainingType": "Group",
+      "Price": 1500,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "CrossFit Workout with Ahmedhassan",
+      "Description": "Customized private training program to meet your fitness goals.",
+      "TrainingType": "Private",
+      "Price": 1600,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "omarsamir@example.com",
+      "Title": "Strength Training with Omarsamir",
+      "Description": "Customized group training program to meet your fitness goals.",
+      "TrainingType": "Group",
+      "Price": 1700,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "omarsamir@example.com",
+      "Title": "HIIT Session with Omarsamir",
+      "Description": "Customized private training program to meet your fitness goals.",
+      "TrainingType": "Private",
+      "Price": 1800,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "omarsamir@example.com",
+      "Title": "Pilates Class with Omarsamir",
+      "Description": "Customized group training program to meet your fitness goals.",
+      "TrainingType": "Group",
+      "Price": 1900,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "alisaeed@example.com",
+      "Title": "Bodybuilding Routine with Alisaeed",
+      "Description": "Customized private training program to meet your fitness goals.",
+      "TrainingType": "Private",
+      "Price": 2000,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Spin Class with Mostafanabil",
+      "Description": "Customized group training program to meet your fitness goals.",
+      "TrainingType": "Group",
+      "Price": 2100,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Functional Training with Mostafanabil",
+      "Description": "Customized private training program to meet your fitness goals.",
+      "TrainingType": "Private",
+      "Price": 2200,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Circuit Training with Mostafanabil",
+      "Description": "Customized group training program to meet your fitness goals.",
+      "TrainingType": "Group",
+      "Price": 2300,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Weightlifting Program with Mostafanabil",
+      "Description": "Customized private training program to meet your fitness goals.",
+      "TrainingType": "Private",
+      "Price": 2400,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    }
+  ]
+}

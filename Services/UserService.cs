@@ -1,7 +1,6 @@
 ﻿using Core.DTOs.GeneralDTO;
-using Core.DTOs.GymDTO;
+using Core.DTOs.OnlineTrainingDTO;
 using Core.DTOs.UserDTO;
-using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
@@ -12,17 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
-    public class UserService : IUserService
+    public class UserService(IUserRepository repository, UserManager<ApplicationUser> _userManager) : IUserService
     {
-        private readonly IUserRepository repository;
-        private readonly UserManager<ApplicationUser> _userManager;
         private const int MaxPageSize = 50;
-
-        public UserService(IUserRepository repository, UserManager<ApplicationUser> _userManager)
-        {
-            this.repository = repository;
-            this._userManager = _userManager;
-        }
 
         public async Task<PagedResult<CoachResponseDTO>> GetAllCoachesAsync(GetCoachesDTO getCoachesDTO)
         {
@@ -70,9 +61,9 @@ namespace Services
                                             .Take(getCoachesDTO.PageSize).ToListAsync();
 
             var Coaches = new List<CoachResponseDTO>();
-            foreach(var coach in PaginatedCoaches)
+            foreach (var coach in PaginatedCoaches)
             {
-                var newcoach = new CoachResponseDTO() 
+                var newcoach = new CoachResponseDTO()
                 {
                     Id = coach.Id,
                     FullName = $"{coach.FirstName} {coach.LastName}",
@@ -95,7 +86,7 @@ namespace Services
             Generalresponse response = new Generalresponse();
 
             var user = await repository.GetAsync(e => e.Id == CoachId
-                        , includeProperties: "Gym"
+                        , includeProperties: "OnlineTrainings"
            );
             if (user == null)
             {
@@ -104,31 +95,26 @@ namespace Services
                 return response;
             }
 
-            var UserDto = new GetCoachDTO
+            var coach = (Coach)user;
+
+            var UserDto = new GetCoachDetailsDTO
             {
                 Id = CoachId,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FullName = $"{user.FirstName} {user.LastName}",
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Bio = user.Bio,
                 Gender = user.Gender,
                 JoinedDate = user.JoinedDate,
-                AvailableForOnlineTraining = ((Coach)user).AvailableForOnlineTraining,
-                Gym = user is Coach returnCoach && returnCoach.Gym != null
-                    ? new GymResponseDto
-                    {
-                        GymID = returnCoach.Gym.GymID,
-                        GymName = returnCoach.Gym.GymName,
-                        Address = returnCoach.Gym.Address,
-                        City = returnCoach.Gym.City,
-                        PictureUrl = returnCoach.Gym.PictureUrl,
-                        Governorate = returnCoach.Gym.Governorate,
-                        SubscriptionsCount = returnCoach.Gym.GymSubscriptions?.Count ?? 0,
-                        AverageRating = (decimal)(returnCoach.Gym.Ratings != null &&
-                                                  returnCoach.Gym.Ratings.Count != 0 ?
-                                                  returnCoach.Gym.Ratings.Average(r => r.RatingValue) : 0)
-                    }
-                    : null
+                OnlineTrainings = coach.OnlineTrainings?.Select(trining => new GetOnlineTrainingDTO
+                {
+                    Id = trining.Id,
+                    Description = trining.Description,
+                    DurationOfSession = trining.DurationOfSession,
+                    NoOfSessionsPerWeek = trining.NoOfSessionsPerWeek,
+                    Price = trining.Price,
+                    Title = trining.Title,
+                    TrainingType = trining.TrainingType
+                }).ToList() ?? new List<GetOnlineTrainingDTO>()
             };
 
             response.IsSuccess = true;
@@ -136,71 +122,34 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> GetTraineeDetailsAsync(string TraineeId)
+        public GetProfileDTO GetProfileDetails(ApplicationUser user)
         {
-            Generalresponse response = new Generalresponse();
-
-            var user = await repository.GetAsync(e => e.Id == TraineeId);
-            if (user == null)
+            var UserDto = new GetProfileDTO
             {
-                response.IsSuccess = true;
-                response.Data = "User Not Found.";
-                return response;
-            }
-
-            var UserDto = new GetTraineeDTO
-            {
-                Id = TraineeId,
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Bio = user.Bio,
                 Gender = user.Gender,
+                DateOfBirth = user.JoinedDate,
                 JoinedDate = user.JoinedDate
             };
-
-            response.IsSuccess = true;
-            response.Data = UserDto;
-            return response;
+            return UserDto;
         }
 
-        public async Task<Generalresponse> SetOnlineAvailabilityAsync(string userId, bool isAvailable)
+        public async Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user)
         {
             Generalresponse response = new Generalresponse();
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                throw new UnauthorizedAccessException();
+            user.FirstName = profileDTO.FirstName;
+            user.LastName = profileDTO.LastName;
+            user.Gender = profileDTO.Gender;
+            user.DateOfBirth = profileDTO.DateOfBirth;
+            user.Bio = profileDTO.Bio;
 
-            if (user is Coach coach)
-            {
-                coach.AvailableForOnlineTraining = isAvailable;
-
-                await _userManager.UpdateAsync(coach);
-
-                response.IsSuccess = true;
-                response.Data = $"Availability status updated to: {isAvailable}";
-                return response;
-            }
-
-            response.IsSuccess = false;
-            response.Data = "Only coaches can set online availability.";
-            return response;
-        }
-
-        public async Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, string userId)
-        {
-            Generalresponse response = new Generalresponse();
-            var user = await repository.GetAsync(e => e.Id == userId);
-            if (user == null)
-                throw new UnauthorizedAccessException();
-
-            if (!string.IsNullOrEmpty(profileDTO.FirstName)) user.FirstName = profileDTO.FirstName;
-            if (!string.IsNullOrEmpty(profileDTO.LastName)) user.LastName = profileDTO.LastName;
-            if (!string.IsNullOrEmpty(profileDTO.Gender)) user.Gender = profileDTO.Gender;
-            if (profileDTO.DateOfBirth.HasValue) user.DateOfBirth = profileDTO.DateOfBirth.Value;
-            if (!string.IsNullOrEmpty(profileDTO.Bio)) user.Bio = profileDTO.Bio;
             var result = await _userManager.UpdateAsync(user);
+
             if (!result.Succeeded)
             {
                 response.IsSuccess = false;
@@ -212,21 +161,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ChangeProfilePictureAsync(IFormFile profilePicture, string userId)
+        public async Task<Generalresponse> ChangeProfilePictureAsync(IFormFile profilePicture, ApplicationUser user)
         {
             Generalresponse generalresponse = new Generalresponse();
-            var user = await repository.GetAsync(e => e.Id == userId);
-            if (user == null)
-            {
-                throw new UnauthorizedAccessException();
-            }
-
-            if (profilePicture == null || profilePicture.Length == 0)
-            {
-                generalresponse.IsSuccess = false;
-                generalresponse.Data = "Invalid File";
-                return generalresponse;
-            }
 
             if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
             {
@@ -254,7 +191,7 @@ namespace Services
             return generalresponse;
         }
 
-        public async Task<Generalresponse> DeleteProfilePictureAsync(ApplicationUser user)
+        public Generalresponse DeleteProfilePictureAsync(ApplicationUser user)
         {
             Generalresponse generalresponse = new Generalresponse();
             if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
@@ -267,15 +204,12 @@ namespace Services
                     System.IO.File.Delete(oldFilePath);
                 }
                 generalresponse.IsSuccess = true;
-                generalresponse.Data = "Your Photo has been removed";
+                generalresponse.Data = "Your profile picture has been removed successfully.";
                 return generalresponse;
             }
             generalresponse.IsSuccess = false;
-            generalresponse.Data = "There is no Photo";
+            generalresponse.Data = "No profile picture found.";
             return generalresponse;
         }
-
-
-
     }
 }

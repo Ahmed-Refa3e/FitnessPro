@@ -4,8 +4,12 @@ using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
 using Core.Entities.PostEntities;
 using Core.Entities.ShopEntities;
+using Core.Helpers;
+using Infrastructure.SeedData;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
+using System.Text.Json;
 
 namespace Infrastructure.Data;
 public class FitnessContext(DbContextOptions options) : IdentityDbContext<ApplicationUser>(options)
@@ -136,72 +140,72 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
 
         #region seeding data
         // Seeding Coach data (with all inherited properties from ApplicationUser)
-        builder.Entity<Coach>().HasData(
-            new Coach
-            {
-                Id = "coach1", 
-                FirstName = "John",
-                LastName = "Doe",
-                Gender = "Male",
-                DateOfBirth = new DateTime(1985, 5, 24),
-                Email = "johndoe@example.com",
-                UserName = "johndoe",
-                NormalizedUserName = "JOHNDOE",
-                NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
-                EmailConfirmed = false,
-                PhoneNumber = "0123456789",
-                AvailableForOnlineTraining = true
-            },
-            new Coach
-            {
-                Id = "coach2",
-                FirstName = "Jane",
-                LastName = "Smith",
-                Gender = "Female",
-                DateOfBirth = new DateTime(1990, 8, 14),
-                Email = "janesmith@example.com",
-                UserName = "janesmith",
-                NormalizedUserName = "JANESMITH",
-                NormalizedEmail = "JANESMITH@EXAMPLE.COM",
-                EmailConfirmed = false,
-                PhoneNumber = "0987654321",
-                AvailableForOnlineTraining = false
-            }
-        );
+        //builder.Entity<Coach>().HasData(
+        //    new Coach
+        //    {
+        //        Id = "coach1", 
+        //        FirstName = "John",
+        //        LastName = "Doe",
+        //        Gender = "Male",
+        //        DateOfBirth = new DateTime(1985, 5, 24),
+        //        Email = "johndoe@example.com",
+        //        UserName = "johndoe",
+        //        NormalizedUserName = "JOHNDOE",
+        //        NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
+        //        EmailConfirmed = false,
+        //        PhoneNumber = "0123456789",
+        //        AvailableForOnlineTraining = true
+        //    },
+        //    new Coach
+        //    {
+        //        Id = "coach2",
+        //        FirstName = "Jane",
+        //        LastName = "Smith",
+        //        Gender = "Female",
+        //        DateOfBirth = new DateTime(1990, 8, 14),
+        //        Email = "janesmith@example.com",
+        //        UserName = "janesmith",
+        //        NormalizedUserName = "JANESMITH",
+        //        NormalizedEmail = "JANESMITH@EXAMPLE.COM",
+        //        EmailConfirmed = false,
+        //        PhoneNumber = "0987654321",
+        //        AvailableForOnlineTraining = false
+        //    }
+        //);
 
-        // Seeding Gym data
-        builder.Entity<Gym>().HasData(
-            new Gym
-            {
-                GymID = 1,
-                GymName = "Downtown Fitness",
-                Address = "123 Main St",
-                City = "Tanta",
-                Governorate = "Gharbia",
-                MonthlyPrice = 50,
-                YearlyPrice = 500,
-                FortnightlyPrice = 30,
-                SessionPrice = 15,
-                PhoneNumber = "0123456789",
-                Description = "A top-tier gym with all the modern equipment you need.",
-                CoachID = "coach1" // Linking to seeded coach
-            },
-            new Gym
-            {
-                GymID = 2,
-                GymName = "Sunset Wellness",
-                Address = "456 Sunset Blvd",
-                City = "Zefta",
-                Governorate = "Gharbia",
-                MonthlyPrice = 40,
-                YearlyPrice = 450,
-                FortnightlyPrice = 25,
-                SessionPrice = 12,
-                PhoneNumber = "0987654321",
-                Description = "A wellness center focused on body and mind fitness.",
-                CoachID = "coach2" // Linking to seeded coach
-            }
-        );
+        //// Seeding Gym data
+        //builder.Entity<Gym>().HasData(
+        //    new Gym
+        //    {
+        //        GymID = 1,
+        //        GymName = "Downtown Fitness",
+        //        Address = "123 Main St",
+        //        City = "Tanta",
+        //        Governorate = "Gharbia",
+        //        MonthlyPrice = 50,
+        //        YearlyPrice = 500,
+        //        FortnightlyPrice = 30,
+        //        SessionPrice = 15,
+        //        PhoneNumber = "0123456789",
+        //        Description = "A top-tier gym with all the modern equipment you need.",
+        //        CoachID = "coach1" // Linking to seeded coach
+        //    },
+        //    new Gym
+        //    {
+        //        GymID = 2,
+        //        GymName = "Sunset Wellness",
+        //        Address = "456 Sunset Blvd",
+        //        City = "Zefta",
+        //        Governorate = "Gharbia",
+        //        MonthlyPrice = 40,
+        //        YearlyPrice = 450,
+        //        FortnightlyPrice = 25,
+        //        SessionPrice = 12,
+        //        PhoneNumber = "0987654321",
+        //        Description = "A wellness center focused on body and mind fitness.",
+        //        CoachID = "coach2" // Linking to seeded coach
+        //    }
+        //);
         #endregion
     }
 }

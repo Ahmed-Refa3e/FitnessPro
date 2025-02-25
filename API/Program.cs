@@ -13,6 +13,7 @@ using Infrastructure.Repositories.IShopRepositories;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication;
 using Infrastructure.Repositories.GymRepositories;
+using Infrastructure.Repositories.UserRepository;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -68,11 +69,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostRepresentationRepository, PostRepresentationRepository>();
 builder.Services.AddScoped<IShopRepository, ShopRepository>();
+builder.Services.AddScoped<CoachRatingRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 //builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
@@ -133,6 +136,14 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
     await RoleInitializer.SeedRolesAsync(roleManager);
+    try
+    {
+        await DataSeeder.Initialize(services);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
 }
 
 // Configure the HTTP request pipeline.
