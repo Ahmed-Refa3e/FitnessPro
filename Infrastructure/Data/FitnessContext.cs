@@ -32,7 +32,6 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     {
         base.OnModelCreating(builder);
 
-        builder.ApplyConfigurationsFromAssembly(typeof(FitnessContext).Assembly);
         #region relationships
         // Gym Relationships
         builder.Entity<Gym>()

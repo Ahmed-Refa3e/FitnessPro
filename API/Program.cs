@@ -1,19 +1,24 @@
 ﻿using Core.Helpers;
 using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Core.Interfaces.Repositories.PostRepositories;
+using Core.Interfaces.Repositories.ShopRepositories;
 using Core.Interfaces.Services;
 using Infrastructure.Repositories;
-using Services;
-using System.Security.Claims;
-using Infrastructure.Repositories.PostRepositoy;
-using Core.Interfaces.Repositories.OnlineTrainingRepositories;
-using Infrastructure.Repositories.OnlineTrainingRepositories;
-using Core.Interfaces.Repositories.ShopRepositories;
-using Infrastructure.Repositories.IShopRepositories;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication;
 using Infrastructure.Repositories.GymRepositories;
+using Infrastructure.Repositories.IShopRepositories;
+using Infrastructure.Repositories.OnlineTrainingRepositories;
+using Infrastructure.Repositories.PostRepositoy;
+using Microsoft.OpenApi.Models;
+using Services;
+using Stripe;
+using System.Security.Claims;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Set Stripe API Key from appsettings
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 // Add services to the container.
 
