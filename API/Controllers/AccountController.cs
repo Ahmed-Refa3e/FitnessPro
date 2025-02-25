@@ -8,15 +8,8 @@ using System.Security.Claims;
 
 namespace API.Controllers
 {
-    public class AccountController : BaseApiController
+    public class AccountController(IAuthService service) : BaseApiController
     {
-
-        private readonly IAuthService service;
-
-        public AccountController(IAuthService service)
-        {
-            this.service = service;
-        }
 
         [HttpPost("RegisterTrainee")]
         public async Task<ActionResult> RegisterTrainee(RegisterDTO model)

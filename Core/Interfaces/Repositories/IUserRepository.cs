@@ -15,7 +15,7 @@ namespace Core.Interfaces.Repositories
         Task DeleteAsync(ApplicationUser entity);
         Task RemoveRangeAsync(List<ApplicationUser> entities);
         Task SaveAsync();
-        
+
         Task AddFollower(UserFollow follow);
         Task<UserFollow> GetFollow(string userId, string FollowedId);
         void RemoveFollow(UserFollow follow);

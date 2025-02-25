@@ -7,9 +7,9 @@ namespace Core.Entities.OnlineTrainingEntities
     {
         public int CoachRatingId { get; set; }
         public required string CoachId { get; set; }
-        public required Coach Coach { get; set; }
+        public Coach? Coach { get; set; }
         public string? TraineeId { get; set; }
-        public required Trainee Trainee { get; set; }
+        public Trainee? Trainee { get; set; }
 
         public string? Content { get; set; }
         [Range(1, 5)]

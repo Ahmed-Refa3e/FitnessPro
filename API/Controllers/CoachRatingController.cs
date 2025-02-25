@@ -1,0 +1,133 @@
+﻿using Core.DTOs.UserDTO;
+using Core.Entities.OnlineTrainingEntities;
+using Infrastructure.Repositories.UserRepository;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CoachRatingController(UserManager<ApplicationUser> userManager, CoachRatingRepository repository) : BaseApiController
+    {
+        [HttpPost]
+        [Authorize(Roles = "Trainee")]
+        public async Task<IActionResult> CreateCoachRating(CreateCoachRatingDTO coachRatingDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User Not Found");
+
+            var ratingFromDb = repository.GetQueryable()
+                .Where(e=>e.TraineeId == user.Id && e.CoachId == coachRatingDTO.coachId)
+                .FirstOrDefault();
+            if (ratingFromDb != null)
+                return Conflict($"You already add rating to this Coach");
+
+            var coachRating = new CoachRating()
+            {
+                TraineeId = user.Id,
+                CoachId = coachRatingDTO.coachId,
+                Content = coachRatingDTO.Review,
+                CreatedAt = DateTime.UtcNow,
+                Rating = coachRatingDTO.ratingValue
+            };
+            repository.Add(coachRating);
+
+            if (await repository.SaveChangesAsync())
+                return Created();
+            return BadRequest("There is a problem while Adding Rating");
+        }
+
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCoachRatingById(int id)
+        {
+            var coachRating = await repository.GetByIdAsync(id);
+            if (coachRating == null)
+                return NotFound($"Coach Rating with ID {id} not found");
+
+            var response = new CoachRatingResponse()
+            {
+                CoachId = coachRating.CoachId,
+                CoachRatingId = coachRating.CoachRatingId,
+                TraineeId= coachRating.TraineeId,
+                ratingValue = coachRating.Rating,
+                Review = coachRating.Content,
+                CreatedAt = coachRating.CreatedAt
+            };
+            return Ok(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCoachRating(string CoachId)
+        {
+            if (string.IsNullOrWhiteSpace(CoachId))
+                return BadRequest("Coach ID is required");
+
+            var query = repository.GetQueryable().Where(e => e.CoachId == CoachId);
+
+            var rating = await query.Select(e => new
+            {
+                e.CoachRatingId,
+                e.Rating,
+                e.TraineeId,
+                e.CoachId,
+                e.CreatedAt,
+                e.Content
+            }).ToListAsync();
+
+            if (!rating.Any())
+                return NotFound("No ratings found");
+
+            return Ok(rating);
+        }
+
+        [Authorize(Roles = "Trainee")]
+        [HttpPut(("{id}"))]
+        public async Task<IActionResult> UpdateCoachRating(int id, UpdateCoachRatingDTO coachRatingDTO)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var coachRating = await repository.GetByIdAsync(id);
+
+            if (coachRating == null)
+                return NotFound("You didn't add any rating");
+
+            var user = await userManager.GetUserAsync(User);
+            if (user?.Id != coachRating.TraineeId)
+                return Unauthorized("You can't update this rating");
+
+            coachRating.Rating = coachRatingDTO.RatingValue;
+            coachRating.Content = coachRatingDTO.Content;
+            coachRating.CreatedAt = DateTime.Now;
+
+            repository.Update(coachRating);
+            if (!await repository.SaveChangesAsync())
+                return BadRequest("Error updating rating");
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Trainee")]
+        public async Task<IActionResult> DeleteCoachRating(int id)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User Not Found");
+
+            var coachRating = await repository.GetByIdAsync(id);
+            if (coachRating == null)
+                return NotFound($"Coach Rating with ID {id} not found");
+
+            repository.Delete(coachRating);
+            if (await repository.SaveChangesAsync())
+                return NoContent();
+            return BadRequest("Error deleting rating");
+        }
+    }
+}

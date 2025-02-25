@@ -1,11 +1,5 @@
-﻿using Core.Entities.GymEntities;
-using Core.Entities.Identity;
+﻿using Core.Entities.Identity;
 using Core.Entities.ShopEntities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Entities.FollowEntities
 {

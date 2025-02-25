@@ -1,17 +1,11 @@
 ﻿using Core.Entities.FollowEntities;
-using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Interfaces.Repositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.UserRepository
 {
     public class UserRepository : IUserRepository
     {
@@ -60,7 +54,7 @@ namespace Infrastructure.Repositories
                     query = query.Include(property);
                 }
             }
-            return  query;
+            return query;
         }
 
         public async Task<ApplicationUser?> GetByIdAsync(int id)
@@ -86,10 +80,10 @@ namespace Infrastructure.Repositories
 
         public async Task<UserFollow> GetFollow(string userId, string FollowedUd)
         {
-            var Follow= await context.userFollows
+            var Follow = await context.userFollows
                  .FirstOrDefaultAsync(e => e.FollowingId == FollowedUd && e.FollowerId == userId);
 
-                return Follow;
+            return Follow;
         }
 
         public void RemoveFollow(UserFollow follow)

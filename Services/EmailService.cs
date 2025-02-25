@@ -1,12 +1,9 @@
-﻿using Core.Interfaces;
-using Microsoft.Extensions.Configuration;
-using System.Net.Mail;
-using System.Net;
-using System.Security.Cryptography;
-using System.Collections;
+﻿using Core.Helpers;
 using Core.Interfaces.Services;
-using Core.Helpers;
 using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
+using System.Security.Cryptography;
 
 namespace Services
 {

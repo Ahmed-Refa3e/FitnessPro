@@ -596,7 +596,7 @@ namespace Services
             response.Data = "Confirmation Email send";
             return response;
         }
-        private async Task<string> GenerateJwtToken(ApplicationUser user,bool? resetPassword = false)
+        private async Task<string> GenerateJwtToken(ApplicationUser user, bool? resetPassword = false)
         {
             List<Claim> userclaims = new();
             userclaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));

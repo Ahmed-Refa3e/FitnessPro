@@ -2,7 +2,7 @@
 {
     public enum TrainingType
     {
-        Online,
+        Group,
         Private
     }
 }
