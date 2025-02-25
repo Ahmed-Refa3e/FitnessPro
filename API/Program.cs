@@ -9,21 +9,13 @@ using Infrastructure.Repositories.GymRepositories;
 using Infrastructure.Repositories.IShopRepositories;
 using Infrastructure.Repositories.OnlineTrainingRepositories;
 using Infrastructure.Repositories.PostRepositoy;
+using Infrastructure.Repositories.UserRepository;
 using Microsoft.OpenApi.Models;
 using Services;
 using Stripe;
 using System.Security.Claims;
 
 
-using Infrastructure.Repositories.PostRepositoy;
-using Core.Interfaces.Repositories.OnlineTrainingRepositories;
-using Infrastructure.Repositories.OnlineTrainingRepositories;
-using Core.Interfaces.Repositories.ShopRepositories;
-using Infrastructure.Repositories.IShopRepositories;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication;
-using Infrastructure.Repositories.GymRepositories;
-using Infrastructure.Repositories.UserRepository;
 var builder = WebApplication.CreateBuilder(args);
 
 // Set Stripe API Key from appsettings
