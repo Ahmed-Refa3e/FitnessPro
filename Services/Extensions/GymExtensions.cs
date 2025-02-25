@@ -69,4 +69,18 @@ public static class GymExtensions
                 Description = CreateGymDTO.Description,
             };
     }
+    
+    public static GymRating ToEntity(this CreateGymRatingDTO createGymRatingDTO)
+    {
+        return createGymRatingDTO == null
+            ? throw new ArgumentNullException(nameof(createGymRatingDTO))
+            : new GymRating
+            {
+                GymID = createGymRatingDTO.GymID,
+                Review = createGymRatingDTO.Review,
+                RatingValue = createGymRatingDTO.RatingValue
+            };
+    }
+
+
 }

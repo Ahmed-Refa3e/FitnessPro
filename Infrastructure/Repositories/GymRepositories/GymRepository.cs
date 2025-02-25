@@ -3,7 +3,7 @@ using Core.Interfaces.Repositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.GymRepositories
 {
     public class GymRepository(FitnessContext context) : GenericRepository<Gym>(context), IGymRepository
     {

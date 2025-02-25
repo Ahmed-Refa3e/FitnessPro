@@ -18,8 +18,6 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<GymRating>? GymRatings { get; set; }
     public DbSet<OnlineTraining>? OnlineTrainings { get; set; }
     public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
-    //public DbSet<OnlineTrainingGroup>? OnlineTrainingGroups { get; set; }
-    //public DbSet<OnlineTrainingPrivate>? OnlineTrainingPrivates { get; set; }
     public DbSet<Post>? Posts { get; set; }
     public DbSet<PostPictureUrl>? PictureUrls { get; set; } 
     public DbSet<GymPost>? GymPosts { get; set; }
@@ -132,7 +130,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(gr => gr.Trainee)
             .WithMany()
             .HasForeignKey(gr => gr.TraineeId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         #endregion
 

@@ -12,6 +12,7 @@ using Core.Interfaces.Repositories.ShopRepositories;
 using Infrastructure.Repositories.IShopRepositories;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication;
+using Infrastructure.Repositories.GymRepositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -120,12 +121,10 @@ builder.Services.AddAuthentication(options =>
 //});
 
 builder.Services.AddScoped<IGymRepository, GymRepository>();
+builder.Services.AddScoped<GymRatingRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-//builder.Services.AddScoped<IOnlineTrainingGroupRepository, OnlineTrainingGroupRepository>();
-//builder.Services.AddScoped<IOnlineTrainingPrivateRepository, OnlineTrainingPrivateRepository>();
-builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTrainingSubscriptionRepository>();
+builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

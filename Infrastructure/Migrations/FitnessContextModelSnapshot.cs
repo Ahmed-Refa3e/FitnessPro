@@ -22,6 +22,51 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>
+                {
+                    b.Property<int>("GymId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FollowerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("GymId", "FollowerId");
+
+                    b.HasIndex("FollowerId");
+
+                    b.ToTable("gymFollows");
+                });
+
+            modelBuilder.Entity("Core.Entities.FollowEntities.ShopFollow", b =>
+                {
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FollowerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ShopId", "FollowerId");
+
+                    b.HasIndex("FollowerId");
+
+                    b.ToTable("ShopFollows");
+                });
+
+            modelBuilder.Entity("Core.Entities.FollowEntities.UserFollow", b =>
+                {
+                    b.Property<string>("FollowingId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FollowingId", "FollowerId");
+
+                    b.HasIndex("FollowerId");
+
+                    b.ToTable("userFollows");
+                });
+
             modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
                 {
                     b.Property<int>("GymID")
@@ -134,7 +179,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TraineeID")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("GymRatingID");
@@ -284,49 +328,37 @@ namespace Infrastructure.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Core.Entities.Identity.GymFollow", b =>
+            modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.CoachRating", b =>
                 {
-                    b.Property<int>("GymId")
+                    b.Property<int>("CoachRatingId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("FollowerId")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CoachRatingId"));
+
+                    b.Property<string>("CoachId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("GymId", "FollowerId");
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("FollowerId");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.ToTable("gymFollows");
-                });
-
-            modelBuilder.Entity("Core.Entities.Identity.ShopFollow", b =>
-                {
-                    b.Property<int>("ShopId")
+                    b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<string>("FollowerId")
+                    b.Property<string>("TraineeId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("ShopId", "FollowerId");
+                    b.HasKey("CoachRatingId");
 
-                    b.HasIndex("FollowerId");
+                    b.HasIndex("CoachId");
 
-                    b.ToTable("ShopFollows");
-                });
+                    b.HasIndex("TraineeId");
 
-            modelBuilder.Entity("Core.Entities.Identity.UserFollow", b =>
-                {
-                    b.Property<string>("FollowingId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FollowerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("FollowingId", "FollowerId");
-
-                    b.HasIndex("FollowerId");
-
-                    b.ToTable("userFollows");
+                    b.ToTable("coachRatings");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
@@ -338,45 +370,35 @@ namespace Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CoachID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<byte>("DurationUnit")
-                        .HasColumnType("tinyint");
+                    b.Property<int>("DurationOfSession")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime?>("OfferEnded")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("OfferPrice")
-                        .HasColumnType("decimal(6,2)");
+                    b.Property<int>("NoOfSessionsPerWeek")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(6,2)");
 
-                    b.Property<DateTime?>("SubscriptionClosed")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("TrainingType")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
+                    b.Property<int>("TrainingType")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CoachID");
 
                     b.ToTable("OnlineTrainings", (string)null);
-
-                    b.HasDiscriminator<string>("TrainingType").HasValue("OnlineTraining");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingSubscription", b =>
@@ -386,9 +408,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(6,2)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
@@ -660,20 +679,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach1",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "98ee4d14-f7f0-4ccb-9e46-cc177501e3e8",
+                            ConcurrencyStamp = "21dd1da4-0707-43dd-9402-8e4402d92947",
                             DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "johndoe@example.com",
                             EmailConfirmed = false,
                             FirstName = "John",
                             Gender = "Male",
-                            JoinedDate = new DateTime(2025, 1, 31, 19, 50, 46, 881, DateTimeKind.Local).AddTicks(3572),
+                            JoinedDate = new DateTime(2025, 2, 25, 1, 59, 3, 747, DateTimeKind.Local).AddTicks(6361),
                             LastName = "Doe",
                             LockoutEnabled = false,
                             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                             NormalizedUserName = "JOHNDOE",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "58a37aee-ce88-4164-81ee-b9759a1d2c91",
+                            SecurityStamp = "29d06c01-b71b-47ae-8230-147d8121e7cb",
                             TwoFactorEnabled = false,
                             UserName = "johndoe",
                             AvailableForOnlineTraining = true
@@ -682,20 +701,20 @@ namespace Infrastructure.Migrations
                         {
                             Id = "coach2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6576c74a-179f-41dd-b5d6-5f4b86a05a36",
+                            ConcurrencyStamp = "bee0806f-fa14-4b0a-b51d-3eb11c13ab15",
                             DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "janesmith@example.com",
                             EmailConfirmed = false,
                             FirstName = "Jane",
                             Gender = "Female",
-                            JoinedDate = new DateTime(2025, 1, 31, 19, 50, 46, 881, DateTimeKind.Local).AddTicks(3698),
+                            JoinedDate = new DateTime(2025, 2, 25, 1, 59, 3, 747, DateTimeKind.Local).AddTicks(6502),
                             LastName = "Smith",
                             LockoutEnabled = false,
                             NormalizedEmail = "JANESMITH@EXAMPLE.COM",
                             NormalizedUserName = "JANESMITH",
                             PhoneNumber = "0987654321",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3607ac05-a524-40e2-a2af-5629898b7354",
+                            SecurityStamp = "124b7601-cb7d-4165-adbe-fc0628717fe0",
                             TwoFactorEnabled = false,
                             UserName = "janesmith",
                             AvailableForOnlineTraining = false
@@ -707,29 +726,6 @@ namespace Infrastructure.Migrations
                     b.HasBaseType("Core.Entities.Identity.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("Trainee");
-                });
-
-            modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingGroup", b =>
-                {
-                    b.HasBaseType("Core.Entities.OnlineTrainingEntities.OnlineTraining");
-
-                    b.Property<byte>("DurationOfSession")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("NoOfSessionsPerWeek")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasDiscriminator().HasValue("GROUP");
-                });
-
-            modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingPrivate", b =>
-                {
-                    b.HasBaseType("Core.Entities.OnlineTrainingEntities.OnlineTraining");
-
-                    b.HasDiscriminator().HasValue("PRIVT");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.CoachPost", b =>
@@ -769,6 +765,63 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("SHP");
                 });
 
+            modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
+                        .WithMany("FollowedGyms")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
+                        .WithMany("Followers")
+                        .HasForeignKey("GymId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FollowerUser");
+
+                    b.Navigation("Gym");
+                });
+
+            modelBuilder.Entity("Core.Entities.FollowEntities.ShopFollow", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
+                        .WithMany("FollowedShops")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
+                        .WithMany("Followers")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FollowerUser");
+
+                    b.Navigation("Shop");
+                });
+
+            modelBuilder.Entity("Core.Entities.FollowEntities.UserFollow", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
+                        .WithMany("Following")
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowingUser")
+                        .WithMany("Followers")
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("FollowerUser");
+
+                    b.Navigation("FollowingUser");
+                });
+
             modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Coach", "Owner")
@@ -790,8 +843,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.Trainee", "Trainee")
                         .WithMany()
                         .HasForeignKey("TraineeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Gym");
 
@@ -854,61 +906,22 @@ namespace Infrastructure.Migrations
                     b.Navigation("refreshTokens");
                 });
 
-            modelBuilder.Entity("Core.Entities.Identity.GymFollow", b =>
+            modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.CoachRating", b =>
                 {
-                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
-                        .WithMany("FollowedGyms")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
-                        .WithMany("Followers")
-                        .HasForeignKey("GymId")
+                    b.HasOne("Core.Entities.Identity.Coach", "Coach")
+                        .WithMany("Ratings")
+                        .HasForeignKey("CoachId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("FollowerUser");
+                    b.HasOne("Core.Entities.Identity.Trainee", "Trainee")
+                        .WithMany()
+                        .HasForeignKey("TraineeId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Gym");
-                });
+                    b.Navigation("Coach");
 
-            modelBuilder.Entity("Core.Entities.Identity.ShopFollow", b =>
-                {
-                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
-                        .WithMany("FollowedShops")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
-                        .WithMany("Followers")
-                        .HasForeignKey("ShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FollowerUser");
-
-                    b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("Core.Entities.Identity.UserFollow", b =>
-                {
-                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
-                        .WithMany("Following")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowingUser")
-                        .WithMany("Followers")
-                        .HasForeignKey("FollowingId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("FollowerUser");
-
-                    b.Navigation("FollowingUser");
+                    b.Navigation("Trainee");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
@@ -916,7 +929,8 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.Coach", "Coach")
                         .WithMany("OnlineTrainings")
                         .HasForeignKey("CoachID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Coach");
                 });
@@ -1088,6 +1102,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("OnlineTrainings");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("Ratings");
 
                     b.Navigation("Shops");
                 });
