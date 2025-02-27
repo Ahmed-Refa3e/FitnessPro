@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -256,10 +254,10 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CoachID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TrainingType = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(6,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     NoOfSessionsPerWeek = table.Column<int>(type: "int", nullable: false),
                     DurationOfSession = table.Column<int>(type: "int", nullable: false)
                 },
@@ -270,8 +268,7 @@ namespace Infrastructure.Migrations
                         name: "FK_OnlineTrainings_AspNetUsers_CoachID",
                         column: x => x.CoachID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -280,13 +277,13 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PictureUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    City = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Governorate = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Governorate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CoachID = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -411,7 +408,7 @@ namespace Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    OnlineTrainingId = table.Column<int>(type: "int", nullable: true),
+                    OnlineTrainingId = table.Column<int>(type: "int", nullable: false),
                     TraineeID = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -422,13 +419,12 @@ namespace Infrastructure.Migrations
                         column: x => x.TraineeID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_OnlineTrainingSubscriptions_OnlineTrainings_OnlineTrainingId",
                         column: x => x.OnlineTrainingId,
                         principalTable: "OnlineTrainings",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -437,9 +433,9 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PostType = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
                     CoachId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     GymId = table.Column<int>(type: "int", nullable: true),
                     ShopId = table.Column<int>(type: "int", nullable: true)
@@ -491,7 +487,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostPictureUrl",
+                name: "PictureUrls",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -501,31 +497,13 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostPictureUrl", x => x.Id);
+                    table.PrimaryKey("PK_PictureUrls", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PostPictureUrl_Posts_PostId",
+                        name: "FK_PictureUrls_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "AvailableForOnlineTraining", "Bio", "ConcurrencyStamp", "DateOfBirth", "Discriminator", "Email", "EmailConfirmed", "FirstName", "Gender", "JoinedDate", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "ProfilePictureUrl", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[,]
-                {
-                    { "coach1", 0, true, null, "21dd1da4-0707-43dd-9402-8e4402d92947", new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified), "Coach", "johndoe@example.com", false, "John", "Male", new DateTime(2025, 2, 25, 1, 59, 3, 747, DateTimeKind.Local).AddTicks(6361), "Doe", false, null, "JOHNDOE@EXAMPLE.COM", "JOHNDOE", null, "0123456789", false, null, "29d06c01-b71b-47ae-8230-147d8121e7cb", false, "johndoe" },
-                    { "coach2", 0, false, null, "bee0806f-fa14-4b0a-b51d-3eb11c13ab15", new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified), "Coach", "janesmith@example.com", false, "Jane", "Female", new DateTime(2025, 2, 25, 1, 59, 3, 747, DateTimeKind.Local).AddTicks(6502), "Smith", false, null, "JANESMITH@EXAMPLE.COM", "JANESMITH", null, "0987654321", false, null, "124b7601-cb7d-4165-adbe-fc0628717fe0", false, "janesmith" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Gyms",
-                columns: new[] { "GymID", "Address", "City", "CoachID", "Description", "FortnightlyPrice", "Governorate", "GymName", "MonthlyPrice", "PhoneNumber", "PictureUrl", "SessionPrice", "YearlyPrice" },
-                values: new object[,]
-                {
-                    { 1, "123 Main St", "Tanta", "coach1", "A top-tier gym with all the modern equipment you need.", 30, "Gharbia", "Downtown Fitness", 50, "0123456789", null, 15, 500 },
-                    { 2, "456 Sunset Blvd", "Zefta", "coach2", "A wellness center focused on body and mind fitness.", 25, "Gharbia", "Sunset Wellness", 40, "0987654321", null, 12, 450 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -625,8 +603,8 @@ namespace Infrastructure.Migrations
                 column: "TraineeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PostPictureUrl_PostId",
-                table: "PostPictureUrl",
+                name: "IX_PictureUrls_PostId",
+                table: "PictureUrls",
                 column: "PostId");
 
             migrationBuilder.CreateIndex(
@@ -697,7 +675,7 @@ namespace Infrastructure.Migrations
                 name: "OnlineTrainingSubscriptions");
 
             migrationBuilder.DropTable(
-                name: "PostPictureUrl");
+                name: "PictureUrls");
 
             migrationBuilder.DropTable(
                 name: "ShopFollows");

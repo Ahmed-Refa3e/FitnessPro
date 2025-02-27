@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    [Migration("20250224235905_Init")]
+    [Migration("20250227173812_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -127,38 +127,6 @@ namespace Infrastructure.Migrations
                         .HasFilter("[CoachID] IS NOT NULL");
 
                     b.ToTable("Gyms");
-
-                    b.HasData(
-                        new
-                        {
-                            GymID = 1,
-                            Address = "123 Main St",
-                            City = "Tanta",
-                            CoachID = "coach1",
-                            Description = "A top-tier gym with all the modern equipment you need.",
-                            FortnightlyPrice = 30,
-                            Governorate = "Gharbia",
-                            GymName = "Downtown Fitness",
-                            MonthlyPrice = 50,
-                            PhoneNumber = "0123456789",
-                            SessionPrice = 15,
-                            YearlyPrice = 500
-                        },
-                        new
-                        {
-                            GymID = 2,
-                            Address = "456 Sunset Blvd",
-                            City = "Zefta",
-                            CoachID = "coach2",
-                            Description = "A wellness center focused on body and mind fitness.",
-                            FortnightlyPrice = 25,
-                            Governorate = "Gharbia",
-                            GymName = "Sunset Wellness",
-                            MonthlyPrice = 40,
-                            PhoneNumber = "0987654321",
-                            SessionPrice = 12,
-                            YearlyPrice = 450
-                        });
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.GymRating", b =>
@@ -377,8 +345,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DurationOfSession")
                         .HasColumnType("int");
@@ -387,12 +354,11 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(6,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TrainingType")
                         .HasColumnType("int");
@@ -401,7 +367,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachID");
 
-                    b.ToTable("OnlineTrainings", (string)null);
+                    b.ToTable("OnlineTrainings");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingSubscription", b =>
@@ -415,7 +381,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("OnlineTrainingId")
+                    b.Property<int>("OnlineTrainingId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
@@ -430,7 +396,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("OnlineTrainingSubscriptions", (string)null);
+                    b.ToTable("OnlineTrainingSubscriptions");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
@@ -443,22 +409,21 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PostType")
+                    b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
 
-                    b.HasDiscriminator<string>("PostType").HasValue("Post");
+                    b.HasDiscriminator().HasValue("Post");
 
                     b.UseTphMappingStrategy();
                 });
@@ -482,7 +447,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostPictureUrl", (string)null);
+                    b.ToTable("PictureUrls");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
@@ -495,35 +460,28 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CoachID")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Governorate")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
@@ -532,7 +490,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachID");
 
-                    b.ToTable("Shops", (string)null);
+                    b.ToTable("Shops");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -676,52 +634,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.HasDiscriminator().HasValue("Coach");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "coach1",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "21dd1da4-0707-43dd-9402-8e4402d92947",
-                            DateOfBirth = new DateTime(1985, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "johndoe@example.com",
-                            EmailConfirmed = false,
-                            FirstName = "John",
-                            Gender = "Male",
-                            JoinedDate = new DateTime(2025, 2, 25, 1, 59, 3, 747, DateTimeKind.Local).AddTicks(6361),
-                            LastName = "Doe",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
-                            NormalizedUserName = "JOHNDOE",
-                            PhoneNumber = "0123456789",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "29d06c01-b71b-47ae-8230-147d8121e7cb",
-                            TwoFactorEnabled = false,
-                            UserName = "johndoe",
-                            AvailableForOnlineTraining = true
-                        },
-                        new
-                        {
-                            Id = "coach2",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "bee0806f-fa14-4b0a-b51d-3eb11c13ab15",
-                            DateOfBirth = new DateTime(1990, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "janesmith@example.com",
-                            EmailConfirmed = false,
-                            FirstName = "Jane",
-                            Gender = "Female",
-                            JoinedDate = new DateTime(2025, 2, 25, 1, 59, 3, 747, DateTimeKind.Local).AddTicks(6502),
-                            LastName = "Smith",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "JANESMITH@EXAMPLE.COM",
-                            NormalizedUserName = "JANESMITH",
-                            PhoneNumber = "0987654321",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "124b7601-cb7d-4165-adbe-fc0628717fe0",
-                            TwoFactorEnabled = false,
-                            UserName = "janesmith",
-                            AvailableForOnlineTraining = false
-                        });
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.Trainee", b =>
@@ -741,7 +653,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachId");
 
-                    b.HasDiscriminator().HasValue("COH");
+                    b.HasDiscriminator().HasValue("CoachPost");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.GymPost", b =>
@@ -753,7 +665,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("GymId");
 
-                    b.HasDiscriminator().HasValue("GYM");
+                    b.HasDiscriminator().HasValue("GymPost");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.ShopPost", b =>
@@ -765,7 +677,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.HasDiscriminator().HasValue("SHP");
+                    b.HasDiscriminator().HasValue("ShopPost");
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>
@@ -932,7 +844,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.Coach", "Coach")
                         .WithMany("OnlineTrainings")
                         .HasForeignKey("CoachID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Coach");
@@ -943,12 +855,13 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.OnlineTrainingEntities.OnlineTraining", "OnlineTraining")
                         .WithMany("OnlineTrainingSubscriptions")
                         .HasForeignKey("OnlineTrainingId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Core.Entities.Identity.Trainee", "Trainee")
                         .WithMany("OnlineTrainingSubscriptions")
                         .HasForeignKey("TraineeID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("OnlineTraining");
 

@@ -4,12 +4,9 @@ using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
 using Core.Entities.PostEntities;
 using Core.Entities.ShopEntities;
-using Core.Helpers;
-using Infrastructure.SeedData;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
-using System.Text.Json;
 
 namespace Infrastructure.Data;
 public class FitnessContext(DbContextOptions options) : IdentityDbContext<ApplicationUser>(options)
@@ -23,7 +20,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<OnlineTraining>? OnlineTrainings { get; set; }
     public DbSet<OnlineTrainingSubscription>? OnlineTrainingSubscriptions { get; set; }
     public DbSet<Post>? Posts { get; set; }
-    public DbSet<PostPictureUrl>? PictureUrls { get; set; } 
+    public DbSet<PostPictureUrl>? PictureUrls { get; set; }
     public DbSet<GymPost>? GymPosts { get; set; }
     public DbSet<ShopPost>? ShopPosts { get; set; }
     public DbSet<CoachPost>? CoachPosts { get; set; }
@@ -50,25 +47,26 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasForeignKey(gs => gs.TraineeID)
             .OnDelete(DeleteBehavior.Cascade);
 
-       /* // OnlineTraining Relationships
+        // OnlineTraining Relationships
         builder.Entity<OnlineTraining>()
             .HasOne(ot => ot.Coach)
             .WithMany(c => c.OnlineTrainings)
             .HasForeignKey(ot => ot.CoachID)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
-        // OnlineTrainingSubscription Relationships
-        /*builder.Entity<OnlineTrainingSubscription>()
-            .HasOne(ots => ots.Training)
-            .WithMany()
-            .HasForeignKey(ots => ots.TrainingID)
-            .OnDelete(DeleteBehavior.Restrict);
+        //OnlineTrainingSubscription Relationships
+
+        builder.Entity<OnlineTrainingSubscription>()
+                .HasOne(ots => ots.OnlineTraining)
+                .WithMany(ot => ot.OnlineTrainingSubscriptions)
+                .HasForeignKey(ots => ots.OnlineTrainingId)
+                .OnDelete(DeleteBehavior.NoAction); 
 
         builder.Entity<OnlineTrainingSubscription>()
             .HasOne(ots => ots.Trainee)
             .WithMany(t => t.OnlineTrainingSubscriptions)
             .HasForeignKey(ots => ots.TraineeID)
-            .OnDelete(DeleteBehavior.Cascade);*/
+            .OnDelete(DeleteBehavior.Restrict); 
 
         // GymRating relationships
         builder.Entity<GymRating>()
@@ -97,7 +95,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasForeignKey(e => e.FollowingId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        builder.Entity<GymFollow>().HasKey(e => new {e.GymId, e.FollowerId});
+        builder.Entity<GymFollow>().HasKey(e => new { e.GymId, e.FollowerId });
         builder.Entity<GymFollow>()
             .HasOne(f => f.FollowerUser)
             .WithMany(u => u.FollowedGyms)

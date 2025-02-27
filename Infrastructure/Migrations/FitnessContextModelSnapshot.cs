@@ -342,8 +342,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DurationOfSession")
                         .HasColumnType("int");
@@ -352,12 +351,11 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(6,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TrainingType")
                         .HasColumnType("int");
@@ -366,7 +364,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachID");
 
-                    b.ToTable("OnlineTrainings", (string)null);
+                    b.ToTable("OnlineTrainings");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingSubscription", b =>
@@ -380,7 +378,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("OnlineTrainingId")
+                    b.Property<int>("OnlineTrainingId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
@@ -395,7 +393,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("OnlineTrainingSubscriptions", (string)null);
+                    b.ToTable("OnlineTrainingSubscriptions");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
@@ -408,22 +406,21 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PostType")
+                    b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
 
-                    b.HasDiscriminator<string>("PostType").HasValue("Post");
+                    b.HasDiscriminator().HasValue("Post");
 
                     b.UseTphMappingStrategy();
                 });
@@ -447,7 +444,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostPictureUrl", (string)null);
+                    b.ToTable("PictureUrls");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
@@ -460,35 +457,28 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CoachID")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Governorate")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
@@ -497,7 +487,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachID");
 
-                    b.ToTable("Shops", (string)null);
+                    b.ToTable("Shops");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -660,7 +650,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachId");
 
-                    b.HasDiscriminator().HasValue("COH");
+                    b.HasDiscriminator().HasValue("CoachPost");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.GymPost", b =>
@@ -672,7 +662,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("GymId");
 
-                    b.HasDiscriminator().HasValue("GYM");
+                    b.HasDiscriminator().HasValue("GymPost");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.ShopPost", b =>
@@ -684,7 +674,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.HasDiscriminator().HasValue("SHP");
+                    b.HasDiscriminator().HasValue("ShopPost");
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>
@@ -851,7 +841,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.Coach", "Coach")
                         .WithMany("OnlineTrainings")
                         .HasForeignKey("CoachID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Coach");
@@ -862,12 +852,13 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.OnlineTrainingEntities.OnlineTraining", "OnlineTraining")
                         .WithMany("OnlineTrainingSubscriptions")
                         .HasForeignKey("OnlineTrainingId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Core.Entities.Identity.Trainee", "Trainee")
                         .WithMany("OnlineTrainingSubscriptions")
                         .HasForeignKey("TraineeID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("OnlineTraining");
 
