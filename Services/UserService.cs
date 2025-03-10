@@ -17,8 +17,13 @@ namespace Services
 
         public async Task<PagedResult<CoachResponseDTO>> GetAllCoachesAsync(GetCoachesDTO getCoachesDTO)
         {
-            var query = repository.GetAll(user => user is Coach)
-                                        .Select(c => (Coach)c); ;
+            var query = repository.GetAll().OfType<Coach>();
+
+            if(!string.IsNullOrEmpty(getCoachesDTO.CoachName))
+            {
+                query = query
+                    .Where(e => EF.Functions.Like(e.FirstName + " " + e.LastName, $"%{getCoachesDTO.CoachName}%"));
+            }
 
             if (getCoachesDTO.MinRating.HasValue)
             {
@@ -88,7 +93,7 @@ namespace Services
             var user = await repository.GetAsync(e => e.Id == CoachId
                         , includeProperties: "OnlineTrainings"
            );
-            if (user == null)
+            if (user is null)
             {
                 response.IsSuccess = false;
                 response.Data = "User Not Found.";

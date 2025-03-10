@@ -81,7 +81,7 @@ namespace API.Controllers
         //    return BadRequest(result);
         //}
 
-        [HttpGet("LogOut")]
+        [HttpPost("LogOut")]
         public async Task<ActionResult> LogOut()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
