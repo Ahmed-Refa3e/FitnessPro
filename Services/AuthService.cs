@@ -87,7 +87,7 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> RegisterCoachAsync(RegisterCoachDTO model)
+        public async Task<Generalresponse> RegisterCoachAsync(RegisterDTO model)
         {
             Generalresponse response = new Generalresponse();
 
@@ -107,7 +107,6 @@ namespace Services
                 LastName = model.LastName,
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
-                Bio = model.Bio,
                 JoinedDate = DateTime.Now
             };
 

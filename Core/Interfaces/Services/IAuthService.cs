@@ -6,7 +6,7 @@ namespace Core.Interfaces.Services
     public interface IAuthService
     {
         Task<Generalresponse> RegisterTraineeAsync(RegisterDTO model);
-        Task<Generalresponse> RegisterCoachAsync(RegisterCoachDTO model);
+        Task<Generalresponse> RegisterCoachAsync(RegisterDTO model);
         Task<Generalresponse> LoginAsync(LoginDTO loginDTO);
         Task<Generalresponse> GoogleLoginAsync(string IdToken);
         Task<Generalresponse> LogOutAsync(string userId);

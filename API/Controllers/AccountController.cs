@@ -33,7 +33,7 @@ namespace API.Controllers
         }
 
         [HttpPost("RegisterCoach")]
-        public async Task<ActionResult> RegisterCoach(RegisterCoachDTO model)
+        public async Task<ActionResult> RegisterCoach(RegisterDTO model)
         {
             if (!ModelState.IsValid)
             {
