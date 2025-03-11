@@ -19,7 +19,7 @@ namespace Services
         {
             var query = repository.GetAll().OfType<Coach>();
 
-            if(!string.IsNullOrEmpty(getCoachesDTO.CoachName))
+            if (!string.IsNullOrEmpty(getCoachesDTO.CoachName))
             {
                 query = query
                     .Where(e => EF.Functions.Like(e.FirstName + " " + e.LastName, $"%{getCoachesDTO.CoachName}%"));
@@ -44,8 +44,8 @@ namespace Services
 
             switch (getCoachesDTO.SortBy.ToLower())
             {
-                case "firstname":
-                    query = query.OrderBy(e => e.FirstName);
+                case "coachname":
+                    query = query.OrderBy(e => e.FirstName).ThenBy(e => e.LastName);
                     break;
                 case "rating":
                     query = query.OrderByDescending(e => e.Ratings != null && e.Ratings.Any()
@@ -107,7 +107,7 @@ namespace Services
                 Id = CoachId,
                 FullName = $"{user.FirstName} {user.LastName}",
                 ProfilePictureUrl = user.ProfilePictureUrl,
-                Bio = user.Bio,
+                Bio = coach.Bio,
                 Gender = user.Gender,
                 JoinedDate = user.JoinedDate,
                 OnlineTrainings = coach.OnlineTrainings?.Select(trining => new GetOnlineTrainingDTO
@@ -129,29 +129,53 @@ namespace Services
 
         public GetProfileDTO GetProfileDetails(ApplicationUser user)
         {
-            var UserDto = new GetProfileDTO
+            if (user is Coach coach)
+            {
+                return new CoachProfileDTO
+                {
+                    Id = coach.Id,
+                    FirstName = coach.FirstName,
+                    LastName = coach.LastName,
+                    ProfilePictureUrl = coach.ProfilePictureUrl,
+                    Gender = coach.Gender,
+                    DateOfBirth = coach.DateOfBirth,
+                    JoinedDate = coach.JoinedDate,
+                    Bio = coach.Bio
+                };
+            }
+
+            return new GetProfileDTO
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 ProfilePictureUrl = user.ProfilePictureUrl,
-                Bio = user.Bio,
                 Gender = user.Gender,
-                DateOfBirth = user.JoinedDate,
+                DateOfBirth = user.DateOfBirth,
                 JoinedDate = user.JoinedDate
             };
-            return UserDto;
         }
 
         public async Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user)
         {
             Generalresponse response = new Generalresponse();
 
+            if (user is not Coach && !string.IsNullOrEmpty(profileDTO.Bio))
+            {
+                response.IsSuccess = false;
+                response.Data = "Users cannot update their bio.";
+                return response;
+            }
+
             user.FirstName = profileDTO.FirstName;
             user.LastName = profileDTO.LastName;
             user.Gender = profileDTO.Gender;
             user.DateOfBirth = profileDTO.DateOfBirth;
-            user.Bio = profileDTO.Bio;
+
+            if (user is Coach coach)
+            {
+                coach.Bio = profileDTO.Bio;
+            }
 
             var result = await _userManager.UpdateAsync(user);
 

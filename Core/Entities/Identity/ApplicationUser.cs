@@ -16,7 +16,6 @@ public class ApplicationUser : IdentityUser
 
     [MaxLength(100)]
     public string? ProfilePictureUrl { get; set; }
-    public string? Bio { get; set; }
     public required DateTime DateOfBirth { get; set; }
     public DateTime JoinedDate { get; set; } = DateTime.Now;
     public List<RefreshToken>? refreshTokens { get; set; }

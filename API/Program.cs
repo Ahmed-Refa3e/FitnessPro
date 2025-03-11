@@ -122,10 +122,12 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-//}).AddGoogle(options =>
+//.AddGoogle(options =>
 //{
 //    options.ClientId = googleSettings?.ClientID ?? string.Empty;
 //    options.ClientSecret = googleSettings?.ClientSecret ?? string.Empty;
+//    options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
+//    options.Scope.Add("https://www.googleapis.com/auth/user.birthday.read");
 //});
 
 builder.Services.AddScoped<IGymRepository, GymRepository>();

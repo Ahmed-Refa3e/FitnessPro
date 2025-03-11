@@ -15,7 +15,7 @@ namespace Core.DTOs.UserDTO
 
         [Range(0, 5, ErrorMessage = "Max rating must be between 0 and 5.")]
         public double? MaxRating { get; set; }
-        [RegularExpression("firstName|rating|joinedDate", ErrorMessage = "SortBy must be 'firstName', 'rating', or 'joinedDate'.")]
+        [RegularExpression("coachName|rating|joinedDate", ErrorMessage = "SortBy must be 'coachName', 'rating', or 'joinedDate'.")]
         public string? SortBy { get; set; }
     }
 }

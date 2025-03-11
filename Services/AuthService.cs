@@ -58,7 +58,6 @@ namespace Services
                 LastName = model.LastName,
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
-                Bio = model.Bio,
                 JoinedDate = DateTime.Now
             };
 

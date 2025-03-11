@@ -34,7 +34,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FollowerId");
 
-                    b.ToTable("gymFollows");
+                    b.ToTable("gymFollows", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.ShopFollow", b =>
@@ -49,7 +49,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FollowerId");
 
-                    b.ToTable("ShopFollows");
+                    b.ToTable("ShopFollows", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.UserFollow", b =>
@@ -64,7 +64,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FollowerId");
 
-                    b.ToTable("userFollows");
+                    b.ToTable("userFollows", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
@@ -123,7 +123,7 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[CoachID] IS NOT NULL");
 
-                    b.ToTable("Gyms");
+                    b.ToTable("Gyms", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.GymRating", b =>
@@ -155,7 +155,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("GymRatings");
+                    b.ToTable("GymRatings", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.GymSubscription", b =>
@@ -192,7 +192,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("GymSubscriptions");
+                    b.ToTable("GymSubscriptions", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
@@ -326,7 +326,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeId");
 
-                    b.ToTable("coachRatings");
+                    b.ToTable("coachRatings", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
@@ -364,7 +364,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachID");
 
-                    b.ToTable("OnlineTrainings");
+                    b.ToTable("OnlineTrainings", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingSubscription", b =>
@@ -393,7 +393,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("OnlineTrainingSubscriptions");
+                    b.ToTable("OnlineTrainingSubscriptions", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
@@ -418,7 +418,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
 
                     b.HasDiscriminator().HasValue("Post");
 
@@ -444,7 +444,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PictureUrls");
+                    b.ToTable("PictureUrls", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
@@ -487,7 +487,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachID");
 
-                    b.ToTable("Shops");
+                    b.ToTable("Shops", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -783,7 +783,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
                 {
-                    b.OwnsMany("Core.Entities.Identity.RefreshToken", "refreshTokens", b1 =>
+                    b.OwnsMany("Core.Entities.Identity.ApplicationUser.refreshTokens#Core.Entities.Identity.RefreshToken", "refreshTokens", b1 =>
                         {
                             b1.Property<string>("ApplicationUserId")
                                 .HasColumnType("nvarchar(450)");
@@ -809,7 +809,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ApplicationUserId", "Id");
 
-                            b1.ToTable("AspNetUsers_refreshTokens");
+                            b1.ToTable("AspNetUsers_refreshTokens", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ApplicationUserId");

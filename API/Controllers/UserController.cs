@@ -55,10 +55,14 @@ namespace API.Controllers
                 return NotFound(new { Message = "User not found" });
 
             var result = await service.UpdateProfileDetailsAsync(model, user);
-            if (result.IsSuccess)
-                return Ok(result);
-            return StatusCode(422, result);
+            if (!result.IsSuccess)
+            {
+                return result.Data == "Users cannot update their bio."
+                    ? BadRequest(result)
+                    : StatusCode(422, result);
+            }
 
+            return Ok(result);
         }
 
         [Authorize]
