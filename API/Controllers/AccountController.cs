@@ -56,7 +56,6 @@ namespace API.Controllers
         public async Task<ActionResult> Login(LoginDTO loginDTO)
         {
             if (!ModelState.IsValid)
-
                 return BadRequest(ModelState);
 
             var result = await service.LoginAsync(loginDTO);
@@ -64,7 +63,7 @@ namespace API.Controllers
             if (result.IsSuccess)
                 return Ok(result);
             else if (result.Data is string message && message.Contains("confirm your account"))
-                return Forbid(result.Data);
+                return StatusCode(StatusCodes.Status403Forbidden, new { Message = message });
             else if (result.Data is string newMessage && newMessage.Contains("Invalid email or password"))
                 return Unauthorized(result);
             else
