@@ -191,9 +191,9 @@ namespace API.Controllers
         }
 
         [HttpPost("resend-Confirmation-code")]
-        public async Task<IActionResult> ResendConfirmationCode([FromBody] ConfirmEmailDTO request)
+        public async Task<IActionResult> ResendConfirmationCode([FromBody] string Email)
         {
-            var result = await service.ResendConfirmationCodeAsync(request);
+            var result = await service.ResendConfirmationCodeAsync(Email);
 
             if (result.IsSuccess)
                 return Ok(result);

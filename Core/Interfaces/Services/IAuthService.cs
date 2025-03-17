@@ -15,7 +15,7 @@ namespace Core.Interfaces.Services
         Task<Generalresponse> ForgetPasswordAsync(string email);
         Task<Generalresponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO);
         Task<Generalresponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);
-        Task<Generalresponse> ResendConfirmationCodeAsync(ConfirmEmailDTO request);
+        Task<Generalresponse> ResendConfirmationCodeAsync(string Email);
         Task<Generalresponse> ResendResetPasswordCodeAsync(string Email);
         Task<Generalresponse> RefreshTokenAsync(TokenRequestDTO request);
         Task<Generalresponse> RevokeAllTokensAsync(string userId);
