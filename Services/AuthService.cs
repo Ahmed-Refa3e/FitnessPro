@@ -440,11 +440,11 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ResendConfirmationCodeAsync(ConfirmEmailDTO request)
+        public async Task<Generalresponse> ResendConfirmationCodeAsync(string Email)
         {
             Generalresponse response = new Generalresponse();
 
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByEmailAsync(Email);
             if (user == null)
             {
                 response.IsSuccess = false;
