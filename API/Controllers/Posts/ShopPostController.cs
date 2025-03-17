@@ -11,8 +11,8 @@ namespace API.Controllers.Posts
     [ApiController]
     public class ShopPostController : ControllerBase
     {
-        protected readonly IPostRepositoryFactory _factoryRepository;
-        protected readonly IPostRepresentationRepository _representationRepository;
+        private readonly IPostRepositoryFactory _factoryRepository;
+        private readonly IPostRepresentationRepository _representationRepository;
         public ShopPostController(IPostRepositoryFactory factoryRepository, IPostRepresentationRepository representationRepository)
         {
             _factoryRepository = factoryRepository;
@@ -29,20 +29,9 @@ namespace API.Controllers.Posts
                 {
                     return BadRequest(result.Massage);
                 }
-                string url = Url.Action(nameof(GetPost), new { id = result.Id });
-                return Created(url, _representationRepository.Get(result.Id));
+                return Created("", _representationRepository.Get(result.Id));
             }
             return BadRequest(ModelState);
-        }
-        [HttpGet("{id}")]
-        public IActionResult GetPost(int id)
-        {
-            var post = _representationRepository.Get(id);
-            if (post == null)
-            {
-                return NotFound("Post not found");
-            }
-            return Ok(post);
         }
         [HttpDelete("{id}")]
         public IActionResult DeletePost(int id)

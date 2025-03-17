@@ -30,28 +30,42 @@ namespace Infrastructure.Repositories.PostRepositoy
 
             return post switch
             {
-                CoachPost coachPost => new ShowCoachPostDTO(_context.CoachPosts.Where(x=>x.Id==id).Include(x => x.PictureUrls).Include(x=>x.Coach).FirstOrDefault()),
-                GymPost gymPost => new ShowGymPostDTO(_context.GymPosts.Where(x => x.Id == id).Include(x => x.PictureUrls).Include(x => x.Gym).FirstOrDefault()),
-                ShopPost shopPost => new ShowShopPostDTO(_context.ShopPosts.Where(x => x.Id == id).Include(x => x.Shop).Include(x=>x.PictureUrls).FirstOrDefault()),
+                CoachPost coachPost => _context.CoachPosts.Select(p => new ShowCoachPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Coach.ProfilePictureUrl??"",
+                    Name = p.Coach.FirstName + " " + p.Coach.FirstName,
+                    CoachId = p.CoachId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                }).Where(x => x.Id == id)
+                .FirstOrDefault(),
+                GymPost gymPost => _context.GymPosts.Select(p => new ShowGymPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Gym.PictureUrl ?? "",
+                    Name = p.Gym.GymName,
+                    GymId = p.GymId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                }).Where(x => x.Id == id)
+                .FirstOrDefault(),
+                ShopPost shopPost => _context.ShopPosts.Select(p => new ShowShopPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Shop.PictureUrl ?? "",
+                    Name = p.Shop.Name,
+                    ShopId = p.ShopId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                }).Where(x => x.Id == id)
+                .FirstOrDefault(),
                 _ => null
             };
         }
-
-        public List<ShowCoachPostDTO> GetCoachPosts(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<ShowGymPostDTO> GetGymPosts(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<ShowShopPostDTO> GetShopPosts(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         private Post GetPost(int id) => _context.Posts.Find(id);
     }
 }

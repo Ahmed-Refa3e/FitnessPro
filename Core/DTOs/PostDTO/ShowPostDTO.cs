@@ -15,9 +15,5 @@ namespace Core.DTOs.PostDTO
         public string PhotoPass { get; set;}
         public string Name { get; set;}
         public List<string>? PictureUrls { get; set;}
-        public ShowPostDTO()
-        {
-            
-        }
     }
 }

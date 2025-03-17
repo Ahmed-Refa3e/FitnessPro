@@ -124,7 +124,6 @@ namespace Infrastructure.Repositories.PostRepositoy
             return new IntResult { Id = newPost.Id };
         }
          Post GetPost(int id) => _context.Posts.Find(id);
-        public 
     }
 
 }

@@ -12,6 +12,7 @@ using Infrastructure.Repositories.IShopRepositories;
 using Infrastructure.Repositories.OnlineTrainingRepositories;
 using Infrastructure.Repositories.PostRepositoy;
 using Infrastructure.Repositories.UserRepository;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi.Models;
 using Services;
 using Stripe;

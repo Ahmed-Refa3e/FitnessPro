@@ -10,8 +10,5 @@ namespace Core.Interfaces.Repositories.PostRepositories
     public  interface IPostRepresentationRepository
     {
         ShowPostDTO Get(int id);
-        List<ShowShopPostDTO> GetShopPosts(int id);
-        List<ShowGymPostDTO> GetGymPosts(int id);
-        List<ShowCoachPostDTO> GetCoachPosts(int id);
     }
 }

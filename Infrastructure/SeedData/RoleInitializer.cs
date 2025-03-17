@@ -8,13 +8,13 @@ namespace Infrastructure.SeedData
         {
             string[] roleNames = { "Admin", "Trainee", "Coach" };
 
-            /*foreach (var roleName in roleNames)
+            foreach (var roleName in roleNames)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {
                     await roleManager.CreateAsync(new IdentityRole(roleName));
                 }
-            }*/
+            }
         }
     }
 }
