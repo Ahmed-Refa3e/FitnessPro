@@ -113,20 +113,6 @@ builder.Services.AddAuthentication(options =>
                 Encoding.UTF8.GetBytes(jwtSettings?.SecritKey ?? string.Empty))
 
     };
-    options.Events = new JwtBearerEvents
-    {
-        OnTokenValidated = async context =>
-        {
-            var userRepository = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
-            var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await userRepository.GetAsync(e => e.Id == userId, includeProperties: "refreshTokens");
-
-            if (user == null || user.refreshTokens == null || user.refreshTokens.All(t => t.Revoked != null))
-            {
-                context.Fail("Token has been revoked.");
-            }
-        }
-    };
 });
 //.AddGoogle(options =>
 //{
