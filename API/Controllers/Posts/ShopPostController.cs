@@ -12,8 +12,8 @@ namespace API.Controllers.Posts
     public class ShopPostController : ControllerBase
     {
         private readonly IPostRepositoryFactory _factoryRepository;
-        private readonly IPostRepresentationRepository _representationRepository;
-        public ShopPostController(IPostRepositoryFactory factoryRepository, IPostRepresentationRepository representationRepository)
+        private readonly IPostRepository _representationRepository;
+        public ShopPostController(IPostRepositoryFactory factoryRepository, IPostRepository representationRepository)
         {
             _factoryRepository = factoryRepository;
             _representationRepository = representationRepository;

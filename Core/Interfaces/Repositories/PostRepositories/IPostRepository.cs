@@ -8,10 +8,16 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces.Repositories.PostRepositories
 {
-    public interface IPostRepository
+    public  interface IPostRepository
     {
-        Task<IntResult> Add(AddPostDTO post);
-        IntResult Delete(int id);
-        //public ShowPostDTO Get(int id);
+        ShowPostDTO Get(int id);
+        IntResult AddLikeOnPost(AddLikeDTO likeDTO);
+        IntResult DeleteLikeFromPost(string userId,int postId);
+        ShowLikeDTO GetLike(int id);
+        IntResult AddComentOnPost(AddCommentDTO commentDTO);
+        //IntResult DeleteCommentFromPost(string UserId, int postId);
+        IntResult DeleteCommentFromPost(int commentId);
+        ShowCommentDTO GetComment(int id);
+        List<ShowLikeDTO> GetLikeListOnPost(int id);
     }
 }

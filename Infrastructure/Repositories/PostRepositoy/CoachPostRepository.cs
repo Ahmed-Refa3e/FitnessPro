@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
-    public class CoachPostRepository : PostRepository
+    public class CoachPostRepository : GeneralPostRepository
     {
         public CoachPostRepository(FitnessContext context) : base(context)
         {

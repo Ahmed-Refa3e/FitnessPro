@@ -19,7 +19,7 @@ namespace Infrastructure.Factories
             _serviceProvider = serviceProvider;
         }
 
-        public IPostRepository CreateRepository(string repositoryType)
+        public IGeneralPostRepository CreateRepository(string repositoryType)
         {
             return repositoryType switch
             {

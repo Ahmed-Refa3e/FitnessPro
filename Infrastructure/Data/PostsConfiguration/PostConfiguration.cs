@@ -14,7 +14,7 @@ namespace Infrastructure.Data.PostsConfiguration
         public void Configure(EntityTypeBuilder<Post> builder)
         {
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Content).HasMaxLength(1000).IsRequired();
+            builder.Property(x => x.Content).HasMaxLength(512).IsRequired();
             builder.HasDiscriminator<string>("PostType").HasValue<CoachPost>("COH").HasValue<ShopPost>("SHP").HasValue<GymPost>("GYM");
             builder.ToTable("Posts");
         }

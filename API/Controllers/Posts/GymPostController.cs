@@ -13,8 +13,8 @@ namespace API.Controllers.Posts
     public class GymPostController : ControllerBase
     {
         private readonly IPostRepositoryFactory _factoryRepository;
-        private readonly IPostRepresentationRepository _representationRepository;
-        public GymPostController(IPostRepositoryFactory factoryRepository, IPostRepresentationRepository representationRepository)
+        private readonly IPostRepository _representationRepository;
+        public GymPostController(IPostRepositoryFactory factoryRepository, IPostRepository representationRepository)
         {
             _factoryRepository = factoryRepository;
             _representationRepository = representationRepository;

@@ -84,7 +84,7 @@ builder.Services.AddScoped<GymPostRepository>();
 builder.Services.AddScoped<ShopPostRepository>();
 builder.Services.AddScoped<CoachPostRepository>();
 builder.Services.AddScoped<IPostRepositoryFactory, PostRepositoryFactory>();
-builder.Services.AddScoped<IPostRepresentationRepository, PostRepresentationRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IShopRepository, ShopRepository>();
 builder.Services.AddScoped<CoachRatingRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));

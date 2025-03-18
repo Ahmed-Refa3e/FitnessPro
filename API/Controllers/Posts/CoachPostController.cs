@@ -11,8 +11,8 @@ namespace API.Controllers.Posts
     public class CoachPostController : ControllerBase
     {
         private readonly IPostRepositoryFactory _factoryRepository;
-        private readonly IPostRepresentationRepository _representationRepository;
-        public CoachPostController(IPostRepositoryFactory factoryRepository, IPostRepresentationRepository representationRepository)
+        private readonly IPostRepository _representationRepository;
+        public CoachPostController(IPostRepositoryFactory factoryRepository, IPostRepository representationRepository)
         {
             _factoryRepository = factoryRepository;
             _representationRepository = representationRepository;
