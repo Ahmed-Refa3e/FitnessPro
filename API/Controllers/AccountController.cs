@@ -175,8 +175,7 @@ namespace API.Controllers
                     Data = "Unauthorized access or invalid token purpose."
                 });
             }
-
-
+        
             var result = await service.ResetPasswordAsync(resetPassword);
 
             if (result.IsSuccess)

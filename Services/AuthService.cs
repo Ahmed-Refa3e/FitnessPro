@@ -600,6 +600,7 @@ namespace Services
             userclaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
             userclaims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
             userclaims.Add(new Claim(ClaimTypes.Name, user.UserName ?? string.Empty));
+            userclaims.Add(new Claim(ClaimTypes.Email, user.Email ?? string.Empty));
 
             if (resetPassword == true)
             {
