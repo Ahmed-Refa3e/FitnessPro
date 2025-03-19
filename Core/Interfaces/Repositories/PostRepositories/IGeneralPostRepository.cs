@@ -1,4 +1,5 @@
-﻿using Core.DTOs.PostDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.PostDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces.Repositories.PostRepositories
 {
-    public  interface IPostRepresentationRepository
+    public interface IGeneralPostRepository
     {
-        ShowPostDTO Get(int id);
+        Task<IntResult> Add(AddPostDTO post);
     }
 }

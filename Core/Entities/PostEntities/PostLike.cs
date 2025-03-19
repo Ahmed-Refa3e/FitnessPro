@@ -1,5 +1,5 @@
-﻿using Core.DTOs.PostDTO;
-using Core.Entities.GymEntities;
+﻿using Core.Entities.Identity;
+using Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.PostEntities
 {
-    public class GymPost:Post
+    public class PostLike : Like
     {
-        public int GymId { get; set; }
-        public Gym Gym {  get; set; }
+        public int? PostId { get; set; }
+        public Post? Post { get; set; }
     }
 }

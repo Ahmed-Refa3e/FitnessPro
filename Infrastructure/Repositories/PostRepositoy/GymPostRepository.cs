@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
-    public class GymPostRepository : PostRepository
+    public class GymPostRepository : GeneralPostRepository
     {
         public GymPostRepository(FitnessContext context):base(context)
         {

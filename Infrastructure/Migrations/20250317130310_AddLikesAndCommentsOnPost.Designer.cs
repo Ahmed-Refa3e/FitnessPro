@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    partial class FitnessContextModelSnapshot : ModelSnapshot
+    [Migration("20250317130310_AddLikesAndCommentsOnPost")]
+    partial class AddLikesAndCommentsOnPost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -207,7 +210,7 @@ namespace Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DateOfBirth")
+                    b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Discriminator")
@@ -228,6 +231,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Gender")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("JoinedDate")
@@ -392,72 +396,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("OnlineTrainingSubscriptions");
                 });
 
-            modelBuilder.Entity("Core.Entities.PostEntities.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("comments");
-
-                    b.HasDiscriminator().HasValue("Comment");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.Like", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("likes");
-
-                    b.HasDiscriminator().HasValue("Like");
-
-                    b.UseTphMappingStrategy();
-                });
-
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -485,6 +423,61 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("Post");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.PostComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("postComments");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.PostLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("postLikes");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.PostPictureUrl", b =>
@@ -703,54 +696,6 @@ namespace Infrastructure.Migrations
                     b.HasBaseType("Core.Entities.Identity.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("Trainee");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.CommentComment", b =>
-                {
-                    b.HasBaseType("Core.Entities.PostEntities.Comment");
-
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("CommentId");
-
-                    b.HasDiscriminator().HasValue("CommentComment");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.PostComment", b =>
-                {
-                    b.HasBaseType("Core.Entities.PostEntities.Comment");
-
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("PostId");
-
-                    b.HasDiscriminator().HasValue("PostComment");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.CommentLike", b =>
-                {
-                    b.HasBaseType("Core.Entities.PostEntities.Like");
-
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("CommentId");
-
-                    b.HasDiscriminator().HasValue("CommentLike");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.PostLike", b =>
-                {
-                    b.HasBaseType("Core.Entities.PostEntities.Like");
-
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("PostId");
-
-                    b.HasDiscriminator().HasValue("PostLike");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.CoachPost", b =>
@@ -978,24 +923,36 @@ namespace Infrastructure.Migrations
                     b.Navigation("Trainee");
                 });
 
-            modelBuilder.Entity("Core.Entities.PostEntities.Comment", b =>
+            modelBuilder.Entity("Core.Entities.PostEntities.PostComment", b =>
                 {
+                    b.HasOne("Core.Entities.PostEntities.Post", "Post")
+                        .WithMany("PostComments")
+                        .HasForeignKey("PostId");
+
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "User")
-                        .WithMany("Comments")
+                        .WithMany("PostComments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Post");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Core.Entities.PostEntities.Like", b =>
+            modelBuilder.Entity("Core.Entities.PostEntities.PostLike", b =>
                 {
+                    b.HasOne("Core.Entities.PostEntities.Post", "Post")
+                        .WithMany("PostLikes")
+                        .HasForeignKey("PostId");
+
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "User")
-                        .WithMany("Likes")
+                        .WithMany("PostLikes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Post");
 
                     b.Navigation("User");
                 });
@@ -1071,42 +1028,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Core.Entities.PostEntities.CommentComment", b =>
-                {
-                    b.HasOne("Core.Entities.PostEntities.Comment", "Comment")
-                        .WithMany("Comments")
-                        .HasForeignKey("CommentId");
-
-                    b.Navigation("Comment");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.PostComment", b =>
-                {
-                    b.HasOne("Core.Entities.PostEntities.Post", "Post")
-                        .WithMany("Comments")
-                        .HasForeignKey("PostId");
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.CommentLike", b =>
-                {
-                    b.HasOne("Core.Entities.PostEntities.Comment", "Comment")
-                        .WithMany("Likes")
-                        .HasForeignKey("CommentId");
-
-                    b.Navigation("Comment");
-                });
-
-            modelBuilder.Entity("Core.Entities.PostEntities.PostLike", b =>
-                {
-                    b.HasOne("Core.Entities.PostEntities.Post", "Post")
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId");
-
-                    b.Navigation("Post");
-                });
-
             modelBuilder.Entity("Core.Entities.PostEntities.CoachPost", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Coach", "Coach")
@@ -1153,8 +1074,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("FollowedGyms");
 
                     b.Navigation("FollowedShops");
@@ -1163,7 +1082,9 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Following");
 
-                    b.Navigation("Likes");
+                    b.Navigation("PostComments");
+
+                    b.Navigation("PostLikes");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
@@ -1171,20 +1092,13 @@ namespace Infrastructure.Migrations
                     b.Navigation("OnlineTrainingSubscriptions");
                 });
 
-            modelBuilder.Entity("Core.Entities.PostEntities.Comment", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Likes");
-                });
-
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
                 {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Likes");
-
                     b.Navigation("PictureUrls");
+
+                    b.Navigation("PostComments");
+
+                    b.Navigation("PostLikes");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>

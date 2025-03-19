@@ -13,8 +13,8 @@ namespace API.Controllers.Posts
     public class GymPostController : ControllerBase
     {
         private readonly IPostRepositoryFactory _factoryRepository;
-        private readonly IPostRepresentationRepository _representationRepository;
-        public GymPostController(IPostRepositoryFactory factoryRepository, IPostRepresentationRepository representationRepository)
+        private readonly IPostRepository _representationRepository;
+        public GymPostController(IPostRepositoryFactory factoryRepository, IPostRepository representationRepository)
         {
             _factoryRepository = factoryRepository;
             _representationRepository = representationRepository;
@@ -30,20 +30,9 @@ namespace API.Controllers.Posts
                 {
                     return BadRequest(result.Massage);
                 }
-                return Created("", _representationRepository.Get(result.Id));
+                return Created("", _representationRepository.GetPost(result.Id));
             }
             return BadRequest(ModelState);
-        }
-        [HttpDelete("{id}")]
-        public IActionResult DeletePost(int id)
-        {
-            var repository = _factoryRepository.CreateRepository("GYM");
-            var result = repository.Delete(id);
-            if (result.Id != 1)
-            {
-                return BadRequest(result.Massage);
-            }
-            return Ok("Post deleted successfully");
         }
     }
 }

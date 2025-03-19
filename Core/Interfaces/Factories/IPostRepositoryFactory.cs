@@ -9,6 +9,6 @@ namespace Core.Interfaces.Factories
 {
     public interface IPostRepositoryFactory
     {
-        IPostRepository CreateRepository(string repositoryType);
+        IGeneralPostRepository CreateRepository(string repositoryType);
     }
 }
