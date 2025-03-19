@@ -12,11 +12,9 @@ using Infrastructure.Repositories.IShopRepositories;
 using Infrastructure.Repositories.OnlineTrainingRepositories;
 using Infrastructure.Repositories.PostRepositoy;
 using Infrastructure.Repositories.UserRepository;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi.Models;
 using Services;
 using Stripe;
-using System.Security.Claims;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,9 +87,9 @@ builder.Services.AddScoped<IShopRepository, ShopRepository>();
 builder.Services.AddScoped<CoachRatingRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-//builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
+builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
 var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
-//var googleSettings = builder.Configuration.GetSection("Authentication:Google").Get<GoogleSettings>();
+var googleSettings = builder.Configuration.GetSection("Authentication:Google").Get<GoogleSettings>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -113,14 +111,12 @@ builder.Services.AddAuthentication(options =>
                 Encoding.UTF8.GetBytes(jwtSettings?.SecritKey ?? string.Empty))
 
     };
+})
+.AddGoogle(options =>
+{
+    options.ClientId = googleSettings?.ClientID ?? string.Empty;
+    options.ClientSecret = googleSettings?.ClientSecret ?? string.Empty;
 });
-//.AddGoogle(options =>
-//{
-//    options.ClientId = googleSettings?.ClientID ?? string.Empty;
-//    options.ClientSecret = googleSettings?.ClientSecret ?? string.Empty;
-//    options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
-//    options.Scope.Add("https://www.googleapis.com/auth/user.birthday.read");
-//});
 
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<GymRatingRepository>();

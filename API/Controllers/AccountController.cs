@@ -71,14 +71,25 @@ namespace API.Controllers
 
         }
 
-        //[HttpPost("GoogleLogin")]
-        //public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDTO authDTO)
-        //{
-        //    var result = await service.GoogleLoginAsync(authDTO.IdToken);
-        //    if (result.IsSuccess)
-        //        return Ok(result);
-        //    return BadRequest(result);
-        //}
+        [HttpPost("GoogleLogin")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDTO request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await service.GoogleLoginAsync(request);
+            if (result.IsSuccess)
+                return Ok(result);
+            if (result.Data is string errorMessage)
+            {
+                if (errorMessage.Contains("Invalid Google token"))
+                    return Unauthorized(result);
+                if (errorMessage.Contains("Invalid Access Token"))
+                    return Unauthorized(result);
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, result);
+        }
 
         [HttpPost("LogOut")]
         public async Task<ActionResult> LogOut()
@@ -175,7 +186,7 @@ namespace API.Controllers
                     Data = "Unauthorized access or invalid token purpose."
                 });
             }
-        
+
             var result = await service.ResetPasswordAsync(resetPassword);
 
             if (result.IsSuccess)
