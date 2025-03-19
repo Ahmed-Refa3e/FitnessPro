@@ -11,7 +11,5 @@ namespace Core.Interfaces.Repositories.PostRepositories
     public interface IGeneralPostRepository
     {
         Task<IntResult> Add(AddPostDTO post);
-        IntResult Delete(int id);
-        //public ShowPostDTO Get(int id);
     }
 }

@@ -12,9 +12,5 @@ namespace Core.Entities.PostEntities
     {
         public int GymId { get; set; }
         public Gym Gym {  get; set; }
-        public GymPost()
-        {
-            
-        }
     }
 }

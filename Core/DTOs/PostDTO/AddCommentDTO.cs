@@ -10,7 +10,7 @@ namespace Core.DTOs.PostDTO
     public class AddCommentDTO
     {
         [Required]
-        public int PostId { get; set; }
+        public int OwnerId { get; set; }
         [Required]
         public string UserId { get; set; }
         [Required]
