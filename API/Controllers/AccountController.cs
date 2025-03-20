@@ -64,8 +64,6 @@ namespace API.Controllers
                 return Ok(result);
             else if (result.Data is string message && message.Contains("confirm your account"))
                 return StatusCode(StatusCodes.Status403Forbidden, new { Message = message });
-            else if (result.Data is string newMessage && newMessage.Contains("Invalid email or password"))
-                return Unauthorized(result);
             else
                 return BadRequest(result);
 
