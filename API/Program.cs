@@ -18,6 +18,17 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin()    // Allow all origins
+                  .AllowAnyMethod()    // Allow all HTTP methods
+                  .AllowAnyHeader();   // Allow all headers
+        });
+});
+
 // Set Stripe API Key from appsettings
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
@@ -163,6 +174,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors("AllowAllOrigins");
 
 
 //Apply any pending migrations
