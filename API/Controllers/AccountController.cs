@@ -33,7 +33,7 @@ namespace API.Controllers
         }
 
         [HttpPost("RegisterCoach")]
-        public async Task<ActionResult> RegisterCoach(RegisterCoachDTO model)
+        public async Task<ActionResult> RegisterCoach(RegisterDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -56,7 +56,6 @@ namespace API.Controllers
         public async Task<ActionResult> Login(LoginDTO loginDTO)
         {
             if (!ModelState.IsValid)
-
                 return BadRequest(ModelState);
 
             var result = await service.LoginAsync(loginDTO);
@@ -64,24 +63,33 @@ namespace API.Controllers
             if (result.IsSuccess)
                 return Ok(result);
             else if (result.Data is string message && message.Contains("confirm your account"))
-                return Forbid(result.Data);
-            else if (result.Data is string newMessage && newMessage.Contains("Invalid email or password"))
-                return Unauthorized(result);
+                return StatusCode(StatusCodes.Status403Forbidden, new { Message = message });
             else
                 return BadRequest(result);
 
         }
 
-        //[HttpPost("GoogleLogin")]
-        //public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDTO authDTO)
-        //{
-        //    var result = await service.GoogleLoginAsync(authDTO.IdToken);
-        //    if (result.IsSuccess)
-        //        return Ok(result);
-        //    return BadRequest(result);
-        //}
+        [HttpPost("GoogleLogin")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleAuthDTO request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        [HttpGet("LogOut")]
+            var result = await service.GoogleLoginAsync(request);
+            if (result.IsSuccess)
+                return Ok(result);
+            if (result.Data is string errorMessage)
+            {
+                if (errorMessage.Contains("Invalid Google token"))
+                    return Unauthorized(result);
+                if (errorMessage.Contains("Invalid Access Token"))
+                    return Unauthorized(result);
+            }
+
+            return StatusCode(StatusCodes.Status500InternalServerError, result);
+        }
+
+        [HttpPost("LogOut")]
         public async Task<ActionResult> LogOut()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -177,7 +185,6 @@ namespace API.Controllers
                 });
             }
 
-
             var result = await service.ResetPasswordAsync(resetPassword);
 
             if (result.IsSuccess)
@@ -192,9 +199,9 @@ namespace API.Controllers
         }
 
         [HttpPost("resend-Confirmation-code")]
-        public async Task<IActionResult> ResendConfirmationCode([FromBody] ConfirmEmailDTO request)
+        public async Task<IActionResult> ResendConfirmationCode([FromBody] string Email)
         {
-            var result = await service.ResendConfirmationCodeAsync(request);
+            var result = await service.ResendConfirmationCodeAsync(Email);
 
             if (result.IsSuccess)
                 return Ok(result);

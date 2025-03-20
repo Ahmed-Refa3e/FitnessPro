@@ -1,5 +1,6 @@
 ﻿using Core.DTOs.PostDTO;
 using Core.Entities.PostEntities;
+using Core.Interfaces.Factories;
 using Core.Interfaces.Repositories.PostRepositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +8,29 @@ namespace API.Controllers.Posts
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CoachPostController : PostControllerBase<AddCoachPostDTO, CoachPost>
+    public class CoachPostController : ControllerBase
     {
-        public CoachPostController(IPostRepository repository, IPostRepresentationRepository representationRepository) : base(repository, representationRepository)
+        private readonly IPostRepositoryFactory _factoryRepository;
+        private readonly IPostRepository _representationRepository;
+        public CoachPostController(IPostRepositoryFactory factoryRepository, IPostRepository representationRepository)
         {
+            _factoryRepository = factoryRepository;
+            _representationRepository = representationRepository;
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddPost([FromQuery] AddCoachPostDTO postDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var repository = _factoryRepository.CreateRepository("COACH");
+                var result = await repository.Add(postDto);
+                if (result.Id == 0)
+                {
+                    return BadRequest(result.Massage);
+                }
+                return Created("", _representationRepository.GetPost(result.Id));
+            }
+            return BadRequest(ModelState);
         }
     }
 }

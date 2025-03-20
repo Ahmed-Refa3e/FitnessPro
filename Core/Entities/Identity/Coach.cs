@@ -7,6 +7,7 @@ namespace Core.Entities.Identity
 {
     public class Coach : ApplicationUser
     {
+        public string? Bio { get; set; }
         public Gym? Gym { get; set; }
         public ICollection<OnlineTraining>? OnlineTrainings { get; set; }
         public bool AvailableForOnlineTraining { get; set; } = false;

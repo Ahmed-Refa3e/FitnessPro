@@ -29,6 +29,12 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<GymFollow>? gymFollows { get; set; }
     public DbSet<ShopFollow>? ShopFollows { get; set; }
     public DbSet<CoachRating>? coachRatings { get; set; }
+    public DbSet<Like>? likes { get; set; }
+    public DbSet<PostLike>? postLikes { get; set; }
+    public DbSet<CommentLike>? commentLikes { get; set; }
+    public DbSet<Comment>? comments { get; set; }
+    public DbSet<CommentComment>? commentComments { get; set; }
+    public DbSet<PostComment>? postComments { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

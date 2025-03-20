@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace Services
 {
@@ -22,19 +24,21 @@ namespace Services
         private readonly IEmailService emailService;
         private readonly IUserRepository repository;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly GoogleSettings _googleSettings;
         private readonly JwtSettings _jwtSettings;
 
         public AuthService(UserManager<ApplicationUser> userManager,
                            RoleManager<IdentityRole> roleManager,
                            IEmailService emailService, IUserRepository repository
                            , SignInManager<ApplicationUser> signInManager,
-                           IOptions<JwtSettings> options)
+                           IOptions<JwtSettings> options, IOptions<GoogleSettings> GoogleOptions)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             this.emailService = emailService;
             this.repository = repository;
             this.signInManager = signInManager;
+            _googleSettings = GoogleOptions.Value;
             _jwtSettings = options.Value;
         }
 
@@ -58,7 +62,6 @@ namespace Services
                 LastName = model.LastName,
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
-                Bio = model.Bio,
                 JoinedDate = DateTime.Now
             };
 
@@ -88,7 +91,7 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> RegisterCoachAsync(RegisterCoachDTO model)
+        public async Task<Generalresponse> RegisterCoachAsync(RegisterDTO model)
         {
             Generalresponse response = new Generalresponse();
 
@@ -108,7 +111,6 @@ namespace Services
                 LastName = model.LastName,
                 DateOfBirth = model.DateOfBirth,
                 Gender = model.Gender,
-                Bio = model.Bio,
                 JoinedDate = DateTime.Now
             };
 
@@ -184,28 +186,49 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> GoogleLoginAsync(string IdToken)
+        public async Task<Generalresponse> GoogleLoginAsync(GoogleAuthDTO request)
         {
             try
             {
-                var payload = await GoogleJsonWebSignature.ValidateAsync(IdToken);
+                var payload = await VerifyGoogleIdToken(request.IdToken);
                 if (payload == null)
                     return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
+
+                var userInfo = await GetGoogleUserInfo(request.AccessToken);
+                if (userInfo == null)
+                    return new Generalresponse { IsSuccess = false, Data = "Invalid Access Token or missing permissions." };
 
                 var user = await _userManager.FindByEmailAsync(payload.Email);
 
                 if (user == null)
                 {
-                    //user = new Trainee()
-                    //{
-                    //    Email = payload.Email,
-                    //    FirstName = payload.GivenName,
-                    //    LastName = payload.FamilyName,
-                    //    UserName = payload.Email,
-                    //    EmailConfirmed = true,
-                    //    JoinedDate = DateTime.UtcNow,
-                    //};
-
+                    if (request.Role == "Coach")
+                    {
+                        user = new Coach
+                        {
+                            UserName = userInfo.Email,
+                            Email = userInfo.Email,
+                            FirstName = userInfo.FirstName,
+                            LastName = userInfo.LastName,
+                            ProfilePictureUrl = userInfo.Picture,
+                            Gender = userInfo.Gender,
+                            DateOfBirth = userInfo.Birthdate,
+                        };
+                    }
+                    else
+                    {
+                        user = new Trainee
+                        {
+                            UserName = userInfo.Email,
+                            Email = userInfo.Email,
+                            FirstName = userInfo.FirstName,
+                            LastName = userInfo.LastName,
+                            ProfilePictureUrl = userInfo.Picture,
+                            Gender = userInfo.Gender,
+                            DateOfBirth = userInfo.Birthdate,
+                        };
+                    }
+                    user.EmailConfirmed = true;
                     var result = await _userManager.CreateAsync(user);
                     if (!result.Succeeded)
                     {
@@ -215,10 +238,13 @@ namespace Services
                             Data = result.Errors.Select(e => e.Description).ToList()
                         };
                     }
-                    var roleExists = await _roleManager.RoleExistsAsync("Trainee");
-                    if (roleExists)
+                    if (request.Role == "Trainee")
                     {
                         await _userManager.AddToRoleAsync(user, "Trainee");
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, "Coach");
                     }
                 }
                 var token = await GenerateJwtToken(user);
@@ -241,13 +267,17 @@ namespace Services
                         exipiration = DateTime.Now.AddHours(1)
                     }
                 };
-
             }
-            catch
+            catch (Exception ex)
             {
-                return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
+                return new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = $"An error occurred: {ex.Message}"
+                };
             }
         }
+
         public async Task<Generalresponse> LogOutAsync(string userId)
         {
             Generalresponse response = new Generalresponse();
@@ -442,11 +472,11 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ResendConfirmationCodeAsync(ConfirmEmailDTO request)
+        public async Task<Generalresponse> ResendConfirmationCodeAsync(string Email)
         {
             Generalresponse response = new Generalresponse();
 
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByEmailAsync(Email);
             if (user == null)
             {
                 response.IsSuccess = false;
@@ -602,6 +632,7 @@ namespace Services
             userclaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
             userclaims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
             userclaims.Add(new Claim(ClaimTypes.Name, user.UserName ?? string.Empty));
+            userclaims.Add(new Claim(ClaimTypes.Email, user.Email ?? string.Empty));
 
             if (resetPassword == true)
             {
@@ -638,6 +669,60 @@ namespace Services
                 rng.GetBytes(randomNumber);
                 return Convert.ToBase64String(randomNumber);
             }
+        }
+
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleIdToken(string idToken)
+        {
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new List<string> { _googleSettings.ClientID }
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+                return payload;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<GoogleUserInfo> GetGoogleUserInfo(string accessToken)
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await client.GetAsync("https://people.googleapis.com/v1/people/me?personFields=names,birthdays,emailAddresses,genders,photos");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var content = await response.Content.ReadAsStringAsync();
+            var googleData = JsonSerializer.Deserialize<GooglePeopleApiResponse>(
+                 content,
+                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            if (googleData == null)
+                return null;
+
+            var fullName = googleData.Names?.FirstOrDefault()?.DisplayName?.Split(" ") ?? Array.Empty<string>();
+            string firstName = fullName?.Length > 0 ? fullName[0] : "";
+            string lastName = fullName?.Length > 1 ? string.Join(" ", fullName.Skip(1)) : "";
+
+            var birthDate = googleData.Birthdays?.FirstOrDefault()?.Date;
+            DateTime? birthdate = (birthDate != null) ? new DateTime(birthDate.Year, birthDate.Month, birthDate.Day) : null;
+
+            return new GoogleUserInfo
+            {
+                Email = googleData.EmailAddresses?.FirstOrDefault()?.Value ?? string.Empty,
+                FirstName = firstName,
+                LastName = lastName,
+                Picture = googleData.Photos?.FirstOrDefault()?.Url ?? string.Empty,
+                Gender = googleData.Genders?.FirstOrDefault()?.Value,
+                Birthdate = birthdate
+            };
         }
     }
 }

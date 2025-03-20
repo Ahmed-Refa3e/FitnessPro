@@ -1,9 +1,11 @@
 ﻿using Core.Helpers;
+using Core.Interfaces.Factories;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Core.Interfaces.Repositories.PostRepositories;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Core.Interfaces.Services;
+using Infrastructure.Factories;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.GymRepositories;
 using Infrastructure.Repositories.IShopRepositories;
@@ -13,7 +15,6 @@ using Infrastructure.Repositories.UserRepository;
 using Microsoft.OpenApi.Models;
 using Services;
 using Stripe;
-using System.Security.Claims;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -88,15 +89,18 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<SignInManager<ApplicationUser>>();
+builder.Services.AddScoped<GymPostRepository>();
+builder.Services.AddScoped<ShopPostRepository>();
+builder.Services.AddScoped<CoachPostRepository>();
+builder.Services.AddScoped<IPostRepositoryFactory, PostRepositoryFactory>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
-builder.Services.AddScoped<IPostRepresentationRepository, PostRepresentationRepository>();
 builder.Services.AddScoped<IShopRepository, ShopRepository>();
 builder.Services.AddScoped<CoachRatingRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-//builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
+builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
 var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
-//var googleSettings = builder.Configuration.GetSection("Authentication:Google").Get<GoogleSettings>();
+var googleSettings = builder.Configuration.GetSection("Authentication:Google").Get<GoogleSettings>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -118,26 +122,12 @@ builder.Services.AddAuthentication(options =>
                 Encoding.UTF8.GetBytes(jwtSettings?.SecritKey ?? string.Empty))
 
     };
-    options.Events = new JwtBearerEvents
-    {
-        OnTokenValidated = async context =>
-        {
-            var userRepository = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
-            var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await userRepository.GetAsync(e => e.Id == userId, includeProperties: "refreshTokens");
-
-            if (user == null || user.refreshTokens == null || user.refreshTokens.All(t => t.Revoked != null))
-            {
-                context.Fail("Token has been revoked.");
-            }
-        }
-    };
+})
+.AddGoogle(options =>
+{
+    options.ClientId = googleSettings?.ClientID ?? string.Empty;
+    options.ClientSecret = googleSettings?.ClientSecret ?? string.Empty;
 });
-//}).AddGoogle(options =>
-//{
-//    options.ClientId = googleSettings?.ClientID ?? string.Empty;
-//    options.ClientSecret = googleSettings?.ClientSecret ?? string.Empty;
-//});
 
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<GymRatingRepository>();
