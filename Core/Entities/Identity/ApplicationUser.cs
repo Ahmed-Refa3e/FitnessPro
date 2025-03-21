@@ -1,5 +1,6 @@
 ﻿using Core.Entities.FollowEntities;
 using Core.Entities.PostEntities;
+using Core.Entities.ShopEntities;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
@@ -27,4 +28,5 @@ public class ApplicationUser : IdentityUser
     public List<ShopFollow>? FollowedShops { get; set; }
     public List<Like>? Likes { get; set; }
     public List<Comment>? Comments { get; set; }
+    public List<Order>? Orders { get; set; }
 }

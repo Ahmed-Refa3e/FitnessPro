@@ -21,34 +21,10 @@ namespace Core.Entities.ShopEntities
         public string Governorate { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Description { get; set; }
-        public string? CoachID { get; set; }
+        public string? OwnerID { get; set; }
         public Coach? Owner { get; set; }
-        public List<ShopPost>? Posts { get; set; }
-        public List<ShopFollow>? Followers { get; set; }
-        public Shop()
-        {
-            
-        }
-        public Shop(AddShopDTO shop,string pictureUrl)
-        {
-            this.Name = shop.Name;
-            this.PictureUrl = pictureUrl;
-            this.Address = shop.Address;
-            this.City = shop.City;
-            this.Governorate = shop.Governorate;
-            this.PhoneNumber = shop.PhoneNumber;
-            this.Description = shop.Description;
-            this.CoachID = shop.CoachID;
-        }
-        public void Update(UpdateShopDTO shop,string pictureUrl)
-        {
-            this.Name = shop.Name;
-            this.Address= shop.Address;
-            this.City= shop.City;
-            this.Governorate= shop.Governorate;
-            this.PhoneNumber = shop.PhoneNumber;
-            this.Description= shop.Description;
-            this.PictureUrl= pictureUrl;
-        }
+        public List<ShopPost>? Posts { get; set; }=new List<ShopPost>();
+        public List<ShopFollow>? Followers { get; set; }=new List<ShopFollow>();
+        public List<Product> Products { get; set; }
     }
 }

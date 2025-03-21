@@ -2,6 +2,7 @@
 using Core.DTOs.ShopDTO;
 using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
+using Core.Utilities;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -32,36 +33,38 @@ namespace Infrastructure.Repositories.IShopRepositories
             {
                 return new IntResult() { Massage = "Id not valid" };
             }
-            var filePath = chickImagePath(shop.Image);
+            var filePath = AddImageHelper.chickImagePath(shop.Image, _storagePath);
             if (!string.IsNullOrEmpty(filePath.Massage))
             {
                 return new IntResult() { Massage = filePath.Massage };
             }
-            var newShop = new Shop(shop, filePath.Id);
+            var newShop = new Shop();
+            newShop.Name = shop.Name;
+            newShop.PictureUrl = filePath.Id;
+            newShop.Address = shop.Address;
+            newShop.City = shop.City;
+            newShop.Governorate = shop.Governorate;
+            newShop.PhoneNumber = shop.PhoneNumber;
+            newShop.Description = shop.Description;
+            newShop.OwnerID = shop.CoachID;
             _context.Shops.Add(newShop);
-            using (var transaction = _context.Database.BeginTransaction())
+            try
             {
-                try
+                await _context.SaveChangesAsync();
+                if (!string.IsNullOrEmpty(filePath.Id))
                 {
-
-                    await _context.SaveChangesAsync();
-                    if (!string.IsNullOrEmpty(filePath.Id))
+                    using (var stream = new FileStream(filePath.Id, FileMode.Create))
                     {
-                        using (var stream = new FileStream(filePath.Id, FileMode.Create))
-                        {
-                            await shop.Image.CopyToAsync(stream);
-                        }
+                        await shop.Image.CopyToAsync(stream);
                     }
-                    transaction.Commit();
                 }
-                catch (Exception ex)
-                {
-                    return new IntResult() { Massage = ex.Message };
-                }
+            }
+            catch (Exception ex)
+            {
+                return new IntResult() { Massage = ex.Message };
             }
             return new IntResult() { Id = newShop.Id };
         }
-
         public IntResult Delete(int id)
         {
             var shop = Get(id);
@@ -82,7 +85,6 @@ namespace Infrastructure.Repositories.IShopRepositories
             }
             return new IntResult() { Id = 1 };
         }
-
         public ShowShopDTO GetShop(int id)
         {
             return _context.Shops.Include(e=>e.Followers).Where(x => x.Id == id).Select(x => new ShowShopDTO
@@ -97,63 +99,46 @@ namespace Infrastructure.Repositories.IShopRepositories
                 PictureUrl = x.PictureUrl
             }).FirstOrDefault();
         }
-
-        public async Task<IntResult> Update(UpdateShopDTO shop,int id)
+        public async Task<IntResult> Update(UpdateShopDTO shop, int id)
         {
-            var oldShop=Get(id);
-            if(oldShop is null)
+            var oldShop = Get(id);
+            if (oldShop is null)
             {
                 return new IntResult { Massage = "Not valid Id" };
             }
-            var filePath = chickImagePath(shop.Image);
+            var filePath = AddImageHelper.chickImagePath(shop.Image, _storagePath);
             if (!string.IsNullOrEmpty(filePath.Massage))
             {
                 return new IntResult() { Massage = filePath.Massage };
             }
             var oldPath = oldShop.PictureUrl;
-            oldShop.Update(shop,filePath.Id);
-            
-            using (var transaction = _context.Database.BeginTransaction())
+            oldShop.Name = shop.Name;
+            oldShop.Address = shop.Address;
+            oldShop.City = shop.City;
+            oldShop.Governorate = shop.Governorate;
+            oldShop.PhoneNumber = shop.PhoneNumber;
+            oldShop.Description = shop.Description;
+            oldShop.PictureUrl = filePath.Id;
+            try
             {
-                try
+                await _context.SaveChangesAsync();
+                if (File.Exists(oldPath))
                 {
-                    await _context.SaveChangesAsync();
-                    if (File.Exists(oldPath))
-                    {
-                        File.Delete(oldPath);
-                    }
-                    if (!string.IsNullOrEmpty(filePath.Id))
-                    {
-                        using (var stream = new FileStream(filePath.Id, FileMode.Create))
-                        {
-                            await shop.Image.CopyToAsync(stream);
-                        }
-                    }
-                    transaction.Commit();
+                    File.Delete(oldPath);
                 }
-                catch (Exception ex)
+                if (!string.IsNullOrEmpty(filePath.Id))
                 {
-                    return new IntResult() { Massage = ex.Message };
+                    using (var stream = new FileStream(filePath.Id, FileMode.Create))
+                    {
+                        await shop.Image.CopyToAsync(stream);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                return new IntResult() { Massage = ex.Message };
             }
             return new IntResult { Id = oldShop.Id };
-        }
-        StringResult chickImagePath(IFormFile file)
-        {
-            if (file is null)
-            {
-                return new StringResult();
-            }
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-            var fileExtension = Path.GetExtension(file.FileName).ToLower();
-            var contentType = file.ContentType.ToLower();
-            if (!allowedExtensions.Contains(fileExtension) || !contentType.StartsWith("image/"))
-            {
-                return new StringResult { Massage= "Invalid file type, Only images are allowed" };
-            }
-            var fileName = Path.GetRandomFileName() + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(_storagePath, fileName);
-            return new StringResult { Id=filePath};
         }
         Shop Get(int id) => _context.Shops.Find(id);
     }

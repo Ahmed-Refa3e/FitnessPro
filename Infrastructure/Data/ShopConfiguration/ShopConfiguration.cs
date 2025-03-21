@@ -20,7 +20,7 @@ namespace Infrastructure.Data.ShopConfiguration
             builder.Property(x => x.Governorate).HasMaxLength(20).IsRequired();
             builder.Property(x => x.PhoneNumber).HasMaxLength(15);
             builder.Property(x => x.Description).HasMaxLength(500).IsRequired();
-            builder.HasOne(x=>x.Owner).WithMany(x=>x.Shops).HasForeignKey(x=>x.CoachID);
+            builder.HasOne(x=>x.Owner).WithMany(x=>x.Shops).HasForeignKey(x=>x.OwnerID);
             builder.ToTable("Shops");
         }
     }
