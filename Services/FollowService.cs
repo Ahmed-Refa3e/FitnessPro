@@ -222,6 +222,8 @@ namespace Services
             userRepository.RemoveFollow(follow);
             user?.Following?.Remove(follow);
             followed.Followers?.Remove(follow);
+            await userRepository.SaveAsync();
+
             response.IsSuccess = true;
             response.Data = $"You UnFollow {followed.FirstName} {followed.LastName}";
             return response;
