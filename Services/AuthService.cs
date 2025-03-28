@@ -185,7 +185,90 @@ namespace Services
             response.Data = "Invalid email or password";
             return response;
         }
+        public async Task<Generalresponse> SetUserRoleAsync(string userId, string role)
+        {
+            Generalresponse response = new Generalresponse();
+            var oldUser = await _userManager.FindByIdAsync(userId);
+            if (oldUser == null)
+            {
+                response.IsSuccess = false;
+                response.Data = "User not found.";
+                return response;
+            }
 
+            ApplicationUser newUser;
+            if (role == "Coach")
+            {
+                newUser = new Coach
+                {
+                    UserName = oldUser.UserName,
+                    Email = oldUser.Email,
+                    PhoneNumber = oldUser.PhoneNumber,
+                    FirstName = oldUser.FirstName,
+                    LastName = oldUser.LastName,
+                    DateOfBirth = oldUser.DateOfBirth,
+                    Gender = oldUser.Gender,
+                    ProfilePictureUrl = oldUser.ProfilePictureUrl,
+                    JoinedDate = oldUser.JoinedDate,
+                    EmailConfirmed = oldUser.EmailConfirmed,
+                };
+            }
+            else if (role == "Trainee")
+            {
+                newUser = new Trainee
+                {
+                    UserName = oldUser.UserName,
+                    Email = oldUser.Email,
+                    PhoneNumber = oldUser.PhoneNumber,
+                    FirstName = oldUser.FirstName,
+                    LastName = oldUser.LastName,
+                    DateOfBirth = oldUser.DateOfBirth,
+                    Gender = oldUser.Gender,
+                    ProfilePictureUrl = oldUser.ProfilePictureUrl,
+                    JoinedDate = oldUser.JoinedDate,
+                    EmailConfirmed = oldUser.EmailConfirmed,
+                };
+            }
+            else
+            {
+                response.IsSuccess = false;
+                response.Data = "InValid Role";
+                return response;
+            }
+
+            await _userManager.DeleteAsync(oldUser);
+
+            var result = await _userManager.CreateAsync(newUser);
+            if (!result.Succeeded)
+            {
+                response.IsSuccess = false;
+                response.Data = result.Errors.Select(e => e.Description).ToList();
+                return response;
+            }
+
+            await _userManager.AddToRoleAsync(newUser, role);
+
+            var token = await GenerateJwtToken(newUser);
+            var refreshToken = GenerateRefreshToken();
+            newUser.refreshTokens?.Add(new RefreshToken()
+            {
+                Token = refreshToken,
+                Expires = DateTime.UtcNow.AddDays(3),
+                Created = DateTime.UtcNow
+            });
+
+            await repository.SaveAsync();
+            return new Generalresponse
+            {
+                IsSuccess = true,
+                Data = new
+                {
+                    token,
+                    refreshToken,
+                    exipiration = DateTime.Now.AddHours(1)
+                }
+            };
+        }
         public async Task<Generalresponse> GoogleLoginAsync(GoogleAuthDTO request)
         {
             try
@@ -194,40 +277,24 @@ namespace Services
                 if (payload == null)
                     return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
 
-                var userInfo = await GetGoogleUserInfo(request.AccessToken);
-                if (userInfo == null)
-                    return new Generalresponse { IsSuccess = false, Data = "Invalid Access Token or missing permissions." };
-
                 var user = await _userManager.FindByEmailAsync(payload.Email);
 
                 if (user == null)
                 {
-                    if (request.Role == "Coach")
+                    var userInfo = await GetGoogleUserInfo(request.AccessToken);
+                    if (userInfo == null)
+                        return new Generalresponse { IsSuccess = false, Data = "Invalid Access Token or missing permissions." };
+
+                    user = new ApplicationUser
                     {
-                        user = new Coach
-                        {
-                            UserName = userInfo.Email,
-                            Email = userInfo.Email,
-                            FirstName = userInfo.FirstName,
-                            LastName = userInfo.LastName,
-                            ProfilePictureUrl = userInfo.Picture,
-                            Gender = userInfo.Gender,
-                            DateOfBirth = userInfo.Birthdate,
-                        };
-                    }
-                    else
-                    {
-                        user = new Trainee
-                        {
-                            UserName = userInfo.Email,
-                            Email = userInfo.Email,
-                            FirstName = userInfo.FirstName,
-                            LastName = userInfo.LastName,
-                            ProfilePictureUrl = userInfo.Picture,
-                            Gender = userInfo.Gender,
-                            DateOfBirth = userInfo.Birthdate,
-                        };
-                    }
+                        UserName = userInfo.Email,
+                        Email = userInfo.Email,
+                        FirstName = userInfo.FirstName,
+                        LastName = userInfo.LastName,
+                        ProfilePictureUrl = userInfo.Picture,
+                        Gender = userInfo.Gender,
+                        DateOfBirth = userInfo.Birthdate,
+                    };
                     user.EmailConfirmed = true;
                     var result = await _userManager.CreateAsync(user);
                     if (!result.Succeeded)
@@ -238,15 +305,21 @@ namespace Services
                             Data = result.Errors.Select(e => e.Description).ToList()
                         };
                     }
-                    if (request.Role == "Trainee")
+
+                    var Checktoken = await GenerateJwtToken(user, setRole: true);
+
+                    await repository.SaveAsync();
+                    return new Generalresponse
                     {
-                        await _userManager.AddToRoleAsync(user, "Trainee");
-                    }
-                    else
-                    {
-                        await _userManager.AddToRoleAsync(user, "Coach");
-                    }
+                        IsSuccess = true,
+                        Data = new
+                        {
+                            Checktoken,
+                            exipiration = DateTime.Now.AddHours(1)
+                        }
+                    };
                 }
+
                 var token = await GenerateJwtToken(user);
                 var refreshToken = GenerateRefreshToken();
                 user.refreshTokens?.Add(new RefreshToken()
@@ -626,7 +699,7 @@ namespace Services
             response.Data = "Confirmation Email send";
             return response;
         }
-        private async Task<string> GenerateJwtToken(ApplicationUser user, bool? resetPassword = false)
+        private async Task<string> GenerateJwtToken(ApplicationUser user, bool? resetPassword = false, bool? setRole = false)
         {
             List<Claim> userclaims = new();
             userclaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
@@ -637,6 +710,10 @@ namespace Services
             if (resetPassword == true)
             {
                 userclaims.Add(new Claim("Purpose", "ResetPassword"));
+            }
+            else if (setRole == true)
+            {
+                userclaims.Add(new Claim("CheckRole", "NoRole"));
             }
             else
             {

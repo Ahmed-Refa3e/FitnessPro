@@ -93,7 +93,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(e => e.FollowerUser)
             .WithMany(e => e.Following)
             .HasForeignKey(e => e.FollowerId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<UserFollow>()
             .HasOne(e => e.FollowingUser)
@@ -106,7 +106,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(f => f.FollowerUser)
             .WithMany(u => u.FollowedGyms)
             .HasForeignKey(f => f.FollowerId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<GymFollow>()
             .HasOne(f => f.Gym)
@@ -119,7 +119,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(f => f.FollowerUser)
             .WithMany(u => u.FollowedShops)
             .HasForeignKey(f => f.FollowerId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<ShopFollow>()
             .HasOne(f => f.Shop)

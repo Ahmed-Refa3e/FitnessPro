@@ -9,6 +9,7 @@ namespace Core.Interfaces.Services
         Task<Generalresponse> RegisterCoachAsync(RegisterDTO model);
         Task<Generalresponse> LoginAsync(LoginDTO loginDTO);
         Task<Generalresponse> GoogleLoginAsync(GoogleAuthDTO request);
+        Task<Generalresponse> SetUserRoleAsync(string userId, string role);
         Task<Generalresponse> LogOutAsync(string userId);
         Task<Generalresponse> ConfirmEmailAsync(ConfirmEmailDTO request);
         Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto);

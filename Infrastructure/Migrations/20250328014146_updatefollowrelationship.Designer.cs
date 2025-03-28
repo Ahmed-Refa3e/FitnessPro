@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    partial class FitnessContextModelSnapshot : ModelSnapshot
+    [Migration("20250328014146_updatefollowrelationship")]
+    partial class updatefollowrelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FollowerId");
 
-                    b.ToTable("gymFollows", (string)null);
+                    b.ToTable("gymFollows");
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.ShopFollow", b =>
@@ -49,7 +52,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FollowerId");
 
-                    b.ToTable("ShopFollows", (string)null);
+                    b.ToTable("ShopFollows");
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.UserFollow", b =>
@@ -64,7 +67,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("FollowerId");
 
-                    b.ToTable("userFollows", (string)null);
+                    b.ToTable("userFollows");
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.Gym", b =>
@@ -123,7 +126,7 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[CoachID] IS NOT NULL");
 
-                    b.ToTable("Gyms", (string)null);
+                    b.ToTable("Gyms");
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.GymRating", b =>
@@ -155,7 +158,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("GymRatings", (string)null);
+                    b.ToTable("GymRatings");
                 });
 
             modelBuilder.Entity("Core.Entities.GymEntities.GymSubscription", b =>
@@ -192,7 +195,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("GymSubscriptions", (string)null);
+                    b.ToTable("GymSubscriptions");
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
@@ -322,7 +325,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeId");
 
-                    b.ToTable("coachRatings", (string)null);
+                    b.ToTable("coachRatings");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
@@ -360,7 +363,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("CoachID");
 
-                    b.ToTable("OnlineTrainings", (string)null);
+                    b.ToTable("OnlineTrainings");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTrainingSubscription", b =>
@@ -389,7 +392,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TraineeID");
 
-                    b.ToTable("OnlineTrainingSubscriptions", (string)null);
+                    b.ToTable("OnlineTrainingSubscriptions");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.Comment", b =>
@@ -420,7 +423,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("comments", (string)null);
+                    b.ToTable("comments");
 
                     b.HasDiscriminator().HasValue("Comment");
 
@@ -451,7 +454,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("likes", (string)null);
+                    b.ToTable("likes");
 
                     b.HasDiscriminator().HasValue("Like");
 
@@ -480,7 +483,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
 
                     b.HasDiscriminator().HasValue("Post");
 
@@ -506,7 +509,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PictureUrls", (string)null);
+                    b.ToTable("PictureUrls");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Category", b =>
@@ -527,7 +530,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category", (string)null);
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Order", b =>
@@ -557,7 +560,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order", (string)null);
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.OrderItem", b =>
@@ -589,7 +592,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItem", (string)null);
+                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Product", b =>
@@ -630,7 +633,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ShopId");
 
-                    b.ToTable("Product", (string)null);
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
@@ -673,7 +676,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("OwnerID");
 
-                    b.ToTable("Shops", (string)null);
+                    b.ToTable("Shops");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1020,7 +1023,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
                 {
-                    b.OwnsMany("Core.Entities.Identity.ApplicationUser.refreshTokens#Core.Entities.Identity.RefreshToken", "refreshTokens", b1 =>
+                    b.OwnsMany("Core.Entities.Identity.RefreshToken", "refreshTokens", b1 =>
                         {
                             b1.Property<string>("ApplicationUserId")
                                 .HasColumnType("nvarchar(450)");
@@ -1046,7 +1049,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ApplicationUserId", "Id");
 
-                            b1.ToTable("AspNetUsers_refreshTokens", (string)null);
+                            b1.ToTable("AspNetUsers_refreshTokens");
 
                             b1.WithOwner()
                                 .HasForeignKey("ApplicationUserId");
