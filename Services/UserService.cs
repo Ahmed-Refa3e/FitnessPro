@@ -1,5 +1,6 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.OnlineTrainingDTO;
+using Core.DTOs.PostDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
 using Core.Helpers;
@@ -91,12 +92,18 @@ namespace Services
             Generalresponse response = new Generalresponse();
 
             var user = await repository.GetAsync(e => e.Id == CoachId
-                        , includeProperties: "OnlineTrainings"
+                        , includeProperties: "OnlineTrainings,Posts"
            );
             if (user is null)
             {
                 response.IsSuccess = false;
                 response.Data = "User Not Found.";
+                return response;
+            }
+            if(user is Trainee trainee)
+            {
+                response.IsSuccess = false;
+                response.Data = "This is Trainee.";
                 return response;
             }
 
@@ -119,7 +126,14 @@ namespace Services
                     Price = trining.Price,
                     Title = trining.Title,
                     TrainingType = trining.TrainingType
-                }).ToList() ?? new List<GetOnlineTrainingDTO>()
+                }).ToList() ?? new List<GetOnlineTrainingDTO>(),
+                CoachPosts = coach.Posts?.Select(post => new CoachPostSummaryDTO
+                {
+                    Id = post.Id,
+                    Content = post.Content,
+                    ImageUrl = post.PictureUrls?.FirstOrDefault()?.Url,
+                    CreatedAt = post.CreatedAt
+                }).ToList() ?? new List<CoachPostSummaryDTO>()
             };
 
             response.IsSuccess = true;
