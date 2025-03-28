@@ -190,6 +190,26 @@ namespace Services
             return response;
         }
 
+        public async Task<bool> CheckUserStatusAsync(ApplicationUser user)
+        {
+            var userfromDb = await repository.GetAsync(e => e.Id == user.Id,
+                includeProperties: "OnlineTrainings,Shops,Gym");
+
+            if (userfromDb == null)
+            {
+                return false;
+            }
+
+            if (userfromDb is Coach coach)
+            {
+                return (coach.Gym != null) ||
+                       (coach.OnlineTrainings?.Any() == true) ||
+                       (coach.Shops?.Any() == true);
+            }
+
+            return false;
+        }
+
         public async Task<Generalresponse> ChangeProfilePictureAsync(IFormFile profilePicture, ApplicationUser user)
         {
             Generalresponse generalresponse = new Generalresponse();

@@ -2,6 +2,7 @@
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 
 namespace API.Controllers
 {
@@ -63,6 +64,20 @@ namespace API.Controllers
             }
 
             return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("checkCoachBusiness")]
+        public async Task<IActionResult> checkCoachBusiness()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var hasBusiness = await service.CheckUserStatusAsync(user);
+            return Ok(new { HasBusiness = hasBusiness });
         }
 
         [Authorize]
