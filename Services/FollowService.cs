@@ -228,5 +228,32 @@ namespace Services
             response.Data = $"You UnFollow {followed.FirstName} {followed.LastName}";
             return response;
         }
+
+        public async Task<bool> IsFollowingGymAsync(string userId, int gymId)
+        {
+            var follow = await userRepository.GetGymFollow(userId, gymId);
+            if (follow == null)
+                return false;
+            return true;
+        }
+
+        public async Task<bool> IsFollowingShopAsync(string userId, int shopId)
+        {
+            var follow = await userRepository.GetShopFollow(userId, shopId);
+            if (follow == null)
+                return false;
+            return true;
+        }
+
+        public async Task<bool> IsFollowingUserAsync(string userId, string followedId)
+        {
+            if (userId == followedId)
+                return false;
+
+            var follow = await userRepository.GetFollow(userId, followedId);
+            if (follow == null)
+                return false;
+            return true;
+        }
     }
 }

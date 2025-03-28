@@ -81,6 +81,39 @@ namespace API.Controllers
 
             return HandleResponse(result);
         }
+
+        [HttpGet("is-following-gym/{gymId}")]
+        public async Task<IActionResult> IsFollowingGym(int gymId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            bool isFollowing = await service.IsFollowingGymAsync(user.Id, gymId);
+            return Ok(new { isFollowing });
+        }
+
+        [HttpGet("is-following-shop/{shopId}")]
+        public async Task<IActionResult> IsFollowingShop(int shopId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            bool isFollowing = await service.IsFollowingShopAsync(user.Id, shopId);
+            return Ok(new { isFollowing });
+        }
+
+        [HttpGet("is-following-user/{followedId}")]
+        public async Task<IActionResult> IsFollowingUser(string followedId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            bool isFollowing = await service.IsFollowingUserAsync(user.Id, followedId);
+            return Ok(new { isFollowing });
+        }
         private IActionResult HandleResponse(Generalresponse result)
         {
             if (result.IsSuccess)
@@ -88,13 +121,13 @@ namespace API.Controllers
 
             return result.Data switch
             {
-                "You already follow this gym" => BadRequest(new { message = result.Data }),
-                "You already follow this Shop" => BadRequest(new { message = result.Data }),
+                "You already follow this gym" => Conflict(result),
+                "You already follow this Shop" => Conflict(result),
                 "You Can't Follow Yourself" => Forbid(),
-                "Gym not found" => NotFound(new { message = result.Data }),
-                "Shop not found" => NotFound(new { message = result.Data }),
-                "User not found" => NotFound(new { message = result.Data }),
-                _ => BadRequest(new { message = result.Data })
+                "Gym not found" => NotFound(result),
+                "Shop not found" => NotFound(result),
+                "User not found" => NotFound(result),
+                _ => BadRequest(result)
             };
         }
     }
