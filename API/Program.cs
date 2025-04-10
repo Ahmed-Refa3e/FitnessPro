@@ -45,8 +45,8 @@ builder.Services.AddSwaggerGen(swagger =>
     swagger.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "ASP.NET 8 Web API",
-        Description = "Store"
+        Title = "Fitness pro Web API",
+        Description = "fitness"
     });
     // To Enable authorization using Swagger (JWT)    
     swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -99,6 +99,7 @@ builder.Services.AddScoped<CoachRatingRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
+
 var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
 var googleSettings = builder.Configuration.GetSection("Authentication:Google").Get<GoogleSettings>();
 
@@ -134,6 +135,7 @@ builder.Services.AddScoped<GymRatingRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -169,17 +171,18 @@ app.UseCors("AllowAllOrigins");
 
 
 //Apply any pending migrations
-/*try
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<FitnessContext>();
-    await context.Database.MigrateAsync();
-}
-catch (Exception ex)
-{
-    Console.WriteLine(ex);
-    throw;
-}*/
+
+//try
+//{
+//    using var scope = app.Services.CreateScope();
+//    var services = scope.ServiceProvider;
+//    var context = services.GetRequiredService<FitnessContext>();
+//    await context.Database.MigrateAsync();
+//}
+//catch (Exception ex)
+//{
+//    Console.WriteLine(ex);
+//    throw;
+//}
 
 app.Run();

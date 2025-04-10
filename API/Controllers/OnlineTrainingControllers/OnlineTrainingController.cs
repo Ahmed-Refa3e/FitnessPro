@@ -1,12 +1,12 @@
 ﻿using Core.DTOs.OnlineTrainingDTO;
 using Core.Entities.OnlineTrainingEntities;
-using Infrastructure.Repositories.OnlineTrainingRepositories;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.OnlineTrainingControllers
 {
-    public class OnlineTrainingController(OnlineTrainingRepository Repo, SignInManager<ApplicationUser> signInManager) : BaseApiController
+    public class OnlineTrainingController(IOnlineTrainingRepository Repo, SignInManager<ApplicationUser> signInManager) : BaseApiController
     {
 
         [HttpGet("{id:int}")]
@@ -19,12 +19,20 @@ namespace API.Controllers.OnlineTrainingControllers
             return Ok(OnlineTraining);
         }
 
-        [HttpGet("ByCoachId")]
-        public async Task<ActionResult<OnlineTraining>> GetOnlineTrainingByCoachId(string CoachId)
+        [HttpGet("ByCoachId/Group")]
+        public async Task<ActionResult<IReadOnlyList<OnlineTraining>>> GetGroupOnlineTrainingByCoachId(string CoachId)
         {
-            OnlineTraining? OnlineTraining = await Repo.GetByCoachIdAsync(CoachId);
-            if (OnlineTraining == null) return NotFound("Online training not found");
-            return Ok(OnlineTraining);
+            IReadOnlyList<OnlineTraining?> OnlineTrainings = await Repo.GetGroupTrainingByCoachIdAsync(CoachId);
+            if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Group Online training not found");
+            return Ok(OnlineTrainings);
+        }
+
+        [HttpGet("ByCoachId/Private")]
+        public async Task<ActionResult<IReadOnlyList<OnlineTraining>>> GetPrivateOnlineTrainingByCoachId(string CoachId)
+        {
+            IReadOnlyList<OnlineTraining?> OnlineTrainings = await Repo.GetPrivateTrainingByCoachIdAsync(CoachId);
+            if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Private Online training not found");
+            return Ok(OnlineTrainings);
         }
 
         [HttpPost]
