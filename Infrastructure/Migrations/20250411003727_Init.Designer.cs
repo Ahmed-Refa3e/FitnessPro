@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    [Migration("20250319214146_setGenderandDateofbirthasnullable")]
-    partial class setGenderandDateofbirthasnullable
+    [Migration("20250411003727_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -356,8 +356,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TrainingType")
-                        .HasColumnType("int");
+                    b.Property<string>("TrainingType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -393,6 +394,72 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TraineeID");
 
                     b.ToTable("OnlineTrainingSubscriptions");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("comments");
+
+                    b.HasDiscriminator().HasValue("Comment");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.Like", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("likes");
+
+                    b.HasDiscriminator().HasValue("Like");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
@@ -446,6 +513,130 @@ namespace Infrastructure.Migrations
                     b.ToTable("PictureUrls");
                 });
 
+            modelBuilder.Entity("Core.Entities.ShopEntities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Category");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsPayment")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRecieved")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Order");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.OrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsReady")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderItem");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("Product");
+                });
+
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
                 {
                     b.Property<int>("Id")
@@ -462,9 +653,6 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CoachID")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -476,6 +664,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OwnerID")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -484,7 +675,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CoachID");
+                    b.HasIndex("OwnerID");
 
                     b.ToTable("Shops");
                 });
@@ -626,9 +817,6 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Core.Entities.Identity.ApplicationUser");
 
-                    b.Property<bool>("AvailableForOnlineTraining")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Bio")
                         .HasColumnType("nvarchar(max)");
 
@@ -640,6 +828,54 @@ namespace Infrastructure.Migrations
                     b.HasBaseType("Core.Entities.Identity.ApplicationUser");
 
                     b.HasDiscriminator().HasValue("Trainee");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.CommentComment", b =>
+                {
+                    b.HasBaseType("Core.Entities.PostEntities.Comment");
+
+                    b.Property<int?>("CommentId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasDiscriminator().HasValue("CommentComment");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.PostComment", b =>
+                {
+                    b.HasBaseType("Core.Entities.PostEntities.Comment");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("PostId");
+
+                    b.HasDiscriminator().HasValue("PostComment");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.CommentLike", b =>
+                {
+                    b.HasBaseType("Core.Entities.PostEntities.Like");
+
+                    b.Property<int?>("CommentId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasDiscriminator().HasValue("CommentLike");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.PostLike", b =>
+                {
+                    b.HasBaseType("Core.Entities.PostEntities.Like");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("PostId");
+
+                    b.HasDiscriminator().HasValue("PostLike");
                 });
 
             modelBuilder.Entity("Core.Entities.PostEntities.CoachPost", b =>
@@ -684,7 +920,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("FollowedGyms")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
@@ -703,7 +939,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("FollowedShops")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
@@ -722,7 +958,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("Following")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowingUser")
@@ -867,6 +1103,28 @@ namespace Infrastructure.Migrations
                     b.Navigation("Trainee");
                 });
 
+            modelBuilder.Entity("Core.Entities.PostEntities.Comment", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.Like", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Core.Entities.PostEntities.PostPictureUrl", b =>
                 {
                     b.HasOne("Core.Entities.PostEntities.Post", "Post")
@@ -878,11 +1136,54 @@ namespace Infrastructure.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("Core.Entities.ShopEntities.Order", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.OrderItem", b =>
+                {
+                    b.HasOne("Core.Entities.ShopEntities.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.ShopEntities.Product", "Product")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("ProductId");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.Product", b =>
+                {
+                    b.HasOne("Core.Entities.ShopEntities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
+                        .WithMany("Products")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Shop");
+                });
+
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Coach", "Owner")
                         .WithMany("Shops")
-                        .HasForeignKey("CoachID");
+                        .HasForeignKey("OwnerID");
 
                     b.Navigation("Owner");
                 });
@@ -938,6 +1239,42 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Core.Entities.PostEntities.CommentComment", b =>
+                {
+                    b.HasOne("Core.Entities.PostEntities.Comment", "Comment")
+                        .WithMany("Comments")
+                        .HasForeignKey("CommentId");
+
+                    b.Navigation("Comment");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.PostComment", b =>
+                {
+                    b.HasOne("Core.Entities.PostEntities.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.CommentLike", b =>
+                {
+                    b.HasOne("Core.Entities.PostEntities.Comment", "Comment")
+                        .WithMany("Likes")
+                        .HasForeignKey("CommentId");
+
+                    b.Navigation("Comment");
+                });
+
+            modelBuilder.Entity("Core.Entities.PostEntities.PostLike", b =>
+                {
+                    b.HasOne("Core.Entities.PostEntities.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId");
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("Core.Entities.PostEntities.CoachPost", b =>
                 {
                     b.HasOne("Core.Entities.Identity.Coach", "Coach")
@@ -984,6 +1321,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("FollowedGyms");
 
                     b.Navigation("FollowedShops");
@@ -991,6 +1330,10 @@ namespace Infrastructure.Migrations
                     b.Navigation("Followers");
 
                     b.Navigation("Following");
+
+                    b.Navigation("Likes");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Core.Entities.OnlineTrainingEntities.OnlineTraining", b =>
@@ -998,9 +1341,35 @@ namespace Infrastructure.Migrations
                     b.Navigation("OnlineTrainingSubscriptions");
                 });
 
+            modelBuilder.Entity("Core.Entities.PostEntities.Comment", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+                });
+
             modelBuilder.Entity("Core.Entities.PostEntities.Post", b =>
                 {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+
                     b.Navigation("PictureUrls");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.Category", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.Order", b =>
+                {
+                    b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("Core.Entities.ShopEntities.Product", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
@@ -1008,6 +1377,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("Followers");
 
                     b.Navigation("Posts");
+
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Core.Entities.Identity.Coach", b =>

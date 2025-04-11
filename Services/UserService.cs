@@ -125,7 +125,7 @@ namespace Services
                     NoOfSessionsPerWeek = trining.NoOfSessionsPerWeek,
                     Price = trining.Price,
                     Title = trining.Title,
-                    TrainingType = trining.TrainingType
+                    TrainingType = trining.TrainingType.ToString()
                 }).ToList() ?? new List<GetOnlineTrainingDTO>(),
                 CoachPosts = coach.Posts?.Select(post => new CoachPostSummaryDTO
                 {

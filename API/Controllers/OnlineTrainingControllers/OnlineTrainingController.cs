@@ -3,6 +3,7 @@ using Core.Entities.OnlineTrainingEntities;
 using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Extensions;
 
 namespace API.Controllers.OnlineTrainingControllers
 {
@@ -16,7 +17,7 @@ namespace API.Controllers.OnlineTrainingControllers
 
             if (OnlineTraining == null) return NotFound("Online training not found");
 
-            return Ok(OnlineTraining);
+            return Ok(OnlineTraining.ToResponseDto());
         }
 
         [HttpGet("ByCoachId/Group")]
@@ -24,7 +25,9 @@ namespace API.Controllers.OnlineTrainingControllers
         {
             IReadOnlyList<OnlineTraining?> OnlineTrainings = await Repo.GetGroupTrainingByCoachIdAsync(CoachId);
             if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Group Online training not found");
-            return Ok(OnlineTrainings);
+            //convert to DTO
+            var OnlineTrainingDtos = OnlineTrainings.Select(onlineTraining => onlineTraining!.ToResponseDto()).ToList();
+            return Ok(OnlineTrainingDtos);
         }
 
         [HttpGet("ByCoachId/Private")]
@@ -32,7 +35,8 @@ namespace API.Controllers.OnlineTrainingControllers
         {
             IReadOnlyList<OnlineTraining?> OnlineTrainings = await Repo.GetPrivateTrainingByCoachIdAsync(CoachId);
             if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Private Online training not found");
-            return Ok(OnlineTrainings);
+            var OnlineTrainingDtos = OnlineTrainings.Select(onlineTraining => onlineTraining!.ToResponseDto()).ToList();
+            return Ok(OnlineTrainingDtos);
         }
 
         [HttpPost]
@@ -102,6 +106,7 @@ namespace API.Controllers.OnlineTrainingControllers
         public async Task<ActionResult> DeleteOnlineTraining(int id)
         {
             var OnlineTrainingToBeDeleted = await Repo.GetByIdAsync(id);
+            if (OnlineTrainingToBeDeleted == null) return NotFound("Online training not found");
             var user = await signInManager.UserManager.GetUserAsync(User);
             if (OnlineTrainingToBeDeleted!.CoachID != user!.Id)
             {

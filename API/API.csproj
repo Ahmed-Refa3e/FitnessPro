@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="UploadedImagesForPosts\**" />
+    <Compile Remove="UploadedImagesForShop\**" />
+    <Content Remove="UploadedImagesForPosts\**" />
+    <Content Remove="UploadedImagesForShop\**" />
+    <EmbeddedResource Remove="UploadedImagesForPosts\**" />
+    <EmbeddedResource Remove="UploadedImagesForShop\**" />
+    <None Remove="UploadedImagesForPosts\**" />
+    <None Remove="UploadedImagesForShop\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
@@ -21,11 +32,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UploadedImagesForPosts\" />
-    <Folder Include="UploadedImagesForShop\" />
   </ItemGroup>
 
 </Project>
