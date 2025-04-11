@@ -7,9 +7,18 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
 {
     public class OnlineTrainingRepository(FitnessContext context) : GenericRepository<OnlineTraining>(context), IOnlineTrainingRepository
     {
-        public async Task<OnlineTraining?> GetByCoachIdAsync(string coachId)
+        public async Task<IReadOnlyList<OnlineTraining?>> GetGroupTrainingByCoachIdAsync(string coachId)
         {
-            return await GetQueryable().FirstOrDefaultAsync(t => t.CoachID == coachId);
+            return await GetQueryable()
+                .Where(ot => ot.CoachID == coachId && ot.TrainingType == "Group")
+                .ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<OnlineTraining?>> GetPrivateTrainingByCoachIdAsync(string coachId)
+        {
+            return await GetQueryable()
+                .Where(ot => ot.CoachID == coachId && ot.TrainingType == "Private")
+                .ToListAsync();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Stripe;
 
-namespace API.Controllers;
+namespace API.Controllers.Payment;
 
 public class PaymentsController : BaseApiController
 {

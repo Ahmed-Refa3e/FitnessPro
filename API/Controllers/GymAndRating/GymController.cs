@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Extensions;
 
-namespace API.Controllers
+namespace API.Controllers.GymAndRating
 {
     public class GymController(IGymService service, SignInManager<ApplicationUser> signInManager) : BaseApiController
     {
