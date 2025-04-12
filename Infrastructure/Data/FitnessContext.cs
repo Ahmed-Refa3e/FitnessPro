@@ -6,7 +6,6 @@ using Core.Entities.PostEntities;
 using Core.Entities.ShopEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace Infrastructure.Data;
 public class FitnessContext(DbContextOptions options) : IdentityDbContext<ApplicationUser>(options)
@@ -66,13 +65,13 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
                 .HasOne(ots => ots.OnlineTraining)
                 .WithMany(ot => ot.OnlineTrainingSubscriptions)
                 .HasForeignKey(ots => ots.OnlineTrainingId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.NoAction);
 
         builder.Entity<OnlineTrainingSubscription>()
             .HasOne(ots => ots.Trainee)
             .WithMany(t => t.OnlineTrainingSubscriptions)
             .HasForeignKey(ots => ots.TraineeID)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict);
 
         // GymRating relationships
         builder.Entity<GymRating>()

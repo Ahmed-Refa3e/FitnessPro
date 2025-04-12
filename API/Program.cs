@@ -135,6 +135,8 @@ builder.Services.AddScoped<GymRatingRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
+builder.Services.AddSingleton<IBlobService,BlobService>();
+
 
 var app = builder.Build();
 
