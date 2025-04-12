@@ -29,13 +29,32 @@ public class BlobService : IBlobService
     }
 
     // Delete image from Blob Storage
-    public async Task DeleteImageAsync(string imageUrl)
+    public async Task<bool> DeleteImageAsync(string imageUrl)
     {
-        var uri = new Uri(imageUrl);
-        var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
-        var blobClient = blobContainerClient.GetBlobClient(uri.AbsolutePath.TrimStart('/'));
+        if (string.IsNullOrEmpty(imageUrl))
+            return false;
 
-        // Delete the image
-        await blobClient.DeleteIfExistsAsync();
+        try
+        {
+            // Extract the blob name from the URL
+            Uri uri = new(imageUrl);
+
+            string blobName = Path.GetFileName(uri.LocalPath);
+
+            // Get container reference
+            var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+
+            // Get blob reference
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            // Delete if exists
+            var response = await blobClient.DeleteIfExistsAsync();
+            return response;
+        }
+        catch
+        {
+            return false;
+        }
     }
+
 }
