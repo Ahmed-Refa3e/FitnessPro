@@ -40,6 +40,12 @@ public class ImagesController(IBlobService _blobService,
         if (checkResult is BadRequestObjectResult)
             return checkResult;
 
+        // Check if the user already has an image
+        if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+        {
+            // Delete the old image from Azure Blob Storage
+            await _blobService.DeleteImageAsync(user.ProfilePictureUrl);
+        }
         // Upload the image to Azure Blob
         var imageUrl = await _blobService.UploadImageAsync(file);
 
@@ -78,15 +84,28 @@ public class ImagesController(IBlobService _blobService,
     [Authorize(Roles = "Coach")]
     public async Task<IActionResult> UploadGymImage(int gymId, [FromForm] IFormFile file)
     {
+        ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound("User not found.");
         // Check image validity
         var checkResult = CheckImage(file);
         if (checkResult is BadRequestObjectResult)
             return checkResult;
 
         var gym = await gymRepo.GetByIdAsync(gymId);
+
         if (gym == null)
             return NotFound("Gym not found.");
 
+        if (gym.CoachID != user.Id)
+            return Unauthorized("You are not authorized to update this gym.");
+
+        // Check if the gym already has an image
+        if (!string.IsNullOrEmpty(gym.PictureUrl))
+        {
+            // Delete the old image from Azure Blob Storage
+            await _blobService.DeleteImageAsync(gym.PictureUrl);
+        }
         // Upload the image to Azure Blob
         var imageUrl = await _blobService.UploadImageAsync(file);
 
@@ -111,6 +130,13 @@ public class ImagesController(IBlobService _blobService,
         {
             return NotFound("No image found to delete.");
         }
+        // Check if the gym belongs to the user
+        ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound("User not found.");
+        if (gym.CoachID != user.Id)
+            return Unauthorized("You are not authorized to delete this gym image.");
+
         // Remove image URL from the database
         await _blobService.DeleteImageAsync(gym.PictureUrl);
         gym.PictureUrl = null;
@@ -133,6 +159,12 @@ public class ImagesController(IBlobService _blobService,
         var shop = await _context.Shops.FindAsync(shopId);
         if (shop == null)
             return NotFound("Shop not found.");
+        // Check if the shop already has an image
+        if (!string.IsNullOrEmpty(shop.PictureUrl))
+        {
+            // Delete the old image from Azure Blob Storage
+            await _blobService.DeleteImageAsync(shop.PictureUrl);
+        }
         // Upload the image to Azure Blob
         var imageUrl = await _blobService.UploadImageAsync(file);
   
