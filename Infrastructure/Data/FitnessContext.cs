@@ -1,4 +1,5 @@
-﻿using Core.Entities.FollowEntities;
+﻿using Core.Entities.ChatEntites;
+using Core.Entities.FollowEntities;
 using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
@@ -34,6 +35,8 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<Comment>? comments { get; set; }
     public DbSet<CommentComment>? commentComments { get; set; }
     public DbSet<PostComment>? postComments { get; set; }
+    public DbSet<ChatMessage> messages { get; set; }
+    public DbSet<UserConnection> connections { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -136,6 +139,18 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(gr => gr.Trainee)
             .WithMany()
             .HasForeignKey(gr => gr.TraineeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ChatMessage>()
+            .HasOne(m => m.sender)
+            .WithMany()
+            .HasForeignKey(m => m.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ChatMessage>()
+            .HasOne(m => m.receiver)
+            .WithMany()
+            .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
         #endregion
