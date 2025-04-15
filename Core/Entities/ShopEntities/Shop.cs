@@ -1,13 +1,6 @@
-﻿using Core.DTOs.ShopDTO;
-using Core.Entities.FollowEntities;
+﻿using Core.Entities.FollowEntities;
 using Core.Entities.Identity;
 using Core.Entities.PostEntities;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Entities.ShopEntities
 {
@@ -23,8 +16,9 @@ namespace Core.Entities.ShopEntities
         public string? Description { get; set; }
         public string? OwnerID { get; set; }
         public Coach? Owner { get; set; }
-        public List<ShopPost>? Posts { get; set; }=new List<ShopPost>();
-        public List<ShopFollow>? Followers { get; set; }=new List<ShopFollow>();
-        public List<Product> Products { get; set; }
+        public List<ShopPost>? Posts { get; set; } = new List<ShopPost>();
+        public List<ShopFollow>? Followers { get; set; } = new List<ShopFollow>();
+        public List<Product> Products { get; set; } = new List<Product>();
+        public List<Order> Orders { get; set; } = new List<Order>();
     }
 }

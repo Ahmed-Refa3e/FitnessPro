@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Core.DTOs.ShopDTO
+﻿namespace Core.DTOs.ShopDTO
 {
     public class ShowOneProductDTO
     {
@@ -13,7 +7,8 @@ namespace Core.DTOs.ShopDTO
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string ImagePath { get; set; }
-        public string CategoryName { get; set; }
-        public string SellerName { get; set; }
+        public List<string> CategoriesName { get; set; }
+        public string ShopName { get; set; }
+        public string ShopImage { get; set; }
     }
 }

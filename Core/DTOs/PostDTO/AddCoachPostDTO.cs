@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Core.DTOs.PostDTO
 {
-    public class AddCoachPostDTO:AddPostDTO
+    public class AddCoachPostDTO : AddPostDTO
     {
         [Required]
-        public string CoachId {  get; set; } 
+        public string CoachId { get; set; }
     }
 }

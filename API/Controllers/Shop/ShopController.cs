@@ -1,6 +1,5 @@
 ﻿using Core.DTOs.ShopDTO;
 using Core.Interfaces.Repositories.ShopRepositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Shop
@@ -17,18 +16,18 @@ namespace API.Controllers.Shop
         [HttpGet("{id:int}")]
         public ActionResult Get(int id)
         {
-            var shop=_repository.GetShop(id);
-            if(shop == null)
+            var shop = _repository.GetShop(id);
+            if (shop == null)
             {
                 return BadRequest("No Shop has this Id");
             }
             return Ok(shop);
         }
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id) 
+        public ActionResult Delete(int id)
         {
-            var result=_repository.Delete(id);
-            if(result.Id == 0)
+            var result = _repository.Delete(id);
+            if (result.Id == 0)
             {
                 return BadRequest(result.Massage);
             }
@@ -37,9 +36,9 @@ namespace API.Controllers.Shop
         [HttpPost]
         public async Task<ActionResult> Add(AddShopDTO shop)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                var result=await _repository.Add(shop);
+                var result = await _repository.Add(shop);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -50,11 +49,11 @@ namespace API.Controllers.Shop
             return BadRequest(ModelState);
         }
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update(UpdateShopDTO shop,int id)
+        public async Task<ActionResult> Update(UpdateShopDTO shop, int id)
         {
             if (ModelState.IsValid)
             {
-                var result=await _repository.Update(shop, id);
+                var result = await _repository.Update(shop, id);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);

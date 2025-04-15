@@ -1,7 +1,6 @@
 ﻿using Core.DTOs.PostDTO;
 using Core.Interfaces.Factories;
 using Core.Interfaces.Repositories.PostRepositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Posts
@@ -11,14 +10,61 @@ namespace API.Controllers.Posts
     public class PostController : ControllerBase
     {
         private readonly IPostRepository _postRepository;
-        public PostController(IPostRepository postRepository)
+        private readonly IPostRepositoryFactory _factoryRepository;
+        public PostController(IPostRepositoryFactory factoryRepository, IPostRepository postRepository)
         {
             _postRepository = postRepository;
+            _factoryRepository = factoryRepository;
+        }
+        [HttpPost("AddCoachPost")]
+        public async Task<IActionResult> AddCoachPost([FromQuery] AddCoachPostDTO postDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var repository = _factoryRepository.CreateRepository("COACH");
+                var result = await repository.Add(postDto);
+                if (result.Id == 0)
+                {
+                    return BadRequest(result.Massage);
+                }
+                return Created("", _postRepository.GetPost(result.Id));
+            }
+            return BadRequest(ModelState);
+        }
+        [HttpPost("AddGymPost")]
+        public async Task<IActionResult> AddGymPost([FromQuery] AddGymPostDTO postDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var repository = _factoryRepository.CreateRepository("GYM");
+                var result = await repository.Add(postDto);
+                if (result.Id == 0)
+                {
+                    return BadRequest(result.Massage);
+                }
+                return Created("", _postRepository.GetPost(result.Id));
+            }
+            return BadRequest(ModelState);
+        }
+        [HttpPost("AddShopPost")]
+        public async Task<IActionResult> AddShopPost([FromQuery] AddShopPostDTO postDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var repository = _factoryRepository.CreateRepository("SHOP");
+                var result = await repository.Add(postDto);
+                if (result.Id == 0)
+                {
+                    return BadRequest(result.Massage);
+                }
+                return Created("", _postRepository.GetPost(result.Id));
+            }
+            return BadRequest(ModelState);
         }
         [HttpDelete("DeletePost")]
-        public IActionResult Delete([FromQuery]int id)
+        public IActionResult Delete([FromQuery] int id)
         {
-            var result=_postRepository.DeletePost(id);
+            var result = _postRepository.DeletePost(id);
             if (string.IsNullOrEmpty(result.Massage))
             {
                 return StatusCode(StatusCodes.Status204NoContent);
@@ -52,7 +98,7 @@ namespace API.Controllers.Posts
         [HttpDelete("DeleteLikeFromPost")]
         public IActionResult DeleteLikeFromPost([FromQuery] string userId, [FromQuery] int postId)
         {
-            var result=_postRepository.DeleteLikeFromPost(userId, postId);
+            var result = _postRepository.DeleteLikeFromPost(userId, postId);
             if (string.IsNullOrEmpty(result.Massage))
             {
                 return StatusCode(StatusCodes.Status204NoContent);
@@ -60,7 +106,7 @@ namespace API.Controllers.Posts
             return BadRequest(result.Massage);
         }
         [HttpPost("AddCommentOnPost")]
-        public IActionResult AddCommentOnPost([FromQuery]AddCommentDTO addCommentDTO)
+        public IActionResult AddCommentOnPost([FromQuery] AddCommentDTO addCommentDTO)
         {
             if (ModelState.IsValid)
             {
@@ -91,7 +137,7 @@ namespace API.Controllers.Posts
             {
                 return BadRequest("No Post has this Id");
             }
-            return Ok(result); 
+            return Ok(result);
         }
         [HttpPost("AddLikeOnComment")]
         public IActionResult AddLikeOnComment([FromQuery] AddLikeDTO addLikeDTO)

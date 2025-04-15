@@ -7,11 +7,6 @@ using Humanizer;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
@@ -26,8 +21,8 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public IntResult DeletePost(int id)
         {
-            var post=_context.Posts.Include(x=>x.PictureUrls).Include(x => x.Likes).Include(x=>x.Comments).ThenInclude(x=>x.Comments).Where(x=>x.Id== id).FirstOrDefault();
-            if(post is null)
+            var post = _context.Posts.Include(x => x.PictureUrls).Include(x => x.Likes).Include(x => x.Comments).ThenInclude(x => x.Comments).Where(x => x.Id == id).FirstOrDefault();
+            if (post is null)
             {
                 return new IntResult { Massage = "No post has this Id" };
             }
@@ -74,7 +69,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                     }
                     transaction.Commit();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     foreach (var backupPath in Directory.GetFiles(backupDirectory))
                     {
@@ -89,7 +84,7 @@ namespace Infrastructure.Repositories.PostRepositoy
         public IntResult AddComentOnPost(AddCommentDTO commentDTO)
         {
             var post = FindPost(commentDTO.OwnerId);
-            if(post is null)
+            if (post is null)
             {
                 return new IntResult { Massage = "No post has tis Id." };
             }
@@ -99,20 +94,20 @@ namespace Infrastructure.Repositories.PostRepositoy
             {
                 _context.SaveChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new IntResult { Massage = ex.Message };
             }
-            return new IntResult { Id=comment.Id};
+            return new IntResult { Id = comment.Id };
         }
         public IntResult DeleteComment(int commentId)
         {
             var comment = _context.comments.Find(commentId);
-            if(comment is null)
+            if (comment is null)
             {
                 return new IntResult { Massage = "No comment has this Id" };
             }
-            using(var transaction = _context.Database.BeginTransaction())
+            using (var transaction = _context.Database.BeginTransaction())
             {
                 try
                 {
@@ -120,9 +115,9 @@ namespace Infrastructure.Repositories.PostRepositoy
                     _context.SaveChanges();
                     transaction.Commit();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    return new IntResult{ Massage = ex.Message }; 
+                    return new IntResult { Massage = ex.Message };
                 }
             }
             return new IntResult { Id = comment.Id };
@@ -134,8 +129,8 @@ namespace Infrastructure.Repositories.PostRepositoy
             {
                 return new IntResult { Massage = "No post has this Id." };
             }
-            var oldLike= SearchWithUserIdAndPostId(likeDTO.UserId,likeDTO.OwnerId);
-            if(oldLike is not null)
+            var oldLike = SearchWithUserIdAndPostId(likeDTO.UserId, likeDTO.OwnerId);
+            if (oldLike is not null)
             {
                 return new IntResult { Massage = "You already like this post." };
             }
@@ -158,8 +153,8 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public IntResult DeleteLikeFromPost(string userId, int postId)
         {
-            var like=SearchWithUserIdAndPostId(userId, postId);
-            if(like is null)
+            var like = SearchWithUserIdAndPostId(userId, postId);
+            if (like is null)
             {
                 return new IntResult { Massage = "you do not like this post yet to delete like" };
             }
@@ -176,9 +171,9 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public ShowLikeDTO GetLike(int id)
         {
-            var like = _context.postLikes.Where(x=>x.Id==id).Select(x=>new ShowLikeDTO
+            var like = _context.postLikes.Where(x => x.Id == id).Select(x => new ShowLikeDTO
             {
-                PictureUrl = x.User.ProfilePictureUrl??"",
+                PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL",
                 UserName = x.User.FirstName + " " + x.User.LastName
             }).FirstOrDefault();
@@ -195,15 +190,15 @@ namespace Infrastructure.Repositories.PostRepositoy
                 UserName = $"{x.User.FirstName} {x.User.LastName}",
                 Comments = x.Comments.Select(c => new ShowCommentDTO
                 {
-                    Date=x.Created,
-                    ID=c.Id,
+                    Date = x.Created,
+                    ID = c.Id,
                     PictureUrl = c.User.ProfilePictureUrl ?? "",
                     Content = c.Content,
                     UserName = $"{c.User.FirstName} {c.User.LastName}",
                     HaveComments = c.Comments.Any()
                 }).ToList()
             }).ToList().FirstOrDefault();
-            if(comment is null)
+            if (comment is null)
             {
                 return null;
             }
@@ -233,7 +228,7 @@ namespace Infrastructure.Repositories.PostRepositoy
         {
             var result = _context.postLikes
                 .Where(x => x.PostId == id).ToList();
-            var dic=result
+            var dic = result
                 .GroupBy(x => x.Type)
                 .OrderByDescending(g => g.Count())
                 .ToDictionary(
@@ -281,14 +276,14 @@ namespace Infrastructure.Repositories.PostRepositoy
             var post = FindPost(id);
             if (post is null) return null;
 
-            ShowPostDTO newPost= post switch
+            ShowPostDTO newPost = post switch
             {
                 CoachPost => GetCoachPostDTO(id),
                 GymPost => GetGymPostDTO(id),
                 ShopPost => GetShopPostDTO(id),
                 _ => null
             };
-            if(newPost is null) return null;
+            if (newPost is null) return null;
             newPost.LikesDetails = LikesDetailsOnPost(id);
             newPost.CreatedAt = DateHumanizeExtensions.Humanize((DateTime)newPost.CreatedAt);
             foreach (var comment in newPost.Comments)
@@ -322,12 +317,12 @@ namespace Infrastructure.Repositories.PostRepositoy
                         UserName = x.User.FirstName + " " + x.User.LastName,
                         Comments = x.Comments.Select(x => new ShowCommentDTO
                         {
-                            ID=x.Id,
+                            ID = x.Id,
                             PictureUrl = x.User.ProfilePictureUrl ?? "",
                             Date = x.Created,
                             Content = x.Content,
                             UserName = x.User.FirstName + " " + x.User.LastName,
-                            HaveComments = x.Comments.Any() 
+                            HaveComments = x.Comments.Any()
                         }).ToList()
                     }).ToList()
                 })
@@ -348,7 +343,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                     PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
                     Comments = p.Comments.Select(x => new ShowMainCommentDTO
                     {
-                        Id =x.Id,
+                        Id = x.Id,
                         Date = x.Created,
                         PictureUrl = x.User.ProfilePictureUrl ?? "",
                         Content = x.Content,
@@ -381,7 +376,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                     PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
                     Comments = p.Comments.Select(x => new ShowMainCommentDTO
                     {
-                        Id=x.Id,
+                        Id = x.Id,
                         Date = x.Created,
                         PictureUrl = x.User.ProfilePictureUrl ?? "",
                         Content = x.Content,
@@ -489,7 +484,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             {
                 _context.likes.Remove(like);
             }
-            foreach(var comnt in comment.Comments)
+            foreach (var comnt in comment.Comments)
             {
                 DeleteOneComment(comnt);
             }

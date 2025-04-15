@@ -2,15 +2,10 @@
 using Core.Interfaces.Repositories.PostRepositories;
 using Infrastructure.Repositories.PostRepositoy;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Factories
 {
-    public class PostRepositoryFactory:IPostRepositoryFactory
+    public class PostRepositoryFactory : IPostRepositoryFactory
     {
         private readonly IServiceProvider _serviceProvider;
 

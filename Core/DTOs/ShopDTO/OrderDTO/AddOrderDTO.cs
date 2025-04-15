@@ -6,6 +6,6 @@ namespace Core.DTOs.ShopDTO
     {
         public List<AddOrderItemInOrderDTO>? OrderItems { get; set; }
         [Required]
-        public string? UserId { get; set; }
+        public string UserId { get; set; }
     }
 }

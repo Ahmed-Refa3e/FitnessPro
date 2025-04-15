@@ -16,8 +16,10 @@ namespace Core.DTOs.ShopDTO
         [Required]
         public int Quantity { get; set; }
         [Required]
-        public int CategoryId { get; set; }
+        [MaxLength(10)]
+        [MinLength(1)]
+        public List<string> CategoriesName { get; set; }
         [Required]
-        public string SellerId { get; set; }
+        public int ShopId { get; set; }
     }
 }

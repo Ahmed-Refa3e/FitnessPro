@@ -1,14 +1,7 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.PostDTO;
 using Core.Entities.PostEntities;
-using Core.Interfaces.Repositories.PostRepositories;
 using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {

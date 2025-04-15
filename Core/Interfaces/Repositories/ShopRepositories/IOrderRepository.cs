@@ -1,20 +1,16 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.ShopDTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Core.DTOs.ShopDTO.OrderDTO;
 
 namespace Core.Interfaces.Repositories.ShopRepositories
 {
     public interface IOrderRepository
     {
-        ShowOrderDTO Get(int id);
-        List<ShowOrderDTO> GetOrdersForUser(string userId);
+        ShowOrderDTO GetOrder(int id);
+        List<ShowUserOrderDTO> GetOrdersForUser(string userId);
+        List<ShowShopOrderDTO> GetOrdersForShop(int shopId);
         IntResult Add(AddOrderDTO order);
         IntResult MakeItReseved(int id);
         IntResult Delete(int id);
-        IntResult IsReady(int id);
     }
 }

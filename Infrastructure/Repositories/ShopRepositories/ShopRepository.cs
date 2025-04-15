@@ -4,14 +4,7 @@ using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Core.Utilities;
 using Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.IShopRepositories
 {
@@ -68,7 +61,8 @@ namespace Infrastructure.Repositories.IShopRepositories
         public IntResult Delete(int id)
         {
             var shop = Get(id);
-            if(shop is null) {
+            if (shop is null)
+            {
                 return new IntResult() { Massage = "Id is not valid" };
             }
             _context.Shops.Remove(shop);
@@ -80,18 +74,19 @@ namespace Infrastructure.Repositories.IShopRepositories
                     File.Delete(shop.PictureUrl);
                 }
             }
-            catch (Exception ex) { 
-                return new IntResult() { Massage = ex.Message }; 
+            catch (Exception ex)
+            {
+                return new IntResult() { Massage = ex.Message };
             }
             return new IntResult() { Id = 1 };
         }
         public ShowShopDTO GetShop(int id)
         {
-            return _context.Shops.Include(e=>e.Followers).Where(x => x.Id == id).Select(x => new ShowShopDTO
+            return _context.Shops.Include(e => e.Followers).Where(x => x.Id == id).Select(x => new ShowShopDTO
             {
                 Address = x.Address,
                 City = x.City,
-                OwnerName = (x.Owner.FirstName + " " + x.Owner.LastName)??"",
+                OwnerName = (x.Owner.FirstName + " " + x.Owner.LastName) ?? "",
                 Description = x.Description,
                 Governorate = x.Governorate,
                 Name = x.Name,
