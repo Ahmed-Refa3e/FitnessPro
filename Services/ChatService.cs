@@ -1,7 +1,10 @@
-﻿using Core.DTOs.GeneralDTO;
+﻿using Core.DTOs.ChatDTO;
+using Core.DTOs.GeneralDTO;
+using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Repositories.ChatRepositories;
 using Core.Interfaces.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
@@ -18,13 +21,33 @@ namespace Services
             this.connectionRepository = connectionRepository;
             this.userRepository = userRepository;
         }
-        public async Task<Generalresponse> GetChatHistoryAsync(string FirstUserId, string LastUserId)
+
+
+        public async Task<Generalresponse> GetChatHistoryAsync(string FirstUserId, string LastUserId
+            , int pageNumber, int pageSize)
         {
-            var messages = await chatRepository.GetChatHistoryAsync(FirstUserId, LastUserId);
+            var messages = await chatRepository.GetChatHistoryAsync(FirstUserId, LastUserId, pageNumber, pageSize);
+
+            List<MessageResponseDTO> returnedMessages = new List<MessageResponseDTO>();
+            foreach (var message in messages.Messages)
+            {
+                var newmessage = new MessageResponseDTO
+                {
+                    id = message.id,
+                    Content = message.Content,
+                    SeenAt = message.SeenAt,
+                    SenderId = message.SenderId,
+                    IsSeen = message.IsSeen,
+                    timeStamp = message.timeStamp,
+                    ReceiverId = message.ReceiverId
+                };
+                returnedMessages.Add(newmessage);
+            }
             return new Generalresponse
             {
                 IsSuccess = true,
-                Data = messages
+                Data = new PagedResult<MessageResponseDTO>
+                        (returnedMessages, messages.TotalCount, messages.PageNumber, messages.PageSize)
             };
         }
 
@@ -82,6 +105,21 @@ namespace Services
                 IsSuccess = true,
                 Data = new { userId = UserId, isOnline = IsOnline }
             };
+        }
+
+        public async Task<int> GetAllUnreadMessaggesAsync(string UserId)
+        {
+            var messagesCount = await
+                chatRepository.GetQueryable().Where(e => e.ReceiverId == UserId && e.IsSeen == false)
+                .CountAsync();
+            return messagesCount;
+        }
+
+        public async Task<int> GetUnreadMessagesWithAnotherUserAsync(string UserId, string senderId)
+        {
+            var messagesCount = await chatRepository.GetQueryable().Where(e => e.SenderId == senderId
+                && e.ReceiverId == UserId && e.IsSeen == false).CountAsync();
+            return messagesCount;
         }
     }
 }

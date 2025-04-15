@@ -6,6 +6,6 @@ namespace Core.Interfaces.Repositories.ChatRepositories
     {
         Task<bool> IsUserOnlineAsync(string userId);
         Task<List<string>> GetConnectedUserIdsAsync();
-        Task RemoveConnectionAsync(string userId, string connectionId);
+        Task RemoveConnectionAsync(List<UserConnection> connections, string connectionId);
     }
 }

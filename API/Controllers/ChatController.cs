@@ -8,14 +8,14 @@ namespace API.Controllers
     [Authorize]
     public class ChatController(IChatService service) : BaseApiController
     {
-        [HttpGet("history/{userId1}/{userId2}")]
-        public async Task<IActionResult> GetChatHistory(string userId1, string userId2)
+        [HttpGet("history/{ohterUserId}")]
+        public async Task<IActionResult> GetChatHistory(string ohterUserId, int pageNumber = 1, int pageSize = 20)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (currentUserId != userId1 && currentUserId != userId2)
-                return Forbid();
+            if (currentUserId == null)
+                return Unauthorized();
 
-            var result = await service.GetChatHistoryAsync(userId1, userId2);
+            var result = await service.GetChatHistoryAsync(currentUserId, ohterUserId, pageNumber, pageSize);
 
             return Ok(result);
         }
@@ -36,6 +36,28 @@ namespace API.Controllers
         {
             var result = await service.GetUserStatusAsync(userId);
             return Ok(result);
+        }
+
+        [HttpGet("unread-messages/count")]
+        public async Task<IActionResult> GetAllUnreadMessagges()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized();
+
+            var count = await service.GetAllUnreadMessaggesAsync(userId);
+            return Ok(count);
+        }
+
+        [HttpGet("unread-messages/{senderId}/count")]
+        public async Task<IActionResult> GetUnreadMessagesWithAnotherUser(string senderId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized();
+
+            var messagesCount = await service.GetUnreadMessagesWithAnotherUserAsync(userId, senderId);
+            return Ok(messagesCount);
         }
     }
 }

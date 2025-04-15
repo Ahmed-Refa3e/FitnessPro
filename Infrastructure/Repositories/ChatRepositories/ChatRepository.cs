@@ -1,4 +1,5 @@
-﻿using Core.Entities.ChatEntites;
+﻿using Core.DTOs.ChatDTO;
+using Core.Entities.ChatEntites;
 using Core.Interfaces.Repositories.ChatRepositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +14,27 @@ namespace Infrastructure.Repositories.ChatRepositories
         {
             this.context = context;
         }
-        public async Task<List<ChatMessage>> GetChatHistoryAsync(string userId1, string userId2)
+        public async Task<PaginatedMessagesDto> GetChatHistoryAsync(string userId1, string userId2, int pageNumber, int pageSize)
         {
-            return await context.messages
-                .Where(m => (m.SenderId == userId1 && m.ReceiverId == userId2) ||
-                            (m.SenderId == userId2 && m.ReceiverId == userId1))
-                .OrderBy(m => m.timeStamp)
-                .ToListAsync();
+            var query = context.messages
+                .AsNoTracking()
+                .Where(e => (e.ReceiverId == userId1 && e.SenderId == userId2) ||
+                                     (e.SenderId == userId1 && e.ReceiverId == userId2))
+                .OrderBy(e => e.timeStamp);
+
+            var totalCount = await query.CountAsync();
+
+            var paginatedMessages = await query
+                                            .Skip((pageNumber - 1) * pageSize)
+                                            .Take(pageSize).ToListAsync();
+
+            return new PaginatedMessagesDto
+            {
+                TotalCount = totalCount,
+                PageSize = pageSize,
+                PageNumber = pageNumber,
+                Messages = paginatedMessages
+            };
         }
 
         public async Task MarkMessagesAsSeenAsync(string senderId, string receiverId)
