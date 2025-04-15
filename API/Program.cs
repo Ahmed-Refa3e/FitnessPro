@@ -6,6 +6,7 @@ using Core.Interfaces.Repositories.PostRepositories;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Core.Interfaces.Services;
 using Infrastructure.Factories;
+using Infrastructure.Hubs;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.GymRepositories;
 using Infrastructure.Repositories.IShopRepositories;
@@ -135,8 +136,9 @@ builder.Services.AddScoped<GymRatingRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
-builder.Services.AddSingleton<IBlobService,BlobService>();
+builder.Services.AddSingleton<IBlobService, BlobService>();
 
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -166,6 +168,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<ChatHub>("/ChatHub");
 
 app.MapControllers();
 

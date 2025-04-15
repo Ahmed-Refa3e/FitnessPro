@@ -6,7 +6,6 @@ using Core.Entities.Identity;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -100,7 +99,7 @@ namespace Services
                 response.Data = "User Not Found.";
                 return response;
             }
-            if(user is Trainee trainee)
+            if (user is Trainee trainee)
             {
                 response.IsSuccess = false;
                 response.Data = "This is Trainee.";
@@ -222,57 +221,6 @@ namespace Services
             }
 
             return false;
-        }
-
-        public async Task<Generalresponse> ChangeProfilePictureAsync(IFormFile profilePicture, ApplicationUser user)
-        {
-            Generalresponse generalresponse = new Generalresponse();
-
-            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
-            {
-                var oldFilePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName,
-                                               "Infrastructure", user.ProfilePictureUrl.TrimStart('/'));
-
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
-            }
-
-            var newImagePath = await ImageHelper.SaveImageAsync(profilePicture, "ProfilePictures");
-            user.ProfilePictureUrl = newImagePath;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
-            {
-                generalresponse.IsSuccess = true;
-                generalresponse.Data = "Your profilePicture has been changed";
-                return generalresponse;
-            }
-            generalresponse.IsSuccess = false;
-            generalresponse.Data = result.Errors.Select(e => e.Description).ToList();
-            return generalresponse;
-        }
-
-        public Generalresponse DeleteProfilePictureAsync(ApplicationUser user)
-        {
-            Generalresponse generalresponse = new Generalresponse();
-            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
-            {
-                var oldFilePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName,
-                                               "Infrastructure", user.ProfilePictureUrl.TrimStart('/'));
-
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
-                generalresponse.IsSuccess = true;
-                generalresponse.Data = "Your profile picture has been removed successfully.";
-                return generalresponse;
-            }
-            generalresponse.IsSuccess = false;
-            generalresponse.Data = "No profile picture found.";
-            return generalresponse;
         }
     }
 }
