@@ -27,13 +27,21 @@ namespace API.Controllers.GymAndRating
                 return BadRequest(ModelState);
 
             ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not found");
+
+            var existingRating = await Repo.GetByConditionAsync(x => ((GymRating)x).TraineeID == user.Id && ((GymRating)x).GymID == CreateGymRatingDTO.GymID);
+
+            if (existingRating != null)
+                return BadRequest("You have already rated this gym");
 
             GymRating Rating = CreateGymRatingDTO.ToEntity();
             Rating.TraineeID = user!.Id;
 
             Repo.Add(Rating);
 
-            if (await Repo.SaveChangesAsync()) return Created();
+            if (await Repo.SaveChangesAsync())
+                return CreatedAtAction(nameof(GetGymRatingById), new { id = Rating.GymRatingID }, Rating);
 
             return BadRequest("Problem Adding Gym Rating");
         }
@@ -52,6 +60,9 @@ namespace API.Controllers.GymAndRating
             {
                 return Unauthorized("You are not authorized to update this gym rating");
             }
+            // Check if the gym rating exists
+            if (gymRatingToBeUpdated == null)
+                return NotFound("Gym rating not found");
 
             gymRatingToBeUpdated.RatingDate = DateTime.Now;
             gymRatingToBeUpdated.RatingValue = UpdateGymRatingDTO.RatingValue;
@@ -60,14 +71,14 @@ namespace API.Controllers.GymAndRating
             Repo.Update(gymRatingToBeUpdated);
 
             if (!await Repo.SaveChangesAsync())
-                return NotFound("Gym rating not found");
+                return BadRequest("Problem updating gym rating");
 
             return NoContent();
         }
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Trainee")]
-        public async Task<ActionResult> DeleteGym(int id)
+        public async Task<ActionResult> DeleteGymRating(int id)
         {
             var gymRatingToBeDeleted = await Repo.GetByIdAsync(id);
             var user = await signInManager.UserManager.GetUserAsync(User);
@@ -75,11 +86,14 @@ namespace API.Controllers.GymAndRating
             {
                 return Unauthorized("You are not authorized to Delete this gym rating");
             }
+            // Check if the gym rating exists
+            if (gymRatingToBeDeleted == null)
+                return NotFound("Gym rating not found");
 
             Repo.Delete(gymRatingToBeDeleted);
 
             if (!await Repo.SaveChangesAsync())
-                return NotFound("Gym rating not found");
+                return BadRequest("Problem deleting gym rating");
 
             return NoContent();
         }
