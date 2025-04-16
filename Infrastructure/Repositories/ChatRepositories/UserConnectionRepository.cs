@@ -27,10 +27,10 @@ namespace Infrastructure.Repositories.ChatRepositories
                 .ToListAsync();
         }
 
-        public async Task RemoveConnectionAsync(string userId, string connectionId)
+        public async Task RemoveConnectionAsync(List<UserConnection> connections, string connectionId)
         {
-            var connection = await context.connections
-                .FirstOrDefaultAsync(c => c.userId == userId && c.connectionId == connectionId);
+            var connection = connections
+                .FirstOrDefault(c => c.connectionId == connectionId);
 
             if (connection != null)
             {

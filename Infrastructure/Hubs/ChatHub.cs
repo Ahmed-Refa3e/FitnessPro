@@ -26,7 +26,7 @@ namespace Infrastructure.Hubs
         public async Task SendMessage(string receiverId, string message)
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null)
+            if (string.IsNullOrEmpty(userId))
                 throw new HubException("User is not authenticated.");
 
             var ChatMessage = new ChatMessage
@@ -58,16 +58,20 @@ namespace Infrastructure.Hubs
             await Clients.User(senderId).SendAsync("MessagesSeen", receiverId);
         }
 
+        public async Task TypingStatus(string receiverId, bool isTyping)
+        {
+            var senderId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(senderId))
+                throw new HubException("User is not authenticated.");
+
+            await Clients.User(receiverId).SendAsync("TypingStatusChanged", isTyping);
+        }
+
         public override async Task OnConnectedAsync()
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!string.IsNullOrEmpty(userId))
             {
-                var oldConnections = connectionRepository.GetQueryable()
-                    .Where(c => c.userId == userId);
-                foreach (var conn in oldConnections)
-                    connectionRepository.Delete(conn);
-
                 var newConnection = new UserConnection
                 {
                     isOnline = true,
@@ -89,8 +93,15 @@ namespace Infrastructure.Hubs
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!string.IsNullOrEmpty(userId))
             {
-                await connectionRepository.RemoveConnectionAsync(userId, Context.ConnectionId);
-                await Clients.All.SendAsync("UserStatusChanged", userId, false);
+                var userConnections = connectionRepository.GetQueryable()
+                    .Where(e => e.userId == userId).ToList();
+
+                await connectionRepository.RemoveConnectionAsync(userConnections, Context.ConnectionId);
+
+                if (!userConnections.Any(c => c.connectionId != Context.ConnectionId))
+                {
+                    await Clients.All.SendAsync("UserStatusChanged", userId, false);
+                }
             }
 
             await base.OnDisconnectedAsync(exception);
