@@ -13,6 +13,12 @@ public class PaymentsController : BaseApiController
             Amount = request.Amount, // Amount in cents (2000 = $20.00)
             Currency = request.Currency, // e.g. "usd"
             PaymentMethodTypes = ["card"],
+            Metadata = new Dictionary<string, string>
+        {
+            { "traineeId", request.TraineeId },
+            { "onlineTrainingId", request.OnlineTrainingId.ToString()},
+            { "subscriptionType", "online" }
+        }
         };
 
         var service = new PaymentIntentService();
@@ -23,7 +29,10 @@ public class PaymentsController : BaseApiController
 }
 public class CreatePaymentIntentRequest
 {
-    public long Amount { get; set; } // Amount in cents
-    public string Currency { get; set; } = "usd"; // Default to USD
+    public long Amount { get; set; }
+    public string Currency { get; set; } = "usd";
+    public string TraineeId { get; set; } = null!;
+    public int OnlineTrainingId { get; set; }
 }
+
 

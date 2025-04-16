@@ -1,5 +1,4 @@
-﻿using Core.Entities.GymEntities;
-using Core.Entities.OnlineTrainingEntities;
+﻿using Core.Entities.OnlineTrainingEntities;
 
 namespace Core.Interfaces.Repositories.OnlineTrainingRepositories
 {

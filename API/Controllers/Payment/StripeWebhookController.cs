@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Core.Entities.OnlineTrainingEntities;
+using Core.Interfaces.Repositories.OnlineTrainingRepositories;
+using Microsoft.AspNetCore.Mvc;
 using Stripe;
 
 namespace API.Controllers.Payment;
 
-public class StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger) : BaseApiController
+public class StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger, IOnlineTrainingSubscriptionRepository Repo) : BaseApiController
 {
     private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"] ?? throw new ArgumentNullException("Stripe Webhook Secret not configured.");
 
@@ -67,24 +69,32 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
         }
     }
 
-    /// <summary>
-    /// Marks order as paid in the database (Replace with actual DB logic).
-    /// </summary>
     private async Task HandleSuccessfulPayment(PaymentIntent paymentIntent)
     {
         try
         {
-            // Simulated database update (Replace with real database logic)
-            logger.LogInformation($"📝 Marking order as paid for PaymentIntent ID: {paymentIntent.Id}");
+            var traineeId = paymentIntent.Metadata["traineeId"];
+            var onlineTrainingId = int.Parse(paymentIntent.Metadata["onlineTrainingId"]);
 
-            // Example: await _orderService.MarkOrderAsPaid(paymentIntent.Id);
+            var subscription = new OnlineTrainingSubscription
+            {
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(30),
+                TraineeID = traineeId,
+                OnlineTrainingId = onlineTrainingId,
+                IsActive = true
+            };
 
-            logger.LogInformation($"✅ Order successfully marked as paid for PaymentIntent ID: {paymentIntent.Id}");
+            Repo.Add(subscription);
+            await Repo.SaveChangesAsync();
+
+            logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
         }
         catch (Exception ex)
         {
-            logger.LogError($"❌ Database update failed for PaymentIntent {paymentIntent.Id}: {ex.Message}");
-            throw; // Ensures Stripe retries if the webhook fails
+            logger.LogError($"❌ Failed to create OnlineTrainingSubscription: {ex.Message}");
+            throw;
         }
     }
+
 }
