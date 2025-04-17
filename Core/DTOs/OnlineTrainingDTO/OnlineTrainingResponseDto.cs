@@ -1,6 +1,4 @@
-﻿using Core.Enums;
-
-namespace Core.DTOs.OnlineTrainingDTO
+﻿namespace Core.DTOs.OnlineTrainingDTO
 {
     public class OnlineTrainingResponseDto
     {

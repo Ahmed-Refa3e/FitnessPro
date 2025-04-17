@@ -77,7 +77,7 @@ builder.Services.AddSwaggerGen(swagger =>
 
 builder.Services.AddDbContext<FitnessContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ServerConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("RemoteConnection"));
 });
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -136,6 +136,7 @@ builder.Services.AddScoped<GymRatingRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
+builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTrainingSubscriptionRepository>();
 builder.Services.AddSingleton<IBlobService, BlobService>();
 
 builder.Services.AddSignalR();

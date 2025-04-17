@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
-    <PackageReference Include="Stripe.net" Version="47.4.0" />
+    <PackageReference Include="Stripe.net" Version="48.0.2" />
   </ItemGroup>
 
   <ItemGroup>

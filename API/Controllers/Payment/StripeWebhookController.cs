@@ -24,7 +24,7 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
         Event stripeEvent;
         try
         {
-            stripeEvent = EventUtility.ConstructEvent(json, stripeSignature, _webhookSecret);
+            stripeEvent = EventUtility.ConstructEvent(json, stripeSignature, _webhookSecret, throwOnApiVersionMismatch: false);
         }
         catch (StripeException ex)
         {
@@ -88,7 +88,8 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
             Repo.Add(subscription);
             await Repo.SaveChangesAsync();
 
-            logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
+            //logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
+            logger.LogInformation($"✅ OnlineTrainingSubscription created");
         }
         catch (Exception ex)
         {
