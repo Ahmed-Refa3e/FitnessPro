@@ -156,7 +156,7 @@ public static class DataSeeder
                     {
                         Title = training.Title,
                         Description = training.Description,
-                        TrainingType = training.TrainingType,
+                        TrainingType = training.TrainingType.ToString(), // Convert enum to string
                         Price = training.Price,
                         NoOfSessionsPerWeek = training.NoOfSessionsPerWeek,
                         DurationOfSession = training.DurationOfSession,

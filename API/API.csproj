@@ -20,13 +20,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UploadedImagesForPosts\" />
-    <Folder Include="UploadedImagesForShop\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

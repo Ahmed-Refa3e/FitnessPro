@@ -2,9 +2,11 @@
 
 namespace Core.Interfaces.Repositories.OnlineTrainingRepositories
 {
-    public interface IOnlineTrainingRepository
+    public interface IOnlineTrainingRepository : IGenericRepository<OnlineTraining>
     {
-        Task<OnlineTraining?> GetByCoachIdAsync(string coachId);
+        Task<IReadOnlyList<OnlineTraining?>> GetGroupTrainingByCoachIdAsync(string coachId);
+
+        Task<IReadOnlyList<OnlineTraining?>> GetPrivateTrainingByCoachIdAsync(string coachId);
 
     }
 }

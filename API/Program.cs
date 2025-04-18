@@ -6,6 +6,7 @@ using Core.Interfaces.Repositories.PostRepositories;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Core.Interfaces.Services;
 using Infrastructure.Factories;
+using Infrastructure.Hubs;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.GymRepositories;
 using Infrastructure.Repositories.IShopRepositories;
@@ -46,8 +47,8 @@ builder.Services.AddSwaggerGen(swagger =>
     swagger.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "ASP.NET 8 Web API",
-        Description = "Store"
+        Title = "Fitness pro Web API",
+        Description = "fitness"
     });
     // To Enable authorization using Swagger (JWT)    
     swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -77,7 +78,7 @@ builder.Services.AddSwaggerGen(swagger =>
 
 builder.Services.AddDbContext<FitnessContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ServerConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("RemoteConnection"));
 });
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -104,6 +105,7 @@ builder.Services.AddScoped<CoachRatingRepository>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("Authentication:Google"));
+
 var jwtSettings = builder.Configuration.GetSection("JWT").Get<JwtSettings>();
 var googleSettings = builder.Configuration.GetSection("Authentication:Google").Get<GoogleSettings>();
 
@@ -139,6 +141,11 @@ builder.Services.AddScoped<GymRatingRepository>();
 builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
+builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTrainingSubscriptionRepository>();
+builder.Services.AddSingleton<IBlobService, BlobService>();
+
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -168,23 +175,26 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<ChatHub>("/ChatHub");
+
 app.MapControllers();
 
 app.UseCors("AllowAllOrigins");
 
 
 //Apply any pending migrations
-/*try
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<FitnessContext>();
-    await context.Database.MigrateAsync();
-}
-catch (Exception ex)
-{
-    Console.WriteLine(ex);
-    throw;
-}*/
+
+//try
+//{
+//    using var scope = app.Services.CreateScope();
+//    var services = scope.ServiceProvider;
+//    var context = services.GetRequiredService<FitnessContext>();
+//    await context.Database.MigrateAsync();
+//}
+//catch (Exception ex)
+//{
+//    Console.WriteLine(ex);
+//    throw;
+//}
 
 app.Run();

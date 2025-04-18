@@ -1,11 +1,11 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.OnlineTrainingDTO;
+using Core.DTOs.PostDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
 using Core.Helpers;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -91,12 +91,18 @@ namespace Services
             Generalresponse response = new Generalresponse();
 
             var user = await repository.GetAsync(e => e.Id == CoachId
-                        , includeProperties: "OnlineTrainings"
+                        , includeProperties: "OnlineTrainings,Posts"
            );
             if (user is null)
             {
                 response.IsSuccess = false;
                 response.Data = "User Not Found.";
+                return response;
+            }
+            if (user is Trainee trainee)
+            {
+                response.IsSuccess = false;
+                response.Data = "This is Trainee.";
                 return response;
             }
 
@@ -118,8 +124,15 @@ namespace Services
                     NoOfSessionsPerWeek = trining.NoOfSessionsPerWeek,
                     Price = trining.Price,
                     Title = trining.Title,
-                    TrainingType = trining.TrainingType
-                }).ToList() ?? new List<GetOnlineTrainingDTO>()
+                    TrainingType = trining.TrainingType.ToString()
+                }).ToList() ?? new List<GetOnlineTrainingDTO>(),
+                CoachPosts = coach.Posts?.Select(post => new CoachPostSummaryDTO
+                {
+                    Id = post.Id,
+                    Content = post.Content,
+                    ImageUrl = post.PictureUrls?.FirstOrDefault()?.Url,
+                    CreatedAt = post.CreatedAt
+                }).ToList() ?? new List<CoachPostSummaryDTO>()
             };
 
             response.IsSuccess = true;
@@ -190,55 +203,24 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ChangeProfilePictureAsync(IFormFile profilePicture, ApplicationUser user)
+        public async Task<bool> CheckUserStatusAsync(ApplicationUser user)
         {
-            Generalresponse generalresponse = new Generalresponse();
+            var userfromDb = await repository.GetAsync(e => e.Id == user.Id,
+                includeProperties: "OnlineTrainings,Shops,Gym");
 
-            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+            if (userfromDb == null)
             {
-                var oldFilePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName,
-                                               "Infrastructure", user.ProfilePictureUrl.TrimStart('/'));
-
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
+                return false;
             }
 
-            var newImagePath = await ImageHelper.SaveImageAsync(profilePicture, "ProfilePictures");
-            user.ProfilePictureUrl = newImagePath;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
+            if (userfromDb is Coach coach)
             {
-                generalresponse.IsSuccess = true;
-                generalresponse.Data = "Your profilePicture has been changed";
-                return generalresponse;
+                return (coach.Gym != null) ||
+                       (coach.OnlineTrainings?.Any() == true) ||
+                       (coach.Shops?.Any() == true);
             }
-            generalresponse.IsSuccess = false;
-            generalresponse.Data = result.Errors.Select(e => e.Description).ToList();
-            return generalresponse;
-        }
 
-        public Generalresponse DeleteProfilePictureAsync(ApplicationUser user)
-        {
-            Generalresponse generalresponse = new Generalresponse();
-            if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
-            {
-                var oldFilePath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName,
-                                               "Infrastructure", user.ProfilePictureUrl.TrimStart('/'));
-
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
-                generalresponse.IsSuccess = true;
-                generalresponse.Data = "Your profile picture has been removed successfully.";
-                return generalresponse;
-            }
-            generalresponse.IsSuccess = false;
-            generalresponse.Data = "No profile picture found.";
-            return generalresponse;
+            return false;
         }
     }
 }

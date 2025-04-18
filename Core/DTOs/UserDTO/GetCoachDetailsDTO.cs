@@ -1,4 +1,5 @@
 ﻿using Core.DTOs.OnlineTrainingDTO;
+using Core.DTOs.PostDTO;
 
 namespace Core.DTOs.UserDTO
 {
@@ -11,5 +12,6 @@ namespace Core.DTOs.UserDTO
         public required string Gender { get; set; }
         public DateTime JoinedDate { get; set; }
         public List<GetOnlineTrainingDTO> OnlineTrainings { get; set; } = new();
+        public List<CoachPostSummaryDTO> CoachPosts { get; set; } = new();
     }
 }

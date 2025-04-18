@@ -22,19 +22,65 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CategoryProduct", b =>
+            modelBuilder.Entity("Core.Entities.ChatEntites.ChatMessage", b =>
                 {
-                    b.Property<int>("CategoriesId")
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductsId")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.HasKey("CategoriesId", "ProductsId");
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("ProductsId");
+                    b.Property<bool>("IsSeen")
+                        .HasColumnType("bit");
 
-                    b.ToTable("CategoryProduct");
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("SeenAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("timeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("messages");
+                });
+
+            modelBuilder.Entity("Core.Entities.ChatEntites.UserConnection", b =>
+                {
+                    b.Property<string>("iD")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("connectionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isOnline")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("userId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("iD");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("connections");
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>
@@ -389,6 +435,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<int>("OnlineTrainingId")
                         .HasColumnType("int");
@@ -920,19 +969,34 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("ShopPost");
                 });
 
-            modelBuilder.Entity("CategoryProduct", b =>
+            modelBuilder.Entity("Core.Entities.ChatEntites.ChatMessage", b =>
                 {
-                    b.HasOne("Core.Entities.ShopEntities.Category", null)
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "receiver")
                         .WithMany()
-                        .HasForeignKey("CategoriesId")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("receiver");
+
+                    b.Navigation("sender");
+                });
+
+            modelBuilder.Entity("Core.Entities.ChatEntites.UserConnection", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "user")
+                        .WithMany()
+                        .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Core.Entities.ShopEntities.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>

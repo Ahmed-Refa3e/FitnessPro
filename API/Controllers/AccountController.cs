@@ -89,6 +89,30 @@ namespace API.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, result);
         }
 
+        [Authorize]
+        [HttpPost("SetUserRole")]
+        public async Task<IActionResult> SetUserRole([FromBody] SetRoleDTO request)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var purposeClaim = User.FindFirst("CheckRole")?.Value;
+
+            if (purposeClaim != "NoRole")
+            {
+                return Unauthorized(new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = "Unauthorized access or invalid token."
+                });
+            }
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Invalid token" });
+
+            var result = await service.SetUserRoleAsync(userId, request.Role);
+            if (result.IsSuccess)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
         [HttpPost("LogOut")]
         public async Task<ActionResult> LogOut()
         {

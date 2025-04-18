@@ -1,4 +1,5 @@
-﻿using Core.Entities.FollowEntities;
+﻿using Core.Entities.ChatEntites;
+using Core.Entities.FollowEntities;
 using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
@@ -6,7 +7,6 @@ using Core.Entities.PostEntities;
 using Core.Entities.ShopEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace Infrastructure.Data;
 public class FitnessContext(DbContextOptions options) : IdentityDbContext<ApplicationUser>(options)
@@ -39,6 +39,8 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<Comment>? comments { get; set; }
     public DbSet<CommentComment>? commentComments { get; set; }
     public DbSet<PostComment>? postComments { get; set; }
+    public DbSet<ChatMessage> messages { get; set; }
+    public DbSet<UserConnection> connections { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -70,13 +72,13 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
                 .HasOne(ots => ots.OnlineTraining)
                 .WithMany(ot => ot.OnlineTrainingSubscriptions)
                 .HasForeignKey(ots => ots.OnlineTrainingId)
-                .OnDelete(DeleteBehavior.NoAction); 
+                .OnDelete(DeleteBehavior.NoAction);
 
         builder.Entity<OnlineTrainingSubscription>()
             .HasOne(ots => ots.Trainee)
             .WithMany(t => t.OnlineTrainingSubscriptions)
             .HasForeignKey(ots => ots.TraineeID)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict);
 
         // GymRating relationships
         builder.Entity<GymRating>()
@@ -97,7 +99,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(e => e.FollowerUser)
             .WithMany(e => e.Following)
             .HasForeignKey(e => e.FollowerId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<UserFollow>()
             .HasOne(e => e.FollowingUser)
@@ -110,7 +112,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(f => f.FollowerUser)
             .WithMany(u => u.FollowedGyms)
             .HasForeignKey(f => f.FollowerId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<GymFollow>()
             .HasOne(f => f.Gym)
@@ -123,7 +125,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(f => f.FollowerUser)
             .WithMany(u => u.FollowedShops)
             .HasForeignKey(f => f.FollowerId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<ShopFollow>()
             .HasOne(f => f.Shop)
@@ -141,6 +143,18 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
             .HasOne(gr => gr.Trainee)
             .WithMany()
             .HasForeignKey(gr => gr.TraineeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ChatMessage>()
+            .HasOne(m => m.sender)
+            .WithMany()
+            .HasForeignKey(m => m.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ChatMessage>()
+            .HasOne(m => m.receiver)
+            .WithMany()
+            .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.Restrict);
 
         #endregion
