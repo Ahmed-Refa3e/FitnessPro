@@ -5,9 +5,9 @@ namespace Core.Interfaces.Repositories.ShopRepositories
 {
     public interface IShopRepository
     {
-        Task<IntResult> Add(AddShopDTO shop);
-        Task<IntResult> Update(UpdateShopDTO shop, int id);
-        IntResult Delete(int id);
+        Task<IntResult> Add(AddShopDTO shop, string userId);
+        Task<IntResult> Update(UpdateShopDTO shop, string userId);
+        IntResult Delete(int id,string userId);
         ShowShopDTO GetShop(int id);
     }
 }

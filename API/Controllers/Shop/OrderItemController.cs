@@ -1,6 +1,8 @@
 ﻿using Core.DTOs.ShopDTO;
 using Core.Interfaces.Repositories.ShopRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers.Shop
 {
@@ -14,9 +16,11 @@ namespace API.Controllers.Shop
             _orderItemRepository = orderItemRepository;
         }
         [HttpGet]
+        [Authorize]
         public ActionResult GetOrderItem(int id)
         {
-            var result = _orderItemRepository.GetById(id);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = _orderItemRepository.GetById(id,userId);
             if (result == null)
             {
                 return BadRequest("No OrderItem has this Id");
@@ -24,41 +28,47 @@ namespace API.Controllers.Shop
             return Ok(result);
         }
         [HttpPost("AddOrderItemInSpacificOrder")]
+        [Authorize]
         public ActionResult AddOrderItemInSpacificOrder(AddOrderItemDTO item)
         {
             if (ModelState.IsValid)
             {
-                var result = _orderItemRepository.AddOrderItemInSpacificOrder(item);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = _orderItemRepository.AddOrderItemInSpacificOrderWithCheckUserID(item,userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
                 }
                 var url = Url.Action(nameof(GetOrderItem), new { id = result.Id });
-                return Created(url, _orderItemRepository.GetById(result.Id));
+                return Created(url, _orderItemRepository.GetById(result.Id,userId));
             }
             return BadRequest(ModelState);
         }
         [HttpPost("AddOrderItemInOrderDidnotReseived")]
-        public ActionResult AddOrderItemInOrderDidnotReseived(AddOrderItemInOrderDTO item, string userId)
+        [Authorize]
+        public ActionResult AddOrderItemInOrderDidnotReseived(AddOrderItemInOrderDTO item)
         {
             if (ModelState.IsValid)
             {
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var result = _orderItemRepository.AddOrderItemInOrderDidnotReseived(item, userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
                 }
                 var url = Url.Action(nameof(GetOrderItem), new { id = result.Id });
-                return Created(url, _orderItemRepository.GetById(result.Id));
+                return Created(url, _orderItemRepository.GetById(result.Id, userId));
             }
             return BadRequest(ModelState);
         }
         [HttpPut]
+        [Authorize]
         public ActionResult Update(EditOrderItemDTO item)
         {
             if (ModelState.IsValid)
             {
-                var result = _orderItemRepository.UpdateOrderItem(item);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = _orderItemRepository.UpdateOrderItem(item,userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -68,9 +78,11 @@ namespace API.Controllers.Shop
             return BadRequest(ModelState);
         }
         [HttpDelete]
+        [Authorize]
         public ActionResult Delete(int id)
         {
-            var result = _orderItemRepository.DeleteOrderItem(id);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = _orderItemRepository.DeleteOrderItemWithUserId(id, userId);
             if (result.Id == 0)
             {
                 return BadRequest(result.Massage);

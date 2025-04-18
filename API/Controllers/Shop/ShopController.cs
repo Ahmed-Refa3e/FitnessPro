@@ -1,6 +1,8 @@
 ﻿using Core.DTOs.ShopDTO;
 using Core.Interfaces.Repositories.ShopRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers.Shop
 {
@@ -13,7 +15,7 @@ namespace API.Controllers.Shop
         {
             this._repository = repository;
         }
-        [HttpGet("{id:int}")]
+        [HttpGet]
         public ActionResult Get(int id)
         {
             var shop = _repository.GetShop(id);
@@ -23,10 +25,12 @@ namespace API.Controllers.Shop
             }
             return Ok(shop);
         }
-        [HttpDelete("{id:int}")]
+        [HttpDelete]
+        [Authorize(Roles = "Coach")]
         public ActionResult Delete(int id)
         {
-            var result = _repository.Delete(id);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = _repository.Delete(id,userId);
             if (result.Id == 0)
             {
                 return BadRequest(result.Massage);
@@ -34,11 +38,13 @@ namespace API.Controllers.Shop
             return StatusCode(StatusCodes.Status204NoContent, "Deleted");
         }
         [HttpPost]
+        [Authorize(Roles = "Coach")]
         public async Task<ActionResult> Add(AddShopDTO shop)
         {
             if (ModelState.IsValid)
             {
-                var result = await _repository.Add(shop);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = await _repository.Add(shop,userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -48,12 +54,14 @@ namespace API.Controllers.Shop
             }
             return BadRequest(ModelState);
         }
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update(UpdateShopDTO shop, int id)
+        [HttpPut]
+        [Authorize(Roles = "Coach")]
+        public async Task<ActionResult> Update(UpdateShopDTO shop)
         {
             if (ModelState.IsValid)
             {
-                var result = await _repository.Update(shop, id);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = await _repository.Update(shop, userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);

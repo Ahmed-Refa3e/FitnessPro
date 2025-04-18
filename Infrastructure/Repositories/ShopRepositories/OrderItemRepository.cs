@@ -114,13 +114,34 @@ namespace Infrastructure.Repositories.ShopRepositories
             }
             return new IntResult { Id = newItem.Id };
         }
+        public IntResult AddOrderItemInSpacificOrderWithCheckUserID(AddOrderItemDTO item, string userId)
+        {
+            if (_context.orders.Find(item.OrderId).UserId != userId)
+            {
+                return new IntResult { Massage = "No Order has this Id." };
+            }
+            return AddOrderItemInSpacificOrder(item);
+        }
+        public IntResult DeleteOrderItemWithUserId(int id, string userId)
+        {
+            var item = GetWithOrder(id);
+            if (item == null || item.Order.UserId != userId)
+            {
+                return new IntResult() { Massage = "No Order Item has this Id" };
+            }
+            return DeleteItem(item);
+        }
         public IntResult DeleteOrderItem(int id)
         {
-            var item = _context.ordersItems.Include(x => x.Order).FirstOrDefault(x => x.Id == id);
+            var item = GetWithOrder(id);
             if (item == null)
             {
                 return new IntResult() { Massage = "No Order Item has this Id" };
             }
+            return DeleteItem(item);
+        }
+        IntResult DeleteItem(OrderItem item)
+        {
             if (item.Order.IsRecieved)
             {
                 return new IntResult() { Massage = "The Order Is already Reseaved we can not delete this item" };
@@ -133,7 +154,7 @@ namespace Infrastructure.Repositories.ShopRepositories
                 {
                     return new IntResult() { Massage = result.Massage };
                 }
-                var order = _context.orders.Include(x => x.OrderItems).FirstOrDefault(x => x.Id == item.OrderId);
+                var order = item.Order;
                 if (order is not null)
                 {
                     order.TotalPrice -= item.Price;
@@ -150,31 +171,39 @@ namespace Infrastructure.Repositories.ShopRepositories
             }
             return new IntResult() { Id = 1 };
         }
-        public ShowOrderItemDTO GetById(int id)
+        public ShowOrderItemDTO GetById(int id, string userId)
         {
-            var item = _context.ordersItems.Where(x => x.Id == id).Select(x => new ShowOrderItemDTO()
+            var item = _context.ordersItems.Include(x=>x.Product).Include(x => x.Order).ThenInclude(x=>x.Shop).FirstOrDefault(x => x.Id == id);
+            if (item == null || (item.Order.UserId != userId && item.Order.Shop?.OwnerID != userId))
             {
-                Id = x.Id,
-                Price = x.Price,
-                ProductName = x.Product.Name,
-                Quantity = x.Quantity
-            }).FirstOrDefault();
-            return item;
+                return null;
+            }
+            return new ShowOrderItemDTO()
+            {
+                Id = item.Id,
+                Price = item.Price,
+                ProductName = item.Product.Name,
+                Quantity = item.Quantity
+            };
         }
         public decimal GetPrice(int id)
         {
             return Get(id).Price;
         }
-        public IntResult UpdateOrderItem(EditOrderItemDTO item)
+        public IntResult UpdateOrderItem(EditOrderItemDTO item, string userId)
         {
-            var oldItem = _context.ordersItems.Include(x => x.Order).FirstOrDefault(x => x.Id == item.Id);
-            if (oldItem == null)
+            var oldItem = GetWithOrder(item.Id);
+            if (oldItem == null||oldItem.Order.UserId!=userId)
             {
                 return new IntResult { Massage = "No Order Item has this Id" };
             }
             if (oldItem.Order.IsRecieved)
             {
                 return new IntResult { Massage = "The Order is already Reseaved" };
+            }
+            if (item.Quantity == 0)
+            {
+                return DeleteItem(oldItem);
             }
             var changedQuantity = item.Quantity - oldItem.Quantity;
             using (var transaction = _context.Database.BeginTransaction())
@@ -186,8 +215,9 @@ namespace Infrastructure.Repositories.ShopRepositories
                     {
                         return new IntResult() { Massage = result.Massage };
                     }
-                    oldItem.Price -= (decimal)result.price;
-                    oldItem.Order.TotalPrice -= (decimal)result.price;
+                    oldItem.Quantity += changedQuantity;
+                    oldItem.Price += (decimal)result.price;                    
+                    oldItem.Order.TotalPrice += (decimal)result.price;
                     _context.SaveChanges();
                     transaction.Commit();
                 }
@@ -199,5 +229,6 @@ namespace Infrastructure.Repositories.ShopRepositories
             return new IntResult { Id = oldItem.Id };
         }
         OrderItem Get(int id) => _context.ordersItems.Find(id);
+        OrderItem GetWithOrder(int id) => _context.ordersItems.Include(x => x.Order).ThenInclude(x=>x.OrderItems).FirstOrDefault(x => x.Id == id);
     }
 }

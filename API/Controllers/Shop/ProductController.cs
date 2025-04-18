@@ -1,7 +1,9 @@
 ﻿using Core.DTOs.ShopDTO;
 using Core.DTOs.ShopDTO.ProductDTO;
 using Core.Interfaces.Repositories.ShopRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers.Shop
 {
@@ -10,9 +12,11 @@ namespace API.Controllers.Shop
     public class ProductController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
-        public ProductController(IProductRepository productRepository)
+        private readonly ICategoryRepository _categoryRepository;
+        public ProductController(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
             _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
         [HttpGet("{id:int}")]
         public ActionResult GetById(int id)
@@ -24,36 +28,44 @@ namespace API.Controllers.Shop
             }
             return Ok(result);
         }
+        [HttpGet("Categories")]
+        public ActionResult GetAllProductCategories()
+        {
+            var result = _categoryRepository.GetAll();
+            return Ok(result);
+        }
         [HttpGet("ProductsNoCategory")]
-        public ActionResult GetProductsNoCategory([FromQuery] int page, [FromQuery] int size)
+        public ActionResult GetProductsNoCategory(int page, int size)
         {
             var result = _productRepository.GetProductsInPaginationsNoCategory(page, size);
             return Ok(result);
         }
         [HttpGet("ProductsInCategory")]
-        public ActionResult GetProductsInCategory([FromQuery] int page, [FromQuery] int size, [FromQuery] int category)
+        public ActionResult GetProductsInCategory(int page, int size, int category)
         {
             var result = _productRepository.GetProductsInPaginationsWithCategory(page, size, category);
             return Ok(result);
         }
         [HttpGet("ShopProductsNoCategory")]
-        public ActionResult GetShopProductsNoCategory([FromQuery] int shopId, [FromQuery] int page, [FromQuery] int size)
+        public ActionResult GetShopProductsNoCategory(int shopId, int page, int size)
         {
             var result = _productRepository.GetProductsInPaginationsOnShopNoCategory(shopId, page, size);
             return Ok(result);
         }
         [HttpGet("ShopProductsInCategory")]
-        public ActionResult GetShopProductsInCategory([FromQuery] int shopId, [FromQuery] int page, [FromQuery] int size, [FromQuery] int category)
+        public ActionResult GetShopProductsInCategory(int shopId,int page, int size, int category)
         {
             var result = _productRepository.GetProductsInPaginationsOnShopWithCategory(shopId, page, size, category);
             return Ok(result);
         }
         [HttpPost]
-        public async Task<ActionResult> Add([FromQuery] AddProductDTO product)
+        [Authorize(Roles = "Coach")]
+        public async Task<ActionResult> Add(AddProductDTO product)
         {
             if (ModelState.IsValid)
             {
-                var result = await _productRepository.Add(product);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = await _productRepository.Add(product,userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -64,9 +76,11 @@ namespace API.Controllers.Shop
             return BadRequest(ModelState);
         }
         [HttpDelete]
-        public ActionResult Delete([FromQuery] int id)
+        [Authorize(Roles = "Coach")]
+        public ActionResult Delete(int id)
         {
-            var result = _productRepository.Delete(id);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = _productRepository.Delete(id,userId);
             if (result.Id == 0)
             {
                 return BadRequest(result.Massage);
@@ -74,11 +88,13 @@ namespace API.Controllers.Shop
             return StatusCode(StatusCodes.Status204NoContent);
         }
         [HttpPut("Details")]
-        public async Task<ActionResult> Update([FromQuery] EditProductDTO product, [FromQuery] int id)
+        [Authorize(Roles = "Coach")]
+        public async Task<ActionResult> Update(EditProductDTO product, int id)
         {
             if (ModelState.IsValid)
             {
-                var result = await _productRepository.Update(product, id);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = await _productRepository.Update(product, id,userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -88,11 +104,13 @@ namespace API.Controllers.Shop
             return BadRequest(ModelState);
         }
         [HttpPut("UpdateCategoriesIOfProduct")]
-        public ActionResult UpdateCategoriesInProduct([FromQuery] ModifyCategoriesInProductDTO categories)
+        [Authorize(Roles = "Coach")]
+        public ActionResult UpdateCategoriesInProduct(ModifyCategoriesInProductDTO categories)
         {
             if (ModelState.IsValid)
             {
-                var result = _productRepository.UpdateCategoriesOfProduct(categories);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = _productRepository.UpdateCategoriesOfProduct(categories, userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);

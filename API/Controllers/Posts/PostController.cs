@@ -1,7 +1,9 @@
 ﻿using Core.DTOs.PostDTO;
 using Core.Interfaces.Factories;
 using Core.Interfaces.Repositories.PostRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers.Posts
 {
@@ -17,12 +19,14 @@ namespace API.Controllers.Posts
             _factoryRepository = factoryRepository;
         }
         [HttpPost("AddCoachPost")]
-        public async Task<IActionResult> AddCoachPost([FromQuery] AddCoachPostDTO postDto)
+        [Authorize(Roles = "Coach")]
+        public async Task<IActionResult> AddCoachPost(AddPostDTO postDto)
         {
             if (ModelState.IsValid)
             {
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var repository = _factoryRepository.CreateRepository("COACH");
-                var result = await repository.Add(postDto);
+                var result = await repository.Add(postDto, userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -32,12 +36,14 @@ namespace API.Controllers.Posts
             return BadRequest(ModelState);
         }
         [HttpPost("AddGymPost")]
-        public async Task<IActionResult> AddGymPost([FromQuery] AddGymPostDTO postDto)
+        [Authorize(Roles = "Coach")]
+        public async Task<IActionResult> AddGymPost(AddGymPostDTO postDto)
         {
             if (ModelState.IsValid)
             {
+                var userId= User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var repository = _factoryRepository.CreateRepository("GYM");
-                var result = await repository.Add(postDto);
+                var result = await repository.Add(postDto,userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -47,12 +53,14 @@ namespace API.Controllers.Posts
             return BadRequest(ModelState);
         }
         [HttpPost("AddShopPost")]
-        public async Task<IActionResult> AddShopPost([FromQuery] AddShopPostDTO postDto)
+        [Authorize(Roles = "Coach")]
+        public async Task<IActionResult> AddShopPost(AddShopPostDTO postDto)
         {
             if (ModelState.IsValid)
             {
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var repository = _factoryRepository.CreateRepository("SHOP");
-                var result = await repository.Add(postDto);
+                var result = await repository.Add(postDto, userId);
                 if (result.Id == 0)
                 {
                     return BadRequest(result.Massage);
@@ -62,9 +70,11 @@ namespace API.Controllers.Posts
             return BadRequest(ModelState);
         }
         [HttpDelete("DeletePost")]
-        public IActionResult Delete([FromQuery] int id)
+        [Authorize(Roles = "Coach")]
+        public IActionResult Delete(int id)
         {
-            var result = _postRepository.DeletePost(id);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value??"";
+            var result = _postRepository.DeletePost(id, userId);
             if (string.IsNullOrEmpty(result.Massage))
             {
                 return StatusCode(StatusCodes.Status204NoContent);
@@ -82,11 +92,13 @@ namespace API.Controllers.Posts
             return Ok(post);
         }
         [HttpPost("AddLikeOnPost")]
-        public IActionResult AddLikeOnPost([FromQuery] AddLikeDTO addLikeDTO)
+        [Authorize]
+        public IActionResult AddLikeOnPost(AddLikeDTO addLikeDTO)
         {
             if (ModelState.IsValid)
             {
-                var result = _postRepository.AddLikeOnPost(addLikeDTO);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+                var result = _postRepository.AddLikeOnPost(addLikeDTO, userId);
                 if (string.IsNullOrEmpty(result.Massage))
                 {
                     return Created("", _postRepository.GetLike(result.Id));
@@ -96,8 +108,10 @@ namespace API.Controllers.Posts
             return BadRequest(ModelState);
         }
         [HttpDelete("DeleteLikeFromPost")]
-        public IActionResult DeleteLikeFromPost([FromQuery] string userId, [FromQuery] int postId)
+        [Authorize]
+        public IActionResult DeleteLikeFromPost(int postId)
         {
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = _postRepository.DeleteLikeFromPost(userId, postId);
             if (string.IsNullOrEmpty(result.Massage))
             {
@@ -106,11 +120,13 @@ namespace API.Controllers.Posts
             return BadRequest(result.Massage);
         }
         [HttpPost("AddCommentOnPost")]
-        public IActionResult AddCommentOnPost([FromQuery] AddCommentDTO addCommentDTO)
+        [Authorize]
+        public IActionResult AddCommentOnPost(AddCommentDTO addCommentDTO)
         {
             if (ModelState.IsValid)
             {
-                var result = _postRepository.AddComentOnPost(addCommentDTO);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+                var result = _postRepository.AddCommentOnPost(addCommentDTO, userId);
                 if (string.IsNullOrEmpty(result.Massage))
                 {
                     return Created("", _postRepository.GetComment(result.Id));
@@ -120,9 +136,11 @@ namespace API.Controllers.Posts
             return BadRequest(ModelState);
         }
         [HttpDelete("DeleteComment")]
+        [Authorize]
         public IActionResult DeleteComment(int commentId)
         {
-            var result = _postRepository.DeleteComment(commentId);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+            var result = _postRepository.DeleteComment(commentId,userId);
             if (string.IsNullOrEmpty(result.Massage))
             {
                 return StatusCode(StatusCodes.Status204NoContent);
@@ -140,11 +158,13 @@ namespace API.Controllers.Posts
             return Ok(result);
         }
         [HttpPost("AddLikeOnComment")]
-        public IActionResult AddLikeOnComment([FromQuery] AddLikeDTO addLikeDTO)
+        [Authorize]
+        public IActionResult AddLikeOnComment(AddLikeDTO addLikeDTO)
         {
             if (ModelState.IsValid)
             {
-                var result = _postRepository.AddLikeOnComment(addLikeDTO);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+                var result = _postRepository.AddLikeOnComment(addLikeDTO,userId);
                 if (string.IsNullOrEmpty(result.Massage))
                 {
                     return Created("", _postRepository.GetLike(result.Id));
@@ -154,8 +174,10 @@ namespace API.Controllers.Posts
             return BadRequest(ModelState);
         }
         [HttpDelete("DeleteLikeFromComment")]
-        public IActionResult DeleteLikeFromComment([FromQuery] string userId, [FromQuery] int commentId)
+        [Authorize]
+        public IActionResult DeleteLikeFromComment(int commentId)
         {
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var result = _postRepository.DeleteLikeFromComment(userId, commentId);
             if (string.IsNullOrEmpty(result.Massage))
             {
@@ -164,11 +186,13 @@ namespace API.Controllers.Posts
             return BadRequest(result.Massage);
         }
         [HttpPost("AddCommentOnComment")]
-        public IActionResult AddCommentOnComment([FromQuery] AddCommentDTO addCommentDTO)
+        [Authorize]
+        public IActionResult AddCommentOnComment(AddCommentDTO addCommentDTO)
         {
             if (ModelState.IsValid)
             {
-                var result = _postRepository.AddComentOnComment(addCommentDTO);
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+                var result = _postRepository.AddCommentOnComment(addCommentDTO,userId);
                 if (string.IsNullOrEmpty(result.Massage))
                 {
                     return Created("", _postRepository.GetComment(result.Id));

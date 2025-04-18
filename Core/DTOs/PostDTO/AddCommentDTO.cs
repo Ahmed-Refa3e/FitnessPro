@@ -7,8 +7,6 @@ namespace Core.DTOs.PostDTO
         [Required]
         public int OwnerId { get; set; }
         [Required]
-        public string UserId { get; set; }
-        [Required]
         [MaxLength(256)]
         public string Content { get; set; }
     }

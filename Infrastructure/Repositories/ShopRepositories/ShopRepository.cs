@@ -16,13 +16,13 @@ namespace Infrastructure.Repositories.IShopRepositories
         {
             this._context = context;
         }
-        public async Task<IntResult> Add(AddShopDTO shop)
+        public async Task<IntResult> Add(AddShopDTO shop, string userId)
         {
             if (!Directory.Exists(_storagePath))
             {
                 Directory.CreateDirectory(_storagePath);
             }
-            if (_context.applicationUsers.Find(shop.CoachID) is null)
+            if (_context.applicationUsers.Find(userId) is null)
             {
                 return new IntResult() { Massage = "Id not valid" };
             }
@@ -39,7 +39,7 @@ namespace Infrastructure.Repositories.IShopRepositories
             newShop.Governorate = shop.Governorate;
             newShop.PhoneNumber = shop.PhoneNumber;
             newShop.Description = shop.Description;
-            newShop.OwnerID = shop.CoachID;
+            newShop.OwnerID = userId;
             _context.Shops.Add(newShop);
             try
             {
@@ -58,10 +58,10 @@ namespace Infrastructure.Repositories.IShopRepositories
             }
             return new IntResult() { Id = newShop.Id };
         }
-        public IntResult Delete(int id)
+        public IntResult Delete(int id, string userId)
         {
             var shop = Get(id);
-            if (shop is null)
+            if (shop is null|| shop.OwnerID != userId)
             {
                 return new IntResult() { Massage = "Id is not valid" };
             }
@@ -94,10 +94,10 @@ namespace Infrastructure.Repositories.IShopRepositories
                 PictureUrl = x.PictureUrl
             }).FirstOrDefault();
         }
-        public async Task<IntResult> Update(UpdateShopDTO shop, int id)
+        public async Task<IntResult> Update(UpdateShopDTO shop, string userId)
         {
-            var oldShop = Get(id);
-            if (oldShop is null)
+            var oldShop = Get(shop.Id);
+            if (oldShop is null||oldShop.OwnerID!=userId)
             {
                 return new IntResult { Massage = "Not valid Id" };
             }

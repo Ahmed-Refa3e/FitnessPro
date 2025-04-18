@@ -18,7 +18,5 @@ namespace Core.DTOs.ShopDTO
         public string? PhoneNumber { get; set; }
         [MaxLength(500)]
         public string? Description { get; set; }
-        [Required]
-        public string CoachID { get; set; }
     }
 }

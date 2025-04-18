@@ -6,6 +6,8 @@ namespace Core.DTOs.ShopDTO
     public class UpdateShopDTO
     {
         [Required]
+        public int Id {  get; set; }
+        [Required]
         public string Name { get; set; }
         public IFormFile? Image { get; set; }
         [Required]

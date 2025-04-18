@@ -10,12 +10,16 @@ namespace Infrastructure.Repositories.PostRepositoy
         public GymPostRepository(FitnessContext context) : base(context)
         {
         }
-        public override async Task<IntResult> Add(AddPostDTO post)
+        public override async Task<IntResult> Add(AddPostDTO post, string userId)
         {
             var newPost = post as AddGymPostDTO;
             if (post is null)
             {
                 return new IntResult { Massage = "The post is not valid" };
+            }
+            if (_context.Gyms.Find(newPost.GymId).CoachID != userId)
+            {
+                return new IntResult { Massage = "you are not the Owner of this gym to add post" };
             }
             var gymPost = new GymPost { Content = newPost.Content, GymId = newPost.GymId };
             _context.GymPosts.Add(gymPost);

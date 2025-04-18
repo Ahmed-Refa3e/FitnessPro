@@ -5,6 +5,6 @@ namespace Core.Interfaces.Repositories.PostRepositories
 {
     public interface IGeneralPostRepository
     {
-        Task<IntResult> Add(AddPostDTO post);
+        Task<IntResult> Add(AddPostDTO post,string userId);
     }
 }

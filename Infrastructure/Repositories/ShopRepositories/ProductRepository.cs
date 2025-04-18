@@ -19,14 +19,14 @@ namespace Infrastructure.Repositories.ShopRepositories
             _context = context;
             _categoryRepository = categoryRepository;
         }
-        public async Task<IntResult> Add(AddProductDTO product)
+        public async Task<IntResult> Add(AddProductDTO product, string userId)
         {
             if (!Directory.Exists(_storagePath))
             {
                 Directory.CreateDirectory(_storagePath);
             }
             var shop = _context.Shops.Find(product.ShopId);
-            if (shop is null)
+            if (shop is null || shop.OwnerID != userId)
             {
                 return new IntResult() { Massage = "Id of shop not valid" };
             }
@@ -70,7 +70,6 @@ namespace Infrastructure.Repositories.ShopRepositories
             }
             return new IntResult() { Id = newProduct.Id };
         }
-
         public ItemPriceDTO Decrease(int productId, int quantityNeeded)
         {
             var product = GetProduct(productId);
@@ -93,11 +92,10 @@ namespace Infrastructure.Repositories.ShopRepositories
             }
             return new ItemPriceDTO() { price = product.Price * quantityNeeded };
         }
-
-        public IntResult Delete(int productId)
+        public IntResult Delete(int productId, string userId)
         {
-            var product = GetProduct(productId);
-            if (product is null)
+            var product = _context.products.Include(x=>x.Shop).FirstOrDefault(x=>x.Id==productId);
+            if (product is null||product.Shop.OwnerID!=userId)
             {
                 return new IntResult() { Massage = "No product with this id" };
             }
@@ -172,7 +170,6 @@ namespace Infrastructure.Repositories.ShopRepositories
             }).FirstOrDefault();
             return product;
         }
-
         public List<ShowProductDTO> GetProductsInPaginationsNoCategory(int page, int pageSize)
         {
             page = Math.Max(page, 1);
@@ -193,7 +190,6 @@ namespace Infrastructure.Repositories.ShopRepositories
             }).ToList();
             return products;
         }
-
         public List<ShowProductDTO> GetProductsInPaginationsWithCategory(int page, int pageSize, int categoryId)
         {
             page = Math.Max(page, 1);
@@ -214,15 +210,18 @@ namespace Infrastructure.Repositories.ShopRepositories
             }).ToList().ToList();
             return products;
         }
-
-        public async Task<IntResult> Update(EditProductDTO product, int id)
+        public async Task<IntResult> Update(EditProductDTO product, int id, string userId)
         {
             var filePath = AddImageHelper.chickImagePath(product.Image, _storagePath);
             if (!string.IsNullOrEmpty(filePath.Massage))
             {
                 return new IntResult() { Massage = filePath.Massage };
             }
-            var productDB = GetProduct(id);
+            var productDB = _context.products.Include(x=>x.Shop).FirstOrDefault(x=>x.Id==id);
+            if(productDB is null || productDB.Shop.OwnerID != userId)
+            {
+                return new IntResult() { Massage = "No product has this Id" };
+            }
             var oldPath = productDB.ImagePath;
             productDB.Price = product.Price;
             productDB.Description = product.Description;
@@ -260,10 +259,10 @@ namespace Infrastructure.Repositories.ShopRepositories
             }
             return product.ShopId;
         }
-        public IntResult UpdateCategoriesOfProduct(ModifyCategoriesInProductDTO modifyCategories)
+        public IntResult UpdateCategoriesOfProduct(ModifyCategoriesInProductDTO modifyCategories,string userId)
         {
-            var product = _context.products.Include(x => x.Categories).Where(x => x.Id == modifyCategories.ProductId).FirstOrDefault();
-            if (product is null)
+            var product = _context.products.Include(x => x.Categories).Include(x=>x.Shop).Where(x => x.Id == modifyCategories.ProductId).FirstOrDefault();
+            if (product is null || product.Shop.OwnerID!=userId)
             {
                 return new IntResult { Massage = "No product has this Id." };
             }

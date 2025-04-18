@@ -17,7 +17,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             _context = context;
         }
 
-        public abstract Task<IntResult> Add(AddPostDTO postDto);
+        public abstract Task<IntResult> Add(AddPostDTO postDto, string userId);
         protected async Task<IntResult> AddPicturesToPost(AddPostDTO post, Post newPost)
         {
             var uploadedFilePaths = new List<string>();

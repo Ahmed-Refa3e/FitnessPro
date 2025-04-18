@@ -368,8 +368,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TrainingType")
-                        .HasColumnType("int");
+                    b.Property<string>("TrainingType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -821,9 +822,6 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Core.Entities.Identity.ApplicationUser");
 
-                    b.Property<bool>("AvailableForOnlineTraining")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Bio")
                         .HasColumnType("nvarchar(max)");
 
@@ -942,7 +940,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("FollowedGyms")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
@@ -961,7 +959,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("FollowedShops")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
@@ -980,7 +978,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("Following")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowingUser")
