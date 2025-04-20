@@ -9,12 +9,13 @@ namespace Services.Extensions
 {
     public static class ModelStateExtensions
     {
-        public static List<string> ExtractErrors(this ModelStateDictionary modelState)
+        public static string ExtractErrors(this ModelStateDictionary modelState)
         {
-            return modelState.Values
+            var errorMessages = modelState.Values
                 .SelectMany(v => v.Errors)
-                .Select(e => e.ErrorMessage)
-                .ToList();
+                .Select(e => e.ErrorMessage);
+            var allErrors = string.Join(" | ", errorMessages);
+            return allErrors;
         }
     }
 }
