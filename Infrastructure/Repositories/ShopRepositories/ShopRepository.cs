@@ -2,7 +2,6 @@
 using Core.DTOs.ShopDTO;
 using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
-using Core.Utilities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,131 +9,102 @@ namespace Infrastructure.Repositories.IShopRepositories
 {
     public class ShopRepository : IShopRepository
     {
-        private readonly string _storagePath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedImagesForShop");
         private readonly FitnessContext _context;
         public ShopRepository(FitnessContext context)
         {
-            this._context = context;
+            _context = context;
         }
-        public async Task<IntResult> Add(AddShopDTO shop, string userId)
+        public async Task<IntResult> Add(AddShopDTO shopDto, string userId)
         {
-            if (!Directory.Exists(_storagePath))
+            var user = await _context.applicationUsers.FindAsync(userId);
+            if (user is null)
             {
-                Directory.CreateDirectory(_storagePath);
+                return new IntResult { Massage = "Id not valid" };
             }
-            if (_context.applicationUsers.Find(userId) is null)
+            var newShop = new Shop
             {
-                return new IntResult() { Massage = "Id not valid" };
-            }
-            var filePath = AddImageHelper.chickImagePath(shop.Image, _storagePath);
-            if (!string.IsNullOrEmpty(filePath.Massage))
-            {
-                return new IntResult() { Massage = filePath.Massage };
-            }
-            var newShop = new Shop();
-            newShop.Name = shop.Name;
-            newShop.PictureUrl = filePath.Id;
-            newShop.Address = shop.Address;
-            newShop.City = shop.City;
-            newShop.Governorate = shop.Governorate;
-            newShop.PhoneNumber = shop.PhoneNumber;
-            newShop.Description = shop.Description;
-            newShop.OwnerID = userId;
+                Name = shopDto.Name,
+                PictureUrl = shopDto.ImageUrl,
+                Address = shopDto.Address,
+                City = shopDto.City,
+                Governorate = shopDto.Governorate,
+                PhoneNumber = shopDto.PhoneNumber,
+                Description = shopDto.Description,
+                OwnerID = userId
+            };
             _context.Shops.Add(newShop);
             try
             {
                 await _context.SaveChangesAsync();
-                if (!string.IsNullOrEmpty(filePath.Id))
-                {
-                    using (var stream = new FileStream(filePath.Id, FileMode.Create))
-                    {
-                        await shop.Image.CopyToAsync(stream);
-                    }
-                }
+                return new IntResult { Id = newShop.Id };
             }
             catch (Exception ex)
             {
-                return new IntResult() { Massage = ex.Message };
+                return new IntResult { Massage = ex.Message };
             }
-            return new IntResult() { Id = newShop.Id };
         }
-        public IntResult Delete(int id, string userId)
+
+        public async Task<IntResult> DeleteAsync(int id, string userId)
         {
-            var shop = Get(id);
-            if (shop is null|| shop.OwnerID != userId)
+            var shop = await _context.Shops.FindAsync(id);
+            if (shop is null || shop.OwnerID != userId)
             {
-                return new IntResult() { Massage = "Id is not valid" };
+                return new IntResult { Massage = "Id is not valid" };
             }
             _context.Shops.Remove(shop);
             try
             {
-                _context.SaveChanges();
-                if (File.Exists(shop.PictureUrl))
-                {
-                    File.Delete(shop.PictureUrl);
-                }
+                await _context.SaveChangesAsync();
+                return new IntResult { Id = 1 };
             }
             catch (Exception ex)
             {
-                return new IntResult() { Massage = ex.Message };
+                return new IntResult { Massage = ex.Message };
             }
-            return new IntResult() { Id = 1 };
         }
-        public ShowShopDTO GetShop(int id)
+        public async Task<ShowShopDTO> GetShop(int id)
         {
-            return _context.Shops.Include(e => e.Followers).Where(x => x.Id == id).Select(x => new ShowShopDTO
+            return await _context.Shops
+            .Where(s => s.Id == id)
+            .Select(s => new ShowShopDTO
             {
-                Address = x.Address,
-                City = x.City,
-                OwnerName = (x.Owner.FirstName + " " + x.Owner.LastName) ?? "",
-                Description = x.Description,
-                Governorate = x.Governorate,
-                Name = x.Name,
-                PhoneNumber = x.PhoneNumber,
-                PictureUrl = x.PictureUrl
-            }).FirstOrDefault();
+                GymId = s.Id,
+                Address = s.Address,
+                City = s.City,
+                OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}" ?? "",
+                Description = s.Description,
+                Governorate = s.Governorate,
+                GymName = s.Name,
+                PhoneNumber = s.PhoneNumber,
+                PictureUrl = s.PictureUrl,
+                OwnerID = s.OwnerID,
+                FollowerNumber = _context.ShopFollows.Count(f => f.ShopId == s.Id)
+            })
+            .FirstOrDefaultAsync();
         }
-        public async Task<IntResult> Update(UpdateShopDTO shop, string userId)
+        public async Task<IntResult> Update(AddShopDTO shopDto, int id, string userId)
         {
-            var oldShop = Get(shop.Id);
-            if (oldShop is null||oldShop.OwnerID!=userId)
+            var existingShop = await _context.Shops.FindAsync(id);
+            if (existingShop is null || existingShop.OwnerID != userId)
             {
                 return new IntResult { Massage = "Not valid Id" };
             }
-            var filePath = AddImageHelper.chickImagePath(shop.Image, _storagePath);
-            if (!string.IsNullOrEmpty(filePath.Massage))
-            {
-                return new IntResult() { Massage = filePath.Massage };
-            }
-            var oldPath = oldShop.PictureUrl;
-            oldShop.Name = shop.Name;
-            oldShop.Address = shop.Address;
-            oldShop.City = shop.City;
-            oldShop.Governorate = shop.Governorate;
-            oldShop.PhoneNumber = shop.PhoneNumber;
-            oldShop.Description = shop.Description;
-            oldShop.PictureUrl = filePath.Id;
+            existingShop.Name = shopDto.Name;
+            existingShop.Address = shopDto.Address;
+            existingShop.City = shopDto.City;
+            existingShop.Governorate = shopDto.Governorate;
+            existingShop.PhoneNumber = shopDto.PhoneNumber;
+            existingShop.Description = shopDto.Description;
+            existingShop.PictureUrl = shopDto.ImageUrl;
             try
             {
                 await _context.SaveChangesAsync();
-                if (File.Exists(oldPath))
-                {
-                    File.Delete(oldPath);
-                }
-                if (!string.IsNullOrEmpty(filePath.Id))
-                {
-                    using (var stream = new FileStream(filePath.Id, FileMode.Create))
-                    {
-                        await shop.Image.CopyToAsync(stream);
-                    }
-                }
+                return new IntResult { Id = existingShop.Id };
             }
             catch (Exception ex)
             {
-                return new IntResult() { Massage = ex.Message };
+                return new IntResult { Massage = ex.Message };
             }
-            return new IntResult { Id = oldShop.Id };
         }
-        Shop Get(int id) => _context.Shops.Find(id);
     }
 }

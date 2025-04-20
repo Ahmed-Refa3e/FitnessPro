@@ -11,7 +11,7 @@ namespace Infrastructure.Data.ShopConfiguration
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Name).HasColumnType("VARCHAR").HasMaxLength(128).IsRequired();
             builder.Property(x => x.Description).HasColumnType("VARCHAR").HasMaxLength(256).IsRequired();
-            builder.Property(x => x.Price).HasColumnType("decimal(9,2)").IsRequired();
+            builder.Property(x => x.Price).HasPrecision(9, 2).IsRequired();
             builder.HasMany(x => x.Categories).WithMany(x => x.Products);
             builder.HasOne(x => x.Shop).WithMany(x => x.Products).HasForeignKey(x => x.ShopId).OnDelete(DeleteBehavior.Cascade);
         }

@@ -5,18 +5,24 @@ namespace Core.DTOs.ShopDTO
 {
     public class AddShopDTO
     {
-        [Required]
+        [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; }
-        public IFormFile? Image { get; set; }
-        [Required]
+        public string? ImageUrl {  get; set; }
+
+        [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
-        [Required]
-        public required string City { get; set; }
-        [Required]
-        public required string Governorate { get; set; }
-        [MaxLength(15)]
+
+        [Required(ErrorMessage = "City is required.")]
+        public string City { get; set; }
+
+        [Required(ErrorMessage = "Governorate is required.")]
+        public string Governorate { get; set; }
+
+        [MaxLength(15, ErrorMessage = "Phone number must not exceed 15 digits.")]
         public string? PhoneNumber { get; set; }
-        [MaxLength(500)]
+
+        [MaxLength(500, ErrorMessage = "Description must not exceed 500 characters.")]
         public string? Description { get; set; }
     }
+
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    [Migration("20250413094707_AddSomeModificationToShopSystem")]
-    partial class AddSomeModificationToShopSystem
+    [Migration("20250418214243_AddShop")]
+    partial class AddShop
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,6 +38,67 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProductsId");
 
                     b.ToTable("CategoryProduct");
+                });
+
+            modelBuilder.Entity("Core.Entities.ChatEntites.ChatMessage", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsSeen")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("SeenAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("timeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("messages");
+                });
+
+            modelBuilder.Entity("Core.Entities.ChatEntites.UserConnection", b =>
+                {
+                    b.Property<string>("iD")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("connectionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isOnline")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("userId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("iD");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("connections");
                 });
 
             modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>
@@ -371,8 +432,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TrainingType")
-                        .HasColumnType("int");
+                    b.Property<string>("TrainingType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -391,6 +453,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<int>("OnlineTrainingId")
                         .HasColumnType("int");
@@ -824,9 +889,6 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Core.Entities.Identity.ApplicationUser");
 
-                    b.Property<bool>("AvailableForOnlineTraining")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Bio")
                         .HasColumnType("nvarchar(max)");
 
@@ -940,12 +1002,42 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Core.Entities.ChatEntites.ChatMessage", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("receiver");
+
+                    b.Navigation("sender");
+                });
+
+            modelBuilder.Entity("Core.Entities.ChatEntites.UserConnection", b =>
+                {
+                    b.HasOne("Core.Entities.Identity.ApplicationUser", "user")
+                        .WithMany()
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("Core.Entities.FollowEntities.GymFollow", b =>
                 {
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("FollowedGyms")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.GymEntities.Gym", "Gym")
@@ -964,7 +1056,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("FollowedShops")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
@@ -983,7 +1075,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowerUser")
                         .WithMany("Following")
                         .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "FollowingUser")
