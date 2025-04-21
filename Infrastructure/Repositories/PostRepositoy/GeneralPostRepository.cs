@@ -1,20 +1,10 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.PostDTO;
 using Core.Entities.PostEntities;
-using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.PostRepositories;
 using Core.Utilities;
 using Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
@@ -27,8 +17,8 @@ namespace Infrastructure.Repositories.PostRepositoy
             _context = context;
         }
 
-        public abstract Task<IntResult> Add(AddPostDTO postDto);
-        protected async Task<IntResult> AddPicturesToPost(AddPostDTO post ,Post newPost)
+        public abstract Task<IntResult> Add(AddPostDTO postDto, string userId);
+        protected async Task<IntResult> AddPicturesToPost(AddPostDTO post, Post newPost)
         {
             var uploadedFilePaths = new List<string>();
             using (var transaction = _context.Database.BeginTransaction())
@@ -70,7 +60,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = newPost.Id };
         }
-         Post GetPost(int id) => _context.Posts.Find(id);
+        Post GetPost(int id) => _context.Posts.Find(id);
     }
 
 }

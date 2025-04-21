@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Core.Entities.ShopEntities
+﻿namespace Core.Entities.ShopEntities
 {
     public class OrderItem
     {
@@ -12,8 +6,7 @@ namespace Core.Entities.ShopEntities
         public int Quantity { get; set; }
         public decimal Price { get; set; } // Price at the time of purchase
         public int OrderId { get; set; }
-        public bool IsReady { get; set; }
-        public Order Order { get; set; } 
+        public Order Order { get; set; }
         public int? ProductId { get; set; }
         public Product? Product { get; set; }
     }

@@ -5,13 +5,10 @@ using Core.Enums;
 using Core.Interfaces.Repositories.PostRepositories;
 using Humanizer;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
@@ -24,95 +21,72 @@ namespace Infrastructure.Repositories.PostRepositoy
         {
             _context = context;
         }
-        public IntResult DeletePost(int id)
+        public IntResult DeletePost(int id, string userId)
         {
-            var post=_context.Posts.Include(x=>x.PictureUrls).Include(x => x.Likes).Include(x=>x.Comments).ThenInclude(x=>x.Comments).Where(x=>x.Id== id).FirstOrDefault();
-            if(post is null)
-            {
+            var post = _context.Posts
+                    .Include(x => x.PictureUrls)
+                    .Include(x => x.Likes)
+                    .Include(x => x.Comments).ThenInclude(x => x.Comments)
+                    .FirstOrDefault(x => x.Id == id);
+            if (post is null)
                 return new IntResult { Massage = "No post has this Id" };
-            }
-            var uploadedFilePaths = new List<string>();
-            if (!post.PictureUrls.IsNullOrEmpty())
-            {
-                uploadedFilePaths = post.PictureUrls.Select(x => x.Url).ToList();
-            }
+            if (!IsUserIsThePostOwner(post, userId))
+                return new IntResult { Massage = "You are not the Owner of this page to delete" };
+            var uploadedFilePaths = post.PictureUrls?.Select(x => x.Url).ToList() ?? new List<string>();
             var backupDirectory = Path.Combine(_storagePath, "Backup");
-            using (var transaction = _context.Database.BeginTransaction())
+            using var transaction = _context.Database.BeginTransaction();
+            try
             {
-                try
+                Directory.CreateDirectory(backupDirectory);
+                var backupFiles = BackupFiles(uploadedFilePaths, backupDirectory);
+                _context.likes.RemoveRange(post.Likes);
+                foreach (var comment in post.Comments)
                 {
-                    if (!Directory.Exists(backupDirectory))
-                    {
-                        Directory.CreateDirectory(backupDirectory);
-                    }
-                    var backupFiles = new List<string>();
-                    foreach (var path in uploadedFilePaths)
-                    {
-                        if (File.Exists(path))
-                        {
-                            var backupPath = Path.Combine(backupDirectory, Path.GetFileName(path));
-                            File.Move(path, backupPath);
-                            backupFiles.Add(backupPath);
-                        }
-                    }
-                    foreach (var like in post.Likes)
-                    {
-                        _context.likes.Remove(like);
-                    }
-                    foreach (var comment in post.Comments)
-                    {
-                        DeleteOneComment(comment);
-                    }
-                    _context.Posts.Remove(post);
-                    _context.SaveChanges();
-                    foreach (var backupPath in backupFiles)
-                    {
-                        if (File.Exists(backupPath))
-                        {
-                            File.Delete(backupPath);
-                        }
-                    }
-                    transaction.Commit();
+                    DeleteOneComment(comment);
                 }
-                catch(Exception ex)
-                {
-                    foreach (var backupPath in Directory.GetFiles(backupDirectory))
-                    {
-                        var originalPath = Path.Combine(_storagePath, Path.GetFileName(backupPath));
-                        File.Move(backupPath, originalPath);
-                    }
-                    return new IntResult { Massage = ex.Message };
-                }
+                _context.Posts.Remove(post);
+                _context.SaveChanges();
+                DeleteFiles(backupFiles);
+                transaction.Commit();
+                return new IntResult { Id = 1 };
             }
-            return new IntResult { Id = 1 };
+            catch (Exception ex)
+            {
+                RestoreBackupFiles(backupDirectory);
+                return new IntResult { Massage = ex.Message };
+            }
         }
-        public IntResult AddComentOnPost(AddCommentDTO commentDTO)
+        public IntResult AddCommentOnPost(AddCommentDTO commentDTO, string userId)
         {
             var post = FindPost(commentDTO.OwnerId);
-            if(post is null)
+            if (post is null)
             {
                 return new IntResult { Massage = "No post has tis Id." };
             }
-            var comment = new PostComment { Content = commentDTO.Content, PostId = commentDTO.OwnerId, UserId = commentDTO.UserId };
+            var comment = new PostComment { Content = commentDTO.Content, PostId = commentDTO.OwnerId, UserId = userId };
             post.Comments.Add(comment);
             try
             {
                 _context.SaveChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new IntResult { Massage = ex.Message };
             }
-            return new IntResult { Id=comment.Id};
+            return new IntResult { Id = comment.Id };
         }
-        public IntResult DeleteComment(int commentId)
+        public IntResult DeleteComment(int commentId,string userId)
         {
             var comment = _context.comments.Find(commentId);
-            if(comment is null)
+            if (comment is null)
             {
                 return new IntResult { Massage = "No comment has this Id" };
             }
-            using(var transaction = _context.Database.BeginTransaction())
+            if (!IsUserAllowToDeleteComment(comment,userId))
+            {
+                return new IntResult { Massage = "You do not allow to delete this comment." };
+            }
+            using (var transaction = _context.Database.BeginTransaction())
             {
                 try
                 {
@@ -120,32 +94,35 @@ namespace Infrastructure.Repositories.PostRepositoy
                     _context.SaveChanges();
                     transaction.Commit();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    return new IntResult{ Massage = ex.Message }; 
+                    return new IntResult { Massage = ex.Message };
                 }
             }
             return new IntResult { Id = comment.Id };
         }
-        public IntResult AddLikeOnPost(AddLikeDTO likeDTO)
+        public IntResult AddLikeOnPost(AddLikeDTO likeDTO,string userId)
         {
             var post = FindPost(likeDTO.OwnerId);
             if (post is null)
             {
                 return new IntResult { Massage = "No post has this Id." };
             }
-            var oldLike= SearchWithUserIdAndPostId(likeDTO.UserId,likeDTO.OwnerId);
-            if(oldLike is not null)
+            var like = SearchWithUserIdAndPostId(userId, likeDTO.OwnerId);
+            if (like is not null)
             {
-                return new IntResult { Massage = "You already like this post." };
+                like.Type = CheckStringAndReturnLikeType(likeDTO.Type);
             }
-            var like = new PostLike
+            else
             {
-                Type = CheckStringAndReturnLikeType(likeDTO.Type),
-                PostId = likeDTO.OwnerId,
-                UserId = likeDTO.UserId
-            };
-            post.Likes.Add(like);
+                like = new PostLike
+                {
+                    Type = CheckStringAndReturnLikeType(likeDTO.Type),
+                    PostId = likeDTO.OwnerId,
+                    UserId = userId
+                };
+                post.Likes.Add(like);
+            }
             try
             {
                 _context.SaveChanges();
@@ -158,8 +135,8 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public IntResult DeleteLikeFromPost(string userId, int postId)
         {
-            var like=SearchWithUserIdAndPostId(userId, postId);
-            if(like is null)
+            var like = SearchWithUserIdAndPostId(userId, postId);
+            if (like is null)
             {
                 return new IntResult { Massage = "you do not like this post yet to delete like" };
             }
@@ -176,9 +153,9 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public ShowLikeDTO GetLike(int id)
         {
-            var like = _context.postLikes.Where(x=>x.Id==id).Select(x=>new ShowLikeDTO
+            var like = _context.postLikes.Where(x => x.Id == id).Select(x => new ShowLikeDTO
             {
-                PictureUrl = x.User.ProfilePictureUrl??"",
+                PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL",
                 UserName = x.User.FirstName + " " + x.User.LastName
             }).FirstOrDefault();
@@ -195,15 +172,15 @@ namespace Infrastructure.Repositories.PostRepositoy
                 UserName = $"{x.User.FirstName} {x.User.LastName}",
                 Comments = x.Comments.Select(c => new ShowCommentDTO
                 {
-                    Date=x.Created,
-                    ID=c.Id,
+                    Date = x.Created,
+                    ID = c.Id,
                     PictureUrl = c.User.ProfilePictureUrl ?? "",
                     Content = c.Content,
                     UserName = $"{c.User.FirstName} {c.User.LastName}",
                     HaveComments = c.Comments.Any()
                 }).ToList()
             }).ToList().FirstOrDefault();
-            if(comment is null)
+            if (comment is null)
             {
                 return null;
             }
@@ -229,44 +206,6 @@ namespace Infrastructure.Repositories.PostRepositoy
             }).ToList();
             return showLikes;
         }
-        private LikesDetailsDTO LikesDetailsOnPost(int id)
-        {
-            var result = _context.postLikes
-                .Where(x => x.PostId == id).ToList();
-            var dic=result
-                .GroupBy(x => x.Type)
-                .OrderByDescending(g => g.Count())
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Count()
-                );
-            var returnedResult = new LikesDetailsDTO();
-            foreach (var item in dic)
-            {
-                returnedResult.Count += item.Value;
-                returnedResult.OrderedType.Add(CheckLikeTypeAndReturnString(item.Key));
-            }
-            return returnedResult;
-        }
-        private LikesDetailsDTO LikesDetailsOnComment(int id)
-        {
-            var result = _context.commentLikes
-                .Where(x => x.CommentId == id).ToList();
-            var dic = result
-                .GroupBy(x => x.Type)
-                .OrderByDescending(g => g.Count())
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Count()
-                );
-            var returnedResult = new LikesDetailsDTO();
-            foreach (var item in dic)
-            {
-                returnedResult.Count += item.Value;
-                returnedResult.OrderedType.Add(CheckLikeTypeAndReturnString(item.Key));
-            }
-            return returnedResult;
-        }
         string CheckLikeTypeAndReturnString(LikeType type)
         {
             return (type == LikeType.Love) ? "LOVE" : (type == LikeType.Care) ? "CARE" : "NORMAL";
@@ -281,14 +220,14 @@ namespace Infrastructure.Repositories.PostRepositoy
             var post = FindPost(id);
             if (post is null) return null;
 
-            ShowPostDTO newPost= post switch
+            ShowPostDTO newPost = post switch
             {
                 CoachPost => GetCoachPostDTO(id),
                 GymPost => GetGymPostDTO(id),
                 ShopPost => GetShopPostDTO(id),
                 _ => null
             };
-            if(newPost is null) return null;
+            if (newPost is null) return null;
             newPost.LikesDetails = LikesDetailsOnPost(id);
             newPost.CreatedAt = DateHumanizeExtensions.Humanize((DateTime)newPost.CreatedAt);
             foreach (var comment in newPost.Comments)
@@ -301,124 +240,30 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return newPost;
         }
-        private ShowCoachPostDTO GetCoachPostDTO(int id)
-        {
-            return _context.CoachPosts
-                .Select(p => new ShowCoachPostDTO
-                {
-                    Id = p.Id,
-                    Content = p.Content,
-                    CreatedAt = p.CreatedAt,
-                    PhotoPass = p.Coach.ProfilePictureUrl ?? "",
-                    Name = $"{p.Coach.FirstName} {p.Coach.LastName}",
-                    CoachId = p.CoachId,
-                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
-                    Comments = p.Comments.Select(x => new ShowMainCommentDTO
-                    {
-                        Date = x.Created,
-                        Id = x.Id,
-                        PictureUrl = x.User.ProfilePictureUrl ?? "",
-                        Content = x.Content,
-                        UserName = x.User.FirstName + " " + x.User.LastName,
-                        Comments = x.Comments.Select(x => new ShowCommentDTO
-                        {
-                            ID=x.Id,
-                            PictureUrl = x.User.ProfilePictureUrl ?? "",
-                            Date = x.Created,
-                            Content = x.Content,
-                            UserName = x.User.FirstName + " " + x.User.LastName,
-                            HaveComments = x.Comments.Any() 
-                        }).ToList()
-                    }).ToList()
-                })
-                .Where(p => p.Id == id)
-                .FirstOrDefault();
-        }
-        private ShowGymPostDTO GetGymPostDTO(int id)
-        {
-            return _context.GymPosts
-                .Select(p => new ShowGymPostDTO
-                {
-                    Id = p.Id,
-                    Content = p.Content,
-                    CreatedAt = p.CreatedAt,
-                    PhotoPass = p.Gym.PictureUrl ?? "",
-                    Name = p.Gym.GymName,
-                    GymId = p.GymId,
-                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
-                    Comments = p.Comments.Select(x => new ShowMainCommentDTO
-                    {
-                        Id =x.Id,
-                        Date = x.Created,
-                        PictureUrl = x.User.ProfilePictureUrl ?? "",
-                        Content = x.Content,
-                        UserName = x.User.FirstName + " " + x.User.LastName,
-                        Comments = x.Comments.Select(x => new ShowCommentDTO
-                        {
-                            ID = x.Id,
-                            Date = x.Created,
-                            PictureUrl = x.User.ProfilePictureUrl ?? "",
-                            Content = x.Content,
-                            UserName = x.User.FirstName + " " + x.User.LastName,
-                            HaveComments = x.Comments.Any()
-                        }).ToList()
-                    }).ToList()
-                })
-                .Where(p => p.Id == id)
-                .FirstOrDefault();
-        }
-        private ShowShopPostDTO GetShopPostDTO(int id)
-        {
-            return _context.ShopPosts
-                .Select(p => new ShowShopPostDTO
-                {
-                    Id = p.Id,
-                    Content = p.Content,
-                    CreatedAt = p.CreatedAt,
-                    PhotoPass = p.Shop.PictureUrl ?? "",
-                    Name = p.Shop.Name,
-                    ShopId = p.ShopId,
-                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
-                    Comments = p.Comments.Select(x => new ShowMainCommentDTO
-                    {
-                        Id=x.Id,
-                        Date = x.Created,
-                        PictureUrl = x.User.ProfilePictureUrl ?? "",
-                        Content = x.Content,
-                        UserName = x.User.FirstName + " " + x.User.LastName,
-                        Comments = x.Comments.Select(x => new ShowCommentDTO
-                        {
-                            ID = x.Id,
-                            Date = x.Created,
-                            PictureUrl = x.User.ProfilePictureUrl ?? "",
-                            Content = x.Content,
-                            UserName = x.User.FirstName + " " + x.User.LastName,
-                            HaveComments = x.Comments.Any()
-                        }).ToList()
-                    }).ToList()
-                }).Where(p => p.Id == id)
-                .FirstOrDefault();
-        }
+        
         //comment
-        public IntResult AddLikeOnComment(AddLikeDTO likeDTO)
+        public IntResult AddLikeOnComment(AddLikeDTO likeDTO,string userId)
         {
             var comment = _context.comments.Find(likeDTO.OwnerId);
             if (comment is null)
             {
                 return new IntResult { Massage = "No comment has this Id." };
             }
-            var oldLike = SearchWithUserIdAndCommentId(likeDTO.UserId, likeDTO.OwnerId);
-            if (oldLike is not null)
+            var like = SearchWithUserIdAndCommentId(userId, likeDTO.OwnerId);
+            if (like is not null)
             {
-                return new IntResult { Massage = "You already like this comment." };
+                like.Type = CheckStringAndReturnLikeType(likeDTO.Type);
             }
-            var like = new CommentLike
+            else
             {
-                Type = CheckStringAndReturnLikeType(likeDTO.Type),
-                CommentId = likeDTO.OwnerId,
-                UserId = likeDTO.UserId
-            };
-            comment.Likes.Add(like);
+                like = new CommentLike
+                {
+                    Type = CheckStringAndReturnLikeType(likeDTO.Type),
+                    CommentId = likeDTO.OwnerId,
+                    UserId = userId
+                };
+                comment.Likes.Add(like);
+            }
             try
             {
                 _context.SaveChanges();
@@ -447,14 +292,14 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = 1 };
         }
-        public IntResult AddComentOnComment(AddCommentDTO commentDTO)
+        public IntResult AddCommentOnComment(AddCommentDTO commentDTO,string userId)
         {
             var oldComment = _context.comments.Find(commentDTO.OwnerId);
             if (oldComment is null)
             {
                 return new IntResult { Massage = "No comment has tis Id." };
             }
-            var comment = new CommentComment { Content = commentDTO.Content, CommentId = commentDTO.OwnerId, UserId = commentDTO.UserId };
+            var comment = new CommentComment { Content = commentDTO.Content, CommentId = commentDTO.OwnerId, UserId = userId };
             oldComment.Comments.Add(comment);
             try
             {
@@ -489,7 +334,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             {
                 _context.likes.Remove(like);
             }
-            foreach(var comnt in comment.Comments)
+            foreach (var comnt in comment.Comments)
             {
                 DeleteOneComment(comnt);
             }
@@ -503,6 +348,214 @@ namespace Infrastructure.Repositories.PostRepositoy
         {
             return _context.commentLikes.Where(x => x.UserId == userId && x.CommentId == commentId).FirstOrDefault();
         }
-
+        private ShowCoachPostDTO GetCoachPostDTO(int id)
+        {
+            return _context.CoachPosts
+                .Select(p => new ShowCoachPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Coach.ProfilePictureUrl ?? "",
+                    Name = $"{p.Coach.FirstName} {p.Coach.LastName}",
+                    CoachId = p.CoachId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
+                    Comments = p.Comments.Select(x => new ShowMainCommentDTO
+                    {
+                        Date = x.Created,
+                        Id = x.Id,
+                        PictureUrl = x.User.ProfilePictureUrl ?? "",
+                        Content = x.Content,
+                        UserName = x.User.FirstName + " " + x.User.LastName,
+                        Comments = x.Comments.Select(x => new ShowCommentDTO
+                        {
+                            ID = x.Id,
+                            PictureUrl = x.User.ProfilePictureUrl ?? "",
+                            Date = x.Created,
+                            Content = x.Content,
+                            UserName = x.User.FirstName + " " + x.User.LastName,
+                            HaveComments = x.Comments.Any()
+                        }).ToList()
+                    }).ToList()
+                })
+                .Where(p => p.Id == id)
+                .FirstOrDefault();
+        }
+        private ShowGymPostDTO GetGymPostDTO(int id)
+        {
+            return _context.GymPosts
+                .Select(p => new ShowGymPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Gym.PictureUrl ?? "",
+                    Name = p.Gym.GymName,
+                    GymId = p.GymId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
+                    Comments = p.Comments.Select(x => new ShowMainCommentDTO
+                    {
+                        Id = x.Id,
+                        Date = x.Created,
+                        PictureUrl = x.User.ProfilePictureUrl ?? "",
+                        Content = x.Content,
+                        UserName = x.User.FirstName + " " + x.User.LastName,
+                        Comments = x.Comments.Select(x => new ShowCommentDTO
+                        {
+                            ID = x.Id,
+                            Date = x.Created,
+                            PictureUrl = x.User.ProfilePictureUrl ?? "",
+                            Content = x.Content,
+                            UserName = x.User.FirstName + " " + x.User.LastName,
+                            HaveComments = x.Comments.Any()
+                        }).ToList()
+                    }).ToList()
+                })
+                .Where(p => p.Id == id)
+                .FirstOrDefault();
+        }
+        private ShowShopPostDTO GetShopPostDTO(int id)
+        {
+            return _context.ShopPosts
+                .Select(p => new ShowShopPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Shop.PictureUrl ?? "",
+                    Name = p.Shop.Name,
+                    ShopId = p.ShopId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList(),
+                    Comments = p.Comments.Select(x => new ShowMainCommentDTO
+                    {
+                        Id = x.Id,
+                        Date = x.Created,
+                        PictureUrl = x.User.ProfilePictureUrl ?? "",
+                        Content = x.Content,
+                        UserName = x.User.FirstName + " " + x.User.LastName,
+                        Comments = x.Comments.Select(x => new ShowCommentDTO
+                        {
+                            ID = x.Id,
+                            Date = x.Created,
+                            PictureUrl = x.User.ProfilePictureUrl ?? "",
+                            Content = x.Content,
+                            UserName = x.User.FirstName + " " + x.User.LastName,
+                            HaveComments = x.Comments.Any()
+                        }).ToList()
+                    }).ToList()
+                }).Where(p => p.Id == id)
+                .FirstOrDefault();
+        }
+        private LikesDetailsDTO LikesDetailsOnComment(int id)
+        {
+            var result = _context.commentLikes
+                .Where(x => x.CommentId == id).ToList();
+            var dic = result
+                .GroupBy(x => x.Type)
+                .OrderByDescending(g => g.Count())
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Count()
+                );
+            var returnedResult = new LikesDetailsDTO();
+            foreach (var item in dic)
+            {
+                returnedResult.Count += item.Value;
+                returnedResult.OrderedType.Add(CheckLikeTypeAndReturnString(item.Key));
+            }
+            return returnedResult;
+        }
+        private List<string> BackupFiles(List<string> paths, string backupDir)
+        {
+            var backupFiles = new List<string>();
+            foreach (var path in paths)
+            {
+                if (File.Exists(path))
+                {
+                    var backupPath = Path.Combine(backupDir, Path.GetFileName(path));
+                    File.Move(path, backupPath);
+                    backupFiles.Add(backupPath);
+                }
+            }
+            return backupFiles;
+        }
+        private void DeleteFiles(List<string> paths)
+        {
+            foreach (var path in paths)
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+        }
+        private void RestoreBackupFiles(string backupDir)
+        {
+            foreach (var backupPath in Directory.GetFiles(backupDir))
+            {
+                var originalPath = Path.Combine(_storagePath, Path.GetFileName(backupPath));
+                File.Move(backupPath, originalPath);
+            }
+        }
+        private bool IsUserAllowToDeleteComment(Comment comment, string userId)
+        {
+            if (comment is CommentComment)
+            {
+                var commentComment = _context.commentComments.Include(x => x.Comment).FirstOrDefault(x => x.Id == comment.Id);
+                if (commentComment.UserId != userId && commentComment.Comment.UserId != userId)
+                    return false;
+                return true;
+            }
+            if (comment is PostComment)
+            {
+                var postComment = _context.postComments.Include(x => x.Post).FirstOrDefault(x => x.Id == comment.Id);
+                if (postComment.UserId != userId && !IsUserIsThePostOwner(postComment.Post, userId))
+                    return false;
+                return true;
+            }
+            return false;
+        }
+        private bool IsUserIsThePostOwner(Post post, string userId)
+        {
+            if (post is CoachPost)
+            {
+                var coachPost = _context.CoachPosts.FirstOrDefault(x => x.Id == post.Id);
+                if (coachPost?.CoachId != userId)
+                    return false;
+                return true;
+            }
+            if (post is GymPost)
+            {
+                var gymPost = _context.GymPosts.Include(x => x.Gym).FirstOrDefault(x => x.Id == post.Id);
+                if (gymPost?.Gym.CoachID != userId)
+                    return false;
+                return true;
+            }
+            if (post is ShopPost)
+            {
+                var shopPost = _context.ShopPosts.Include(x => x.Shop).FirstOrDefault(x => x.Id == post.Id);
+                if (shopPost?.Shop.OwnerID != userId)
+                    return false;
+                return true;
+            }
+            return false;
+        }
+        private LikesDetailsDTO LikesDetailsOnPost(int id)
+        {
+            var result = _context.postLikes
+                .Where(x => x.PostId == id).ToList();
+            var dic = result
+                .GroupBy(x => x.Type)
+                .OrderByDescending(g => g.Count())
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Count()
+                );
+            var returnedResult = new LikesDetailsDTO();
+            foreach (var item in dic)
+            {
+                returnedResult.Count += item.Value;
+                returnedResult.OrderedType.Add(CheckLikeTypeAndReturnString(item.Key));
+            }
+            return returnedResult;
+        }
     }
 }

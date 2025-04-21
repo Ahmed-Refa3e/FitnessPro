@@ -1,21 +1,17 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.ShopDTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Interfaces.Repositories.ShopRepositories
 {
     public interface IOrderItemRepository
     {
-        ShowOrderItemDTO GetById(int id);
+        ShowOrderItemDTO GetById(int id, string userId);
         IntResult AddOrderItemInSpacificOrder(AddOrderItemDTO item);
-        IntResult UpdateOrderItem(EditOrderItemDTO item, int id);
-        IntResult DeleteOrderItem(int id);
-        decimal GetPrice(int id);
+        public IntResult AddOrderItemInSpacificOrderWithCheckUserID(AddOrderItemDTO item, string userId);
         IntResult AddOrderItemInOrderDidnotReseived(AddOrderItemInOrderDTO item, string userId);
-        IntResult MakeItReady(int id);
+        IntResult UpdateOrderItem(EditOrderItemDTO item, string userId);
+        IntResult DeleteOrderItem(int id);
+        IntResult DeleteOrderItemWithUserId(int id, string userId);
+        decimal GetPrice(int id);
     }
 }

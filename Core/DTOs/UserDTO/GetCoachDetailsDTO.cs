@@ -10,6 +10,7 @@ namespace Core.DTOs.UserDTO
         public required string? ProfilePictureUrl { get; set; }
         public required string? Bio { get; set; }
         public required string Gender { get; set; }
+        public double? Rating { get; set; }
         public DateTime JoinedDate { get; set; }
         public List<GetOnlineTrainingDTO> OnlineTrainings { get; set; } = new();
         public List<CoachPostSummaryDTO> CoachPosts { get; set; } = new();

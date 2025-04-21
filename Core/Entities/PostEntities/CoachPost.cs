@@ -12,13 +12,6 @@ namespace Core.Entities.PostEntities
     {
         public string CoachId { get; set; }
         public Coach Coach { get; set; }
-        public CoachPost()
-        {
-            
-        }
-        //public CoachPost(AddCoachPostDTO post):base(post)
-        //{
-        //    this.CoachId = post.CoachId;
-        //}
+
     }
 }

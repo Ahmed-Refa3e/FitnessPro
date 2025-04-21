@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Core.DTOs.PostDTO
+﻿namespace Core.DTOs.PostDTO
 {
     public class ShowCommentDTO
     {
@@ -13,6 +7,6 @@ namespace Core.DTOs.PostDTO
         public string PictureUrl { get; set; }
         public string Content { get; set; }
         public dynamic Date { get; set; }
-        public bool HaveComments {  get; set; }
+        public bool HaveComments { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Core.Entities.ShopEntities;
-
-namespace Core.DTOs.ShopDTO
+﻿namespace Core.DTOs.ShopDTO
 {
     public class ShowProductDTO
     {
@@ -9,17 +7,5 @@ namespace Core.DTOs.ShopDTO
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string ImagePath { get; set; }
-        public ShowProductDTO()
-        {
-            
-        }
-        public ShowProductDTO(Product product)
-        {
-            this.Id = product.Id;
-            this.Name = product.Name;
-            this.Description = product.Description;
-            this.Price = product.Price;
-            this.ImagePath = product.ImagePath;
-        }
     }
 }
