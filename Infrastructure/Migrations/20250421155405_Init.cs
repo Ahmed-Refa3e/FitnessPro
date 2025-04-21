@@ -59,17 +59,16 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Category",
+                name: "categories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Category", x => x.Id);
+                    table.PrimaryKey("PK_categories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -231,6 +230,26 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "connections",
+                columns: table => new
+                {
+                    iD = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    connectionId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    isOnline = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_connections", x => x.iD);
+                    table.ForeignKey(
+                        name: "FK_connections_AspNetUsers_userId",
+                        column: x => x.userId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Gyms",
                 columns: table => new
                 {
@@ -261,6 +280,36 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "messages",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SenderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    timeStamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsSeen = table.Column<bool>(type: "bit", nullable: false),
+                    SeenAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_messages", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_messages_AspNetUsers_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_messages_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OnlineTrainings",
                 columns: table => new
                 {
@@ -280,28 +329,6 @@ namespace Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_OnlineTrainings_AspNetUsers_CoachID",
                         column: x => x.CoachID,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Order",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    IsRecieved = table.Column<bool>(type: "bit", nullable: false),
-                    IsPayment = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Order", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Order_AspNetUsers_UserId",
-                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -446,7 +473,8 @@ namespace Infrastructure.Migrations
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OnlineTrainingId = table.Column<int>(type: "int", nullable: false),
-                    TraineeID = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    TraineeID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -461,6 +489,34 @@ namespace Infrastructure.Migrations
                         name: "FK_OnlineTrainingSubscriptions_OnlineTrainings_OnlineTrainingId",
                         column: x => x.OnlineTrainingId,
                         principalTable: "OnlineTrainings",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    IsRecieved = table.Column<bool>(type: "bit", nullable: false),
+                    IsPayment = table.Column<bool>(type: "bit", nullable: false),
+                    ShopId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_orders_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_orders_Shops_ShopId",
+                        column: x => x.ShopId,
+                        principalTable: "Shops",
                         principalColumn: "Id");
                 });
 
@@ -501,7 +557,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Product",
+                name: "products",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -509,21 +565,15 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: true),
                     ShopId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Product", x => x.Id);
+                    table.PrimaryKey("PK_products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Product_Category_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Category",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Product_Shops_ShopId",
+                        name: "FK_products_Shops_ShopId",
                         column: x => x.ShopId,
                         principalTable: "Shops",
                         principalColumn: "Id",
@@ -609,7 +659,31 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderItem",
+                name: "CategoryProduct",
+                columns: table => new
+                {
+                    CategoriesId = table.Column<int>(type: "int", nullable: false),
+                    ProductsId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoryProduct", x => new { x.CategoriesId, x.ProductsId });
+                    table.ForeignKey(
+                        name: "FK_CategoryProduct_categories_CategoriesId",
+                        column: x => x.CategoriesId,
+                        principalTable: "categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoryProduct_products_ProductsId",
+                        column: x => x.ProductsId,
+                        principalTable: "products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ordersItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -617,22 +691,21 @@ namespace Infrastructure.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: false),
-                    IsReady = table.Column<bool>(type: "bit", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderItem", x => x.Id);
+                    table.PrimaryKey("PK_ordersItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderItem_Order_OrderId",
+                        name: "FK_ordersItems_orders_OrderId",
                         column: x => x.OrderId,
-                        principalTable: "Order",
+                        principalTable: "orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderItem_Product_ProductId",
+                        name: "FK_ordersItems_products_ProductId",
                         column: x => x.ProductId,
-                        principalTable: "Product",
+                        principalTable: "products",
                         principalColumn: "Id");
                 });
 
@@ -709,6 +782,11 @@ namespace Infrastructure.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CategoryProduct_ProductsId",
+                table: "CategoryProduct",
+                column: "ProductsId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_coachRatings_CoachId",
                 table: "coachRatings",
                 column: "CoachId");
@@ -732,6 +810,11 @@ namespace Infrastructure.Migrations
                 name: "IX_comments_UserId",
                 table: "comments",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_connections_userId",
+                table: "connections",
+                column: "userId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_gymFollows_FollowerId",
@@ -781,6 +864,16 @@ namespace Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_messages_ReceiverId",
+                table: "messages",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_messages_SenderId",
+                table: "messages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OnlineTrainings_CoachID",
                 table: "OnlineTrainings",
                 column: "CoachID");
@@ -796,18 +889,23 @@ namespace Infrastructure.Migrations
                 column: "TraineeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_UserId",
-                table: "Order",
+                name: "IX_orders_ShopId",
+                table: "orders",
+                column: "ShopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_orders_UserId",
+                table: "orders",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_OrderId",
-                table: "OrderItem",
+                name: "IX_ordersItems_OrderId",
+                table: "ordersItems",
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_ProductId",
-                table: "OrderItem",
+                name: "IX_ordersItems_ProductId",
+                table: "ordersItems",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
@@ -831,13 +929,8 @@ namespace Infrastructure.Migrations
                 column: "ShopId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_CategoryId",
-                table: "Product",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Product_ShopId",
-                table: "Product",
+                name: "IX_products_ShopId",
+                table: "products",
                 column: "ShopId");
 
             migrationBuilder.CreateIndex(
@@ -878,7 +971,13 @@ namespace Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "CategoryProduct");
+
+            migrationBuilder.DropTable(
                 name: "coachRatings");
+
+            migrationBuilder.DropTable(
+                name: "connections");
 
             migrationBuilder.DropTable(
                 name: "gymFollows");
@@ -893,10 +992,13 @@ namespace Infrastructure.Migrations
                 name: "likes");
 
             migrationBuilder.DropTable(
+                name: "messages");
+
+            migrationBuilder.DropTable(
                 name: "OnlineTrainingSubscriptions");
 
             migrationBuilder.DropTable(
-                name: "OrderItem");
+                name: "ordersItems");
 
             migrationBuilder.DropTable(
                 name: "PictureUrls");
@@ -911,22 +1013,22 @@ namespace Infrastructure.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "categories");
+
+            migrationBuilder.DropTable(
                 name: "comments");
 
             migrationBuilder.DropTable(
                 name: "OnlineTrainings");
 
             migrationBuilder.DropTable(
-                name: "Order");
+                name: "orders");
 
             migrationBuilder.DropTable(
-                name: "Product");
+                name: "products");
 
             migrationBuilder.DropTable(
                 name: "Posts");
-
-            migrationBuilder.DropTable(
-                name: "Category");
 
             migrationBuilder.DropTable(
                 name: "Gyms");
