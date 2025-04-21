@@ -82,7 +82,7 @@ builder.Services.AddDbContext<FitnessContext>(options =>
 });
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<FitnessContext>().AddDefaultTokenProviders(); ;
+    .AddEntityFrameworkStores<FitnessContext>().AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
