@@ -22,7 +22,7 @@ namespace API.Controllers
                 return NotFound("User Not Found");
 
             var ratingFromDb = repository.GetQueryable()
-                .Where(e=>e.TraineeId == user.Id && e.CoachId == coachRatingDTO.coachId)
+                .Where(e => e.TraineeId == user.Id && e.CoachId == coachRatingDTO.coachId)
                 .FirstOrDefault();
             if (ratingFromDb != null)
                 return Conflict($"You already add rating to this Coach");
@@ -37,9 +37,20 @@ namespace API.Controllers
             };
             repository.Add(coachRating);
 
-            if (await repository.SaveChangesAsync())
-                return Created();
-            return BadRequest("There is a problem while Adding Rating");
+            var saved = await repository.SaveChangesAsync();
+            if (!saved)
+                return BadRequest("There is a problem while Adding Rating");
+
+            var response = new CoachRatingResponse
+            {
+                CoachRatingId = coachRating.CoachRatingId,
+                CoachId = coachRating.CoachId,
+                TraineeId = coachRating.TraineeId,
+                Review = coachRating.Content,
+                ratingValue = coachRating.Rating,
+                CreatedAt = coachRating.CreatedAt
+            };
+            return CreatedAtAction(nameof(GetCoachRatingById), new { id = coachRating.CoachRatingId }, response);
         }
 
 
@@ -54,7 +65,7 @@ namespace API.Controllers
             {
                 CoachId = coachRating.CoachId,
                 CoachRatingId = coachRating.CoachRatingId,
-                TraineeId= coachRating.TraineeId,
+                TraineeId = coachRating.TraineeId,
                 ratingValue = coachRating.Rating,
                 Review = coachRating.Content,
                 CreatedAt = coachRating.CreatedAt
@@ -62,7 +73,7 @@ namespace API.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
+        [HttpGet("GetCoachRatingByCoachId/{CoachId}")]
         public async Task<IActionResult> GetCoachRating(string CoachId)
         {
             if (string.IsNullOrWhiteSpace(CoachId))
@@ -112,17 +123,20 @@ namespace API.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{CoachRatingid}")]
         [Authorize(Roles = "Trainee")]
-        public async Task<IActionResult> DeleteCoachRating(int id)
+        public async Task<IActionResult> DeleteCoachRating(int CoachRatingid)
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
                 return NotFound("User Not Found");
 
-            var coachRating = await repository.GetByIdAsync(id);
+            var coachRating = await repository.GetByIdAsync(CoachRatingid);
             if (coachRating == null)
-                return NotFound($"Coach Rating with ID {id} not found");
+                return NotFound($"Coach Rating with ID {CoachRatingid} not found");
+
+            if (user.Id != coachRating.TraineeId)
+                return Unauthorized("You don't have any acces to delete this rating");
 
             repository.Delete(coachRating);
             if (await repository.SaveChangesAsync())

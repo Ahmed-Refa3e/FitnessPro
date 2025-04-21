@@ -91,7 +91,7 @@ namespace Services
             Generalresponse response = new Generalresponse();
 
             var user = await repository.GetAsync(e => e.Id == CoachId
-                        , includeProperties: "OnlineTrainings,Posts"
+                        , includeProperties: "OnlineTrainings,Posts,Ratings"
            );
             if (user is null)
             {
@@ -134,6 +134,11 @@ namespace Services
                     CreatedAt = post.CreatedAt
                 }).ToList() ?? new List<CoachPostSummaryDTO>()
             };
+
+            double? rating = coach.Ratings?.Any() == true
+            ? coach.Ratings.Average(r => r.Rating)
+            : null;
+            UserDto.Rating = rating;
 
             response.IsSuccess = true;
             response.Data = UserDto;
