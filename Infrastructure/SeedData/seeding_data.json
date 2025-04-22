@@ -318,92 +318,335 @@
   "OnlineTrainings": [
     {
       "CoachEmail": "ahmedhassan@example.com",
-      "Title": "Yoga Training with Ahmedhassan",
-      "Description": "Customized group training program to meet your fitness goals.",
+      "Title": "Flex & Fit Group – Ahmedhassan",
+      "Description": "A full-body group session targeting overall fitness.",
       "TrainingType": "Group",
-      "Price": 1500,
+      "Price": 1349,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Core Crusher Group – Ahmedhassan",
+      "Description": "Mobility and balance training in a supportive group.",
+      "TrainingType": "Group",
+      "Price": 1313,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Total Fit Group – Ahmedhassan",
+      "Description": "Mobility and balance training in a supportive group.",
+      "TrainingType": "Group",
+      "Price": 1787,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Sweat Session Crew – Ahmedhassan",
+      "Description": "High-energy group session focusing on strength and endurance.",
+      "TrainingType": "Group",
+      "Price": 1530,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
     {
       "CoachEmail": "ahmedhassan@example.com",
-      "Title": "CrossFit Workout with Ahmedhassan",
-      "Description": "Customized private training program to meet your fitness goals.",
+      "Title": "Personal Power Session – Ahmedhassan",
+      "Description": "Personalized strength training for focused results.",
       "TrainingType": "Private",
-      "Price": 1600,
+      "Price": 1349,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Elite 1-on-1 Training – Ahmedhassan",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1675,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Bespoke Strength Program – Ahmedhassan",
+      "Description": "Exclusive training with personalized feedback and pacing.",
+      "TrainingType": "Private",
+      "Price": 1453,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
     {
-      "CoachEmail": "omarsamir@example.com",
-      "Title": "Strength Training with Omarsamir",
-      "Description": "Customized group training program to meet your fitness goals.",
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Custom Muscle Routine – Ahmedhassan",
+      "Description": "One-on-one session focusing on muscle development.",
+      "TrainingType": "Private",
+      "Price": 1315,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mohamedsalah@example.com",
+      "Title": "Total Fit Group – Mohamedsalah",
+      "Description": "A full-body group session targeting overall fitness.",
       "TrainingType": "Group",
-      "Price": 1700,
+      "Price": 1145,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mohamedsalah@example.com",
+      "Title": "Mobility Moves Group – Mohamedsalah",
+      "Description": "Boost your stamina with team-based training circuits.",
+      "TrainingType": "Group",
+      "Price": 1012,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mohamedsalah@example.com",
+      "Title": "Precision Fitness Plan – Mohamedsalah",
+      "Description": "One-on-one session focusing on muscle development.",
+      "TrainingType": "Private",
+      "Price": 1348,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
     {
       "CoachEmail": "omarsamir@example.com",
-      "Title": "HIIT Session with Omarsamir",
-      "Description": "Customized private training program to meet your fitness goals.",
-      "TrainingType": "Private",
-      "Price": 1800,
-      "NoOfSessionsPerWeek": 3,
+      "Title": "Flex & Fit Group – Omarsamir",
+      "Description": "Boost your stamina with team-based training circuits.",
+      "TrainingType": "Group",
+      "Price": 1677,
+      "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
     {
       "CoachEmail": "omarsamir@example.com",
-      "Title": "Pilates Class with Omarsamir",
-      "Description": "Customized group training program to meet your fitness goals.",
+      "Title": "Core Crusher Group – Omarsamir",
+      "Description": "Boost your stamina with team-based training circuits.",
       "TrainingType": "Group",
-      "Price": 1900,
+      "Price": 1764,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "omarsamir@example.com",
+      "Title": "Cardio Burn Group – Omarsamir",
+      "Description": "Sweat together in this intense, results-driven session.",
+      "TrainingType": "Group",
+      "Price": 1561,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Precision Fitness Plan – Khaledmostafa",
+      "Description": "High-performance coaching for your unique fitness path.",
+      "TrainingType": "Private",
+      "Price": 1948,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Tailored Training Method – Khaledmostafa",
+      "Description": "Personalized strength training for focused results.",
+      "TrainingType": "Private",
+      "Price": 1051,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Personal Power Session – Khaledmostafa",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1666,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Elite 1-on-1 Training – Khaledmostafa",
+      "Description": "Intense private coaching for fast and effective progress.",
+      "TrainingType": "Private",
+      "Price": 1086,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "youssefadel@example.com",
+      "Title": "HIIT Heroes – Youssefadel",
+      "Description": "Sweat together in this intense, results-driven session.",
+      "TrainingType": "Group",
+      "Price": 1076,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "youssefadel@example.com",
+      "Title": "Custom Muscle Routine – Youssefadel",
+      "Description": "One-on-one session focusing on muscle development.",
+      "TrainingType": "Private",
+      "Price": 1161,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "youssefadel@example.com",
+      "Title": "Bespoke Strength Program – Youssefadel",
+      "Description": "Goal-oriented fitness training with full customization.",
+      "TrainingType": "Private",
+      "Price": 1699,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "HIIT Heroes – Mahmoudtarek",
+      "Description": "Mobility and balance training in a supportive group.",
+      "TrainingType": "Group",
+      "Price": 1326,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "Cardio Burn Group – Mahmoudtarek",
+      "Description": "Engaging sessions with a mix of cardio and resistance.",
+      "TrainingType": "Group",
+      "Price": 1522,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "Total Fit Group – Mahmoudtarek",
+      "Description": "Dynamic group workout designed to enhance muscle power.",
+      "TrainingType": "Group",
+      "Price": 1403,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "Precision Fitness Plan – Mahmoudtarek",
+      "Description": "High-performance coaching for your unique fitness path.",
+      "TrainingType": "Private",
+      "Price": 1116,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "alisaeed@example.com",
+      "Title": "Endurance Squad – Alisaeed",
+      "Description": "Group workout focused on building a strong and stable core.",
+      "TrainingType": "Group",
+      "Price": 1693,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
     {
       "CoachEmail": "alisaeed@example.com",
-      "Title": "Bodybuilding Routine with Alisaeed",
-      "Description": "Customized private training program to meet your fitness goals.",
-      "TrainingType": "Private",
-      "Price": 2000,
+      "Title": "Power Up Group – Alisaeed",
+      "Description": "Dynamic group workout designed to enhance muscle power.",
+      "TrainingType": "Group",
+      "Price": 1959,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
     {
       "CoachEmail": "mostafanabil@example.com",
-      "Title": "Spin Class with Mostafanabil",
-      "Description": "Customized group training program to meet your fitness goals.",
+      "Title": "Mobility Moves Group – Mostafanabil",
+      "Description": "Engaging sessions with a mix of cardio and resistance.",
       "TrainingType": "Group",
-      "Price": 2100,
-      "NoOfSessionsPerWeek": 3,
-      "DurationOfSession": 60
-    },
-    {
-      "CoachEmail": "mostafanabil@example.com",
-      "Title": "Functional Training with Mostafanabil",
-      "Description": "Customized private training program to meet your fitness goals.",
-      "TrainingType": "Private",
-      "Price": 2200,
+      "Price": 1449,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
     {
       "CoachEmail": "mostafanabil@example.com",
-      "Title": "Circuit Training with Mostafanabil",
-      "Description": "Customized group training program to meet your fitness goals.",
+      "Title": "Cardio Burn Group – Mostafanabil",
+      "Description": "Mobility and balance training in a supportive group.",
       "TrainingType": "Group",
-      "Price": 2300,
+      "Price": 1025,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
     {
       "CoachEmail": "mostafanabil@example.com",
-      "Title": "Weightlifting Program with Mostafanabil",
-      "Description": "Customized private training program to meet your fitness goals.",
-      "TrainingType": "Private",
-      "Price": 2400,
+      "Title": "Endurance Squad – Mostafanabil",
+      "Description": "A full-body group session targeting overall fitness.",
+      "TrainingType": "Group",
+      "Price": 1370,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Power Up Group – Mostafanabil",
+      "Description": "Fun and functional group fitness tailored to all levels.",
+      "TrainingType": "Group",
+      "Price": 1508,
       "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Precision Fitness Plan – Mostafanabil",
+      "Description": "Personalized strength training for focused results.",
+      "TrainingType": "Private",
+      "Price": 1522,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Elite 1-on-1 Training – Mostafanabil",
+      "Description": "Intense private coaching for fast and effective progress.",
+      "TrainingType": "Private",
+      "Price": 1310,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Ultimate Personal Plan – Mostafanabil",
+      "Description": "Intense private coaching for fast and effective progress.",
+      "TrainingType": "Private",
+      "Price": 1158,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Focused Fit Coaching – Mostafanabil",
+      "Description": "Exclusive training with personalized feedback and pacing.",
+      "TrainingType": "Private",
+      "Price": 1320,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "sherifgamal@example.com",
+      "Title": "Ultimate Personal Plan – Sherifgamal",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1267,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "sherifgamal@example.com",
+      "Title": "Custom Muscle Routine – Sherifgamal",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1228,
+      "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     }
   ]

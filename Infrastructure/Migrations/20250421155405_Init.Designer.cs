@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(FitnessContext))]
-    [Migration("20250417172139_AddingIsActiveColoumn")]
-    partial class AddingIsActiveColoumn
+    [Migration("20250421155405_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CategoryProduct", b =>
+                {
+                    b.Property<int>("CategoriesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CategoriesId", "ProductsId");
+
+                    b.HasIndex("ProductsId");
+
+                    b.ToTable("CategoryProduct");
+                });
 
             modelBuilder.Entity("Core.Entities.ChatEntites.ChatMessage", b =>
                 {
@@ -585,17 +600,13 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.ToTable("categories");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Order", b =>
@@ -615,6 +626,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("ShopId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -623,9 +637,11 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ShopId");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order");
+                    b.ToTable("orders");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.OrderItem", b =>
@@ -635,9 +651,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsReady")
-                        .HasColumnType("bit");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
@@ -657,7 +670,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("ordersItems");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Product", b =>
@@ -668,15 +681,11 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImagePath")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -694,11 +703,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("ShopId");
 
-                    b.ToTable("Product");
+                    b.ToTable("products");
                 });
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
@@ -979,6 +986,21 @@ namespace Infrastructure.Migrations
                     b.HasDiscriminator().HasValue("ShopPost");
                 });
 
+            modelBuilder.Entity("CategoryProduct", b =>
+                {
+                    b.HasOne("Core.Entities.ShopEntities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.ShopEntities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Core.Entities.ChatEntites.ChatMessage", b =>
                 {
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "receiver")
@@ -1232,9 +1254,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Order", b =>
                 {
+                    b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
+                        .WithMany("Orders")
+                        .HasForeignKey("ShopId");
+
                     b.HasOne("Core.Entities.Identity.ApplicationUser", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Shop");
 
                     b.Navigation("User");
                 });
@@ -1258,17 +1286,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.ShopEntities.Product", b =>
                 {
-                    b.HasOne("Core.Entities.ShopEntities.Category", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId");
-
                     b.HasOne("Core.Entities.ShopEntities.Shop", "Shop")
                         .WithMany("Products")
                         .HasForeignKey("ShopId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Category");
 
                     b.Navigation("Shop");
                 });
@@ -1451,11 +1473,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("PictureUrls");
                 });
 
-            modelBuilder.Entity("Core.Entities.ShopEntities.Category", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("Core.Entities.ShopEntities.Order", b =>
                 {
                     b.Navigation("OrderItems");
@@ -1469,6 +1486,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entities.ShopEntities.Shop", b =>
                 {
                     b.Navigation("Followers");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("Posts");
 

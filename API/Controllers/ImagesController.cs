@@ -1,4 +1,5 @@
-﻿using Core.Interfaces.Repositories;
+﻿using Core.Entities.PostEntities;
+using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -197,5 +198,110 @@ public class ImagesController(IBlobService _blobService,
         await _context.SaveChangesAsync();
 
         return Ok("Image deleted successfully.");
+    }
+
+    // POST api/images/upload-product-image/{productId}
+    [HttpPost("upload-product-image/{productId}")]
+    public async Task<IActionResult> UploadProductImage(int productId, [FromForm] IFormFile file)
+    {
+        // Check image validity
+        var checkResult = CheckImage(file);
+        if (checkResult is BadRequestObjectResult)
+            return checkResult;
+        var product = await _context.products.FindAsync(productId);
+        if (product == null)
+            return NotFound("Product not found.");
+        // Check if the product already has an image
+        if (!string.IsNullOrEmpty(product.ImagePath))
+        {
+            // Delete the old image from Azure Blob Storage
+            await _blobService.DeleteImageAsync(product.ImagePath);
+        }
+        // Upload the image to Azure Blob
+        var imageUrl = await _blobService.UploadImageAsync(file);
+        product.ImagePath = imageUrl;
+        _context.products.Update(product);
+        await _context.SaveChangesAsync();
+        return Ok(new { Url = imageUrl });
+    }
+    // DELETE api/images/delete-product-image/{productId}
+    [HttpDelete("delete-product-image/{productId}")]
+    public async Task<IActionResult> DeleteProductImage(int productId)
+    {
+        // Find the product by Id
+        var product = await _context.products.FindAsync(productId);
+        if (product == null)
+            return NotFound("Product not found.");
+        // Delete image from Azure Blob Storage
+        if (string.IsNullOrEmpty(product.ImagePath))
+        {
+            return NotFound("No image found to delete.");
+        }
+        // Remove image URL from the database
+        await _blobService.DeleteImageAsync(product.ImagePath);
+        product.ImagePath = null;
+        _context.products.Update(product);
+        await _context.SaveChangesAsync();
+        return Ok("Image deleted successfully.");
+    }
+    // Fixing the CS8602 error by ensuring that `post.PictureUrls` is not null before accessing it.
+    [HttpPost("upload-post-image/{postId}")]
+    public async Task<IActionResult> UploadPostImages(int postId, [FromForm] IFormFile file)
+    {
+        // Check image validity
+        var checkResult = CheckImage(file);
+        if (checkResult is BadRequestObjectResult)
+            return checkResult;
+
+        var post = await _context.Posts!.FindAsync(postId);
+        if (post == null)
+            return NotFound("Post not found.");
+
+        // Ensure PictureUrls is initialized
+        if (post.PictureUrls == null)
+        {
+            post.PictureUrls = [];
+        }
+
+        // Upload the new image to Azure Blob
+        var imageUrl = await _blobService.UploadImageAsync(file);
+
+        // Add the new image URL to the post's PictureUrls
+        var newPictureUrl = new PostPictureUrl
+        {
+            Url = imageUrl,
+            PostId = post.Id
+        };
+
+        post.PictureUrls.Add(newPictureUrl);
+
+        _context.Posts.Update(post);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { Url = imageUrl });
+    }
+    // DELETE api/images/delete-post-images/{postId}
+    [HttpDelete("delete-post-images/{postId}")]
+    public async Task<IActionResult> DeletePostImages(int postId)
+    {
+        // Find the post by Id
+        var post = await _context.Posts!.FindAsync(postId);
+        if (post == null)
+            return NotFound("Post not found.");
+        // Check if the post has images
+        if (post.PictureUrls == null || post.PictureUrls.Count == 0)
+        {
+            return NotFound("No images found to delete.");
+        }
+        // Delete each image from Azure Blob Storage
+        foreach (var pictureUrl in post.PictureUrls)
+        {
+            await _blobService.DeleteImageAsync(pictureUrl.Url);
+        }
+        // Clear the PictureUrls list
+        post.PictureUrls.Clear();
+        _context.Posts.Update(post);
+        await _context.SaveChangesAsync();
+        return Ok("Images deleted successfully.");
     }
 }

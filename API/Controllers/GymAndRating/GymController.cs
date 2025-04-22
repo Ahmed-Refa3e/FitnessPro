@@ -69,8 +69,8 @@ namespace API.Controllers.GymAndRating
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var gymToBeUpdated = service.GetGymByIdAsync(id);
             var user = await signInManager.UserManager.GetUserAsync(User);
+            var gymToBeUpdated = service.GetGymByIdAsync(id);
             if (gymToBeUpdated.Result!.CoachID != user!.Id)
             {
                 return Unauthorized("You are not authorized to update this gym");
