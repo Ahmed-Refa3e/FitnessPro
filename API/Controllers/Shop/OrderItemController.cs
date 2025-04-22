@@ -1,7 +1,9 @@
-﻿using Core.DTOs.ShopDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.ShopDTO;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Extensions;
 using System.Security.Claims;
 
 namespace API.Controllers.Shop
@@ -17,77 +19,79 @@ namespace API.Controllers.Shop
         }
         [HttpGet]
         [Authorize]
-        public ActionResult GetOrderItem(int id)
+        public async Task<ActionResult> GetOrderItem(int id)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderItemRepository.GetById(id,userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderItemRepository.GetById(id,userId);
             if (result == null)
             {
-                return BadRequest("No OrderItem has this Id");
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = "Failed to create OrderItem" });
             }
-            return Ok(result);
+            return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
-        [HttpPost("AddOrderItemInSpacificOrder")]
+        [HttpPost("AddToSpecificOrder")]
         [Authorize]
-        public ActionResult AddOrderItemInSpacificOrder(AddOrderItemDTO item)
+        public async Task<ActionResult> AddToSpecificOrder(AddOrderItemDTO item)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderItemRepository.AddOrderItemInSpacificOrderWithCheckUserID(item, userId);
+            if (result.Id == 0)
             {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var result = _orderItemRepository.AddOrderItemInSpacificOrderWithCheckUserID(item,userId);
-                if (result.Id == 0)
-                {
-                    return BadRequest(result.Massage);
-                }
-                var url = Url.Action(nameof(GetOrderItem), new { id = result.Id });
-                return Created(url, _orderItemRepository.GetById(result.Id,userId));
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = "Failed to create OrderItem" });
             }
-            return BadRequest(ModelState);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
         }
-        [HttpPost("AddOrderItemInOrderDidnotReseived")]
+        [HttpPost("AddToUnreceivedOrder")]
         [Authorize]
-        public ActionResult AddOrderItemInOrderDidnotReseived(AddOrderItemInOrderDTO item)
+        public async Task<ActionResult> AddToUnreceivedOrder(AddOrderItemInOrderDTO item)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderItemRepository.AddOrderItemInOrderDidnotReseived(item, userId);
+            if (result.Id == 0)
             {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var result = _orderItemRepository.AddOrderItemInOrderDidnotReseived(item, userId);
-                if (result.Id == 0)
-                {
-                    return BadRequest(result.Massage);
-                }
-                var url = Url.Action(nameof(GetOrderItem), new { id = result.Id });
-                return Created(url, _orderItemRepository.GetById(result.Id, userId));
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = "Failed to create OrderItem" });
             }
-            return BadRequest(ModelState);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
         }
         [HttpPut]
         [Authorize]
-        public ActionResult Update(EditOrderItemDTO item)
+        public async Task<ActionResult> Update(EditOrderItemDTO item)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderItemRepository.UpdateOrderItem(item, userId);
+            if (result.Id == 0)
             {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var result = _orderItemRepository.UpdateOrderItem(item,userId);
-                if (result.Id == 0)
-                {
-                    return BadRequest(result.Massage);
-                }
-                return StatusCode(StatusCodes.Status204NoContent);
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = "No OrderItem found with this Id" });
             }
-            return BadRequest(ModelState);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
         }
         [HttpDelete]
         [Authorize]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderItemRepository.DeleteOrderItemWithUserId(id, userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderItemRepository.DeleteOrderItemWithUserId(id, userId);
             if (result.Id == 0)
             {
-                return BadRequest(result.Massage);
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = "No OrderItem found or you are not authorized" });
             }
-            return StatusCode(StatusCodes.Status204NoContent);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
         }
     }
 }

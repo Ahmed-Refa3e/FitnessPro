@@ -5,13 +5,12 @@ namespace Core.Interfaces.Repositories.ShopRepositories
 {
     public interface IOrderItemRepository
     {
-        ShowOrderItemDTO GetById(int id, string userId);
-        IntResult AddOrderItemInSpacificOrder(AddOrderItemDTO item);
-        public IntResult AddOrderItemInSpacificOrderWithCheckUserID(AddOrderItemDTO item, string userId);
-        IntResult AddOrderItemInOrderDidnotReseived(AddOrderItemInOrderDTO item, string userId);
-        IntResult UpdateOrderItem(EditOrderItemDTO item, string userId);
-        IntResult DeleteOrderItem(int id);
-        IntResult DeleteOrderItemWithUserId(int id, string userId);
-        decimal GetPrice(int id);
+        Task<ShowOrderItemDTO> GetById(int id, string userId);
+        Task<IntResult> AddOrderItemInSpacificOrder(AddOrderItemDTO item);
+        Task<IntResult> AddOrderItemInSpacificOrderWithCheckUserID(AddOrderItemDTO item, string userId);
+        Task<IntResult> AddOrderItemInOrderDidnotReseived(AddOrderItemInOrderDTO item, string userId);
+        Task<IntResult> UpdateOrderItem(EditOrderItemDTO item, string userId);
+        Task<IntResult> DeleteOrderItem(int id);
+        Task<IntResult> DeleteOrderItemWithUserId(int id, string userId);
     }
 }
