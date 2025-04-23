@@ -17,12 +17,13 @@ namespace Infrastructure.Repositories.PostRepositoy
             {
                 return new IntResult { Massage = "The post is not valid" };
             }
-            if (_context.Shops.Find(newPost.ShopId).OwnerID != userId)
+            var shop = await _context.Shops.FindAsync(newPost.ShopId);
+            if (shop is null||shop.OwnerID != userId)
             {
-                return new IntResult { Massage = "you are not the Owner of this shop to add post" };
+                return new IntResult { Massage = "Id is not valid." };
             }
             var shopPost = new ShopPost { Content = newPost.Content, ShopId = newPost.ShopId };
-            _context.ShopPosts.Add(shopPost);
+            await _context.ShopPosts.AddAsync(shopPost);
             return await AddPicturesToPost(post, shopPost);
         }
     }

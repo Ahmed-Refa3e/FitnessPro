@@ -22,5 +22,36 @@ namespace Core.Utilities
             var filePath = Path.Combine(storagePath, fileName);
             return new StringResult { Id = filePath };
         }
+        /*
+private async Task<List<string>> BackupFiles(List<string> paths, string backupDir)
+{
+    var backupFiles = new List<string>();
+    foreach (var path in paths)
+    {
+        if (File.Exists(path))
+        {
+            var backupPath = Path.Combine(backupDir, Path.GetFileName(path));
+            File.Move(path, backupPath);
+            backupFiles.Add(backupPath);
+        }
+    }
+    return backupFiles;
+}
+private async Task<void> DeleteFiles(List<string> paths)
+{
+    foreach (var path in paths)
+    {
+        if (File.Exists(path))
+            File.Delete(path);
+    }
+}
+private async Task<void> RestoreBackupFiles(string backupDir)
+{
+    foreach (var backupPath in Directory.GetFiles(backupDir))
+    {
+        var originalPath = Path.Combine(_storagePath, Path.GetFileName(backupPath));
+        File.Move(backupPath, originalPath);
+    }
+}*/
     }
 }
