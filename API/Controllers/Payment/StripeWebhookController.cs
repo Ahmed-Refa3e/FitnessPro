@@ -7,12 +7,10 @@ namespace API.Controllers.Payment;
 
 public class StripeWebhookController(
     IConfiguration configuration,
-    ILogger<StripeWebhookController> logger,
-    IOnlineTrainingSubscriptionRepository repo
-) : BaseApiController
+    ILogger<StripeWebhookController> logger,IOnlineTrainingSubscriptionRepository repo) : BaseApiController
 {
-    private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"]
-        ?? throw new ArgumentNullException("Stripe Webhook Secret not configured.");
+    private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"] ??
+        throw new ArgumentNullException("Stripe Webhook Secret not configured.");
 
     [HttpPost]
     public async Task<IActionResult> HandleWebhook()
