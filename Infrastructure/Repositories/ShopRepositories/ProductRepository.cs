@@ -11,7 +11,6 @@ namespace Infrastructure.Repositories.ShopRepositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly string _storagePath = Path.Combine(Directory.GetCurrentDirectory(), "ProductImages");
         private readonly ICategoryRepository _categoryRepository;
         private readonly FitnessContext _context;
         public ProductRepository(FitnessContext context, ICategoryRepository categoryRepository)
@@ -21,274 +20,228 @@ namespace Infrastructure.Repositories.ShopRepositories
         }
         public async Task<IntResult> Add(AddProductDTO product, string userId)
         {
-            if (!Directory.Exists(_storagePath))
-            {
-                Directory.CreateDirectory(_storagePath);
-            }
-            var shop = _context.Shops.Find(product.ShopId);
+            var shop = await _context.Shops.FindAsync(product.ShopId);
             if (shop is null || shop.OwnerID != userId)
             {
-                return new IntResult() { Massage = "Id of shop not valid" };
+                return new IntResult { Massage = "Id of shop not valid" };
             }
-            var filePath = AddImageHelper.chickImagePath(product.Image, _storagePath);
-            if (!string.IsNullOrEmpty(filePath.Massage))
-            {
-                return new IntResult() { Massage = filePath.Massage };
-            }
+
             var newProduct = new Product
             {
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImagePath = filePath.Id,
+                ImagePath = product.ImageUrl,
                 Quantity = product.Quantity,
                 ShopId = product.ShopId,
                 Shop = shop
             };
-            _context.products.Add(newProduct);
-            using (var transaction = _context.Database.BeginTransaction())
-            {
-                try
-                {
-                    await _context.SaveChangesAsync();
-                    foreach (var name in product.CategoriesName)
-                    {
-                        var category = _categoryRepository.CheckIfItexistingAndGet(name);
-                        newProduct.Categories.Add(category);
-                    }
-                    await _context.SaveChangesAsync();
-                    using (var stream = new FileStream(filePath.Id, FileMode.Create))
-                    {
-                        await product.Image.CopyToAsync(stream);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return new IntResult() { Massage = ex.Message };
-                }
-                await transaction.CommitAsync();
-            }
-            return new IntResult() { Id = newProduct.Id };
-        }
-        public ItemPriceDTO Decrease(int productId, int quantityNeeded)
-        {
-            var product = GetProduct(productId);
-            if (product == null)
-            {
-                return new ItemPriceDTO() { Massage = "No Product has this Id" };
-            }
-            if (product.Quantity - quantityNeeded < 0)
-            {
-                return new ItemPriceDTO() { Massage = "There just " + product.Quantity + " of " + product.Name };
-            }
-            product.Quantity -= quantityNeeded;
+
+            await _context.products.AddAsync(newProduct);
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
+
+                foreach (var name in product.CategoriesName)
+                {
+                    var category = await _categoryRepository.CheckIfItexistingAndGet(name);
+                    newProduct.Categories.Add(category);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new IntResult { Id = newProduct.Id };
             }
             catch (Exception ex)
             {
-                return new ItemPriceDTO() { Massage = ex.Message };
+                await transaction.RollbackAsync();
+                return new IntResult { Massage = ex.Message };
             }
-            return new ItemPriceDTO() { price = product.Price * quantityNeeded };
         }
-        public IntResult Delete(int productId, string userId)
+
+        public async Task<ItemPriceDTO> Decrease(int productId, int quantityNeeded)
         {
-            var product = _context.products.Include(x=>x.Shop).FirstOrDefault(x=>x.Id==productId);
-            if (product is null||product.Shop.OwnerID!=userId)
+            var product = await _context.products.FindAsync(productId);
+            if (product == null)
             {
-                return new IntResult() { Massage = "No product with this id" };
+                return new ItemPriceDTO { Massage = "No Product has this Id" };
             }
+
+            if (product.Quantity - quantityNeeded < 0)
+            {
+                return new ItemPriceDTO { Massage = $"There just {product.Quantity} of {product.Name}" };
+            }
+
+            product.Quantity -= quantityNeeded;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return new ItemPriceDTO { price = product.Price * quantityNeeded };
+            }
+            catch (Exception ex)
+            {
+                return new ItemPriceDTO { Massage = ex.Message };
+            }
+        }
+
+        public async Task<IntResult> Delete(int productId, string userId)
+        {
+            var product = await _context.products
+                .Include(x => x.Shop)
+                .FirstOrDefaultAsync(x => x.Id == productId);
+
+            if (product is null || product.Shop.OwnerID != userId)
+            {
+                return new IntResult { Massage = "No product with this id" };
+            }
+
             _context.products.Remove(product);
-            using (var transaction = _context.Database.BeginTransaction())
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                try
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return new IntResult { Id = 1 };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new IntResult { Massage = ex.Message };
+            }
+        }
+        public async Task<ShowOneProductDTO> GetProductById(int productId)
+        {
+            var product = await _context.products
+                .Where(x => x.Id == productId)
+                .Select(x => new ShowOneProductDTO
                 {
-                    _context.SaveChanges();
-                    if (File.Exists(product.ImagePath))
-                    {
-                        File.Delete(product.ImagePath);
-                    }
-                    transaction.Commit();
-                }
-                catch (Exception ex) { return new IntResult() { Massage = ex.Message }; }
-            }
-            return new IntResult() { Id = 1 };
-        }
-        public List<ShowProductDTO> GetProductsInPaginationsOnShopNoCategory(int shopId, int page, int pageSize)
-        {
-            page = Math.Max(page, 1);
-            if (pageSize == 0)
-            {
-                pageSize = 10;
-            }
-            var numOfProduct = _context.products.Count();
-            var numOfPage = (int)Math.Ceiling((decimal)numOfProduct / pageSize);
-            page = Math.Min(page, numOfPage);
-            var products = _context.products.Where(x => x.ShopId == shopId).Skip(Math.Max((page - 1) * pageSize, 0)).Take(pageSize).Select(x => new ShowProductDTO()
-            {
-                Id = x.Id,
-                Description = x.Description,
-                Name = x.Name,
-                Price = x.Price,
-                ImagePath = x.ImagePath
-            }).ToList();
-            return products;
-        }
-        public List<ShowProductDTO> GetProductsInPaginationsOnShopWithCategory(int shopId, int page, int pageSize, int categoryId)
-        {
-            page = Math.Max(page, 1);
-            if (pageSize == 0)
-            {
-                pageSize = 10;
-            }
-            var numOfProduct = _context.products.Count(x => x.Categories.Any(x => x.Id == categoryId));
-            var numOfPage = (int)Math.Ceiling((decimal)numOfProduct / pageSize);
-            page = Math.Min(page, numOfPage);
-            var products = _context.products.Where(x => x.ShopId == shopId && x.Categories.Any(x => x.Id == categoryId)).Skip(Math.Max((page - 1) * pageSize, 0)).Take(pageSize).Select(x => new ShowProductDTO()
-            {
-                Id = x.Id,
-                Description = x.Description,
-                Name = x.Name,
-                Price = x.Price,
-                ImagePath = x.ImagePath
-            }).ToList().ToList();
-            return products;
-        }
-        public ShowOneProductDTO GetProductById(int productId)
-        {
-            var product = _context.products.Where(x => x.Id == productId).Select(x => new ShowOneProductDTO()
-            {
-                Id = x.Id,
-                ImagePath = x.ImagePath,
-                Description = x.Description,
-                Name = x.Name,
-                Price = x.Price,
-                CategoriesName = x.Categories.Select(x => x.Name).ToList(),
-                ShopName = x.Shop.Name,
-                ShopImage = x.Shop.PictureUrl
-            }).FirstOrDefault();
+                    Id = x.Id,
+                    ImagePath = x.ImagePath,
+                    Description = x.Description,
+                    Name = x.Name,
+                    Price = x.Price,
+                    CategoriesName = x.Categories.Select(c => c.Name).ToList(),
+                    ShopName = x.Shop.Name,
+                    ShopImage = x.Shop.PictureUrl
+                })
+                .FirstOrDefaultAsync();
+
             return product;
         }
-        public List<ShowProductDTO> GetProductsInPaginationsNoCategory(int page, int pageSize)
+        public async Task<List<ShowProductDTO>> GetProducts(ProductSearchDTO searchDTO)
         {
-            page = Math.Max(page, 1);
-            if (pageSize == 0)
+            var query = _context.products.AsQueryable();
+
+            if (searchDTO.CategoryID is not null && searchDTO.CategoryID != 0)
             {
-                pageSize = 10;
+                query = query.Where(x => x.Categories.Any(c => c.Id == searchDTO.CategoryID));
             }
-            var numOfProduct = _context.products.Count();
-            var numOfPage = (int)Math.Ceiling((decimal)numOfProduct / pageSize);
-            page = Math.Min(page, numOfPage);
-            var products = _context.products.Skip(Math.Max((page - 1) * pageSize, 0)).Take(pageSize).Select(x => new ShowProductDTO()
+
+            if (searchDTO.ShopID is not null && searchDTO.ShopID != 0)
             {
-                Id = x.Id,
-                Description = x.Description,
-                Name = x.Name,
-                Price = x.Price,
-                ImagePath = x.ImagePath
-            }).ToList();
-            return products;
-        }
-        public List<ShowProductDTO> GetProductsInPaginationsWithCategory(int page, int pageSize, int categoryId)
-        {
-            page = Math.Max(page, 1);
-            if (pageSize == 0)
-            {
-                pageSize = 10;
+                query = query.Where(x => x.ShopId == searchDTO.ShopID);
             }
-            var numOfProduct = _context.products.Count(x => x.Categories.Any(x => x.Id == categoryId));
-            var numOfPage = (int)Math.Ceiling((decimal)numOfProduct / pageSize);
-            page = Math.Min(page, numOfPage);
-            var products = _context.products.Where(x => x.Categories.Any(x => x.Id == categoryId)).Skip(Math.Max((page - 1) * pageSize, 0)).Take(pageSize).Select(x => new ShowProductDTO()
+
+            if (searchDTO.MinimumPrice is not null && searchDTO.MinimumPrice > 0)
             {
-                Id = x.Id,
-                Description = x.Description,
-                Name = x.Name,
-                Price = x.Price,
-                ImagePath = x.ImagePath
-            }).ToList().ToList();
-            return products;
+                query = query.Where(x => x.Price>= searchDTO.MinimumPrice);
+            }
+
+            if (searchDTO.MaximumPrice is not null && searchDTO.MaximumPrice > 0)
+            {
+                query = query.Where(x => x.Price <= searchDTO.MaximumPrice);
+            }
+            (searchDTO.PageNumber, searchDTO.PageSize) = await PaginationHelper.NormalizePaginationAsync(
+                query,
+                searchDTO.PageNumber,
+                searchDTO.PageSize
+            );
+
+            return await query
+                .Skip((searchDTO.PageNumber - 1) * searchDTO.PageSize)
+                .Take(searchDTO.PageSize)
+                .Select(x => new ShowProductDTO
+                {
+                    Id = x.Id,
+                    Description = x.Description,
+                    Name = x.Name,
+                    Price = x.Price,
+                    ImagePath = x.ImagePath
+                })
+                .ToListAsync();
         }
         public async Task<IntResult> Update(EditProductDTO product, int id, string userId)
         {
-            var filePath = AddImageHelper.chickImagePath(product.Image, _storagePath);
-            if (!string.IsNullOrEmpty(filePath.Massage))
-            {
-                return new IntResult() { Massage = filePath.Massage };
-            }
-            var productDB = _context.products.Include(x=>x.Shop).FirstOrDefault(x=>x.Id==id);
-            if(productDB is null || productDB.Shop.OwnerID != userId)
+            var productDB = await _context.products
+                .Include(x => x.Shop)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (productDB is null || productDB.Shop.OwnerID != userId)
             {
                 return new IntResult() { Massage = "No product has this Id" };
             }
-            var oldPath = productDB.ImagePath;
+
             productDB.Price = product.Price;
             productDB.Description = product.Description;
             productDB.Name = product.Name;
             productDB.Quantity = product.Quantity;
+            productDB.ImagePath = product.ImageUrl;
+
             try
             {
-                await _context.SaveChangesAsync();
-                if (!string.IsNullOrEmpty(filePath.Id))
-                {
-                    productDB.ImagePath = filePath.Id;
-                    using (var stream = new FileStream(filePath.Id, FileMode.Create))
-                    {
-                        await product.Image.CopyToAsync(stream);
-                    }
-                    if (File.Exists(oldPath))
-                    {
-                        File.Delete(oldPath);
-                    }
-                }
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 return new IntResult() { Massage = ex.Message };
             }
+
             return new IntResult() { Id = productDB.Id };
         }
-        public int ShowProductShopId(int productId)
+
+        public async Task<IntResult> UpdateCategoriesOfProduct(ModifyCategoriesInProductDTO modifyCategories, string userId)
         {
-            var product = GetProduct(productId);
-            if (product is null)
-            {
-                return 0;
-            }
-            return product.ShopId;
-        }
-        public IntResult UpdateCategoriesOfProduct(ModifyCategoriesInProductDTO modifyCategories,string userId)
-        {
-            var product = _context.products.Include(x => x.Categories).Include(x=>x.Shop).Where(x => x.Id == modifyCategories.ProductId).FirstOrDefault();
-            if (product is null || product.Shop.OwnerID!=userId)
+            var product = await _context.products
+                .Include(x => x.Categories)
+                .Include(x => x.Shop)
+                .FirstOrDefaultAsync(x => x.Id == modifyCategories.ProductId);
+
+            if (product is null || product.Shop.OwnerID != userId)
             {
                 return new IntResult { Massage = "No product has this Id." };
             }
-            product.Categories.RemoveAll(x => true);
-            using (var transaction = _context.Database.BeginTransaction())
+
+            product.Categories.Clear();
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                try
+                foreach (string categoryName in modifyCategories.CategoriesName)
                 {
-                    foreach (string categoryName in modifyCategories.CategoriesName)
+                    var category = await _categoryRepository.CheckIfItexistingAndGet(categoryName);
+                    if (category is not null)
                     {
-                        Category category = _categoryRepository.CheckIfItexistingAndGet(categoryName);
-                        if (category is not null)
-                        {
-                            product.Categories.Add(category);
-                        }
+                        product.Categories.Add(category);
                     }
-                    _context.SaveChanges();
-                    transaction.Commit();
                 }
-                catch (Exception ex)
-                {
-                    return new IntResult { Massage = ex.Message };
-                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
+            catch (Exception ex)
+            {
+                return new IntResult { Massage = ex.Message };
+            }
+
             return new IntResult { Id = product.Id };
         }
-        Product GetProduct(int id) => _context.products.Find(id);
+
     }
 }

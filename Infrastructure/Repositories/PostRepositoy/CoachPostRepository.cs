@@ -17,12 +17,12 @@ namespace Infrastructure.Repositories.PostRepositoy
             {
                 return new IntResult { Massage = "The post is not valid" };
             }
-            if (_context.Users.Find(userId) is not Coach )
+            if (await _context.Users.FindAsync(userId) is not Coach )
             {
                 return new IntResult { Massage = "you are not a Coach to add post" };
             }
             var coachPost = new CoachPost { Content = post.Content, CoachId = userId };
-            _context.CoachPosts.Add(coachPost);
+            await _context.CoachPosts.AddAsync(coachPost);
             return await AddPicturesToPost(post, coachPost);
         }
     }

@@ -11,7 +11,6 @@ namespace Infrastructure.Repositories.PostRepositoy
     public abstract class GeneralPostRepository : IGeneralPostRepository
     {
         protected readonly FitnessContext _context;
-        protected readonly string _storagePath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedImagesForPosts");
         public GeneralPostRepository(FitnessContext context)
         {
             _context = context;
@@ -20,47 +19,27 @@ namespace Infrastructure.Repositories.PostRepositoy
         public abstract Task<IntResult> Add(AddPostDTO postDto, string userId);
         protected async Task<IntResult> AddPicturesToPost(AddPostDTO post, Post newPost)
         {
-            var uploadedFilePaths = new List<string>();
-            using (var transaction = _context.Database.BeginTransaction())
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                try
+                if (!post.Images.IsNullOrEmpty())
                 {
-                    if (!post.Images.IsNullOrEmpty())
+                    foreach (var image in post.Images)
                     {
-                        foreach (var image in post.Images)
-                        {
-                            var filePath = AddImageHelper.chickImagePath(image, _storagePath);
+                        newPost.PictureUrls.Add(new PostPictureUrl { Url = image });
+                    }
+                }
 
-                            if (!string.IsNullOrEmpty(filePath.Massage))
-                            {
-                                throw new Exception(filePath.Massage);
-                            }
-                            using (var stream = new FileStream(filePath.Id, FileMode.Create))
-                            {
-                                await image.CopyToAsync(stream);
-                            }
-                            uploadedFilePaths.Add(filePath.Id);
-                            newPost.PictureUrls.Add(new PostPictureUrl { Url = filePath.Id });
-                        }
-                    }
-                    _context.SaveChanges();
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    foreach (var path in uploadedFilePaths)
-                    {
-                        if (File.Exists(path))
-                        {
-                            File.Delete(path);
-                        }
-                    }
-                    return new IntResult { Massage = ex.Message };
-                }
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                return new IntResult { Massage = ex.Message };
             }
             return new IntResult { Id = newPost.Id };
         }
-        Post GetPost(int id) => _context.Posts.Find(id);
+
     }
 
 }

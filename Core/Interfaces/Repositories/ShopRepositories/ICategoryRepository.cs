@@ -5,7 +5,7 @@ namespace Core.Interfaces.Repositories.ShopRepositories
 {
     public interface ICategoryRepository
     {
-        List<ShowCategoryDTO> GetAll();
-        Category CheckIfItexistingAndGet(string categoryName);
+        Task<List<ShowCategoryDTO>> GetAll();
+        Task<Category> CheckIfItexistingAndGet(string categoryName);
     }
 }

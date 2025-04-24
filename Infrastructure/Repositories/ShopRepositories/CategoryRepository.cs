@@ -2,6 +2,7 @@
 using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.ShopRepositories
 {
@@ -12,26 +13,26 @@ namespace Infrastructure.Repositories.ShopRepositories
         {
             _context = context;
         }
-        public Category CheckIfItexistingAndGet(string categoryName)
+        public async Task<Category> CheckIfItexistingAndGet(string categoryName)
         {
-            var category = _context.categories.FirstOrDefault(x => x.Name == categoryName);
+            var category = await _context.categories.FirstOrDefaultAsync(x => x.Name == categoryName);
+
             if (category is null)
             {
                 category = new Category { Name = categoryName };
-                _context.categories.Add(category);
-                _context.SaveChanges();
+                await _context.categories.AddAsync(category);
+                await _context.SaveChangesAsync();
             }
+
             return category;
         }
-        public List<ShowCategoryDTO> GetAll()
+        public async Task<List<ShowCategoryDTO>> GetAll()
         {
-            var result = new List<ShowCategoryDTO>();
-            var categories = _context.categories.ToList();
-            foreach (var category in categories)
+            return await _context.categories.Select(category => new ShowCategoryDTO
             {
-                result.Add(new ShowCategoryDTO { Id = category.Id, Name = category.Name });
-            }
-            return result;
+                Id = category.Id,
+                Name = category.Name
+            }).ToListAsync();
         }
     }
 }
