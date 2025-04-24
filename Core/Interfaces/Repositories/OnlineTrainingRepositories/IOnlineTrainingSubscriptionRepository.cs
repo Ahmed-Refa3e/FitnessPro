@@ -6,5 +6,8 @@ namespace Core.Interfaces.Repositories.OnlineTrainingRepositories
     {
         Task<IReadOnlyList<OnlineTrainingSubscription?>> GetByTraineeIdAsync(string traineeId);
         Task<IReadOnlyList<OnlineTrainingSubscription?>> GetByOnlineTrainingIdAsync(int onlineTrainingId);
+        Task<bool> PaymentIntentExistsAsync(string paymentIntentId);
+        Task<bool> HasActiveSubscriptionAsync(string traineeId, int trainingId);
+
     }
 }

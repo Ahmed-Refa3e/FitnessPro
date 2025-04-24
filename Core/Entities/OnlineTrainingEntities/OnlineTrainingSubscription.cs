@@ -15,5 +15,6 @@ namespace Core.Entities.OnlineTrainingEntities
         [ForeignKey("TraineeID")]
         public Trainee? Trainee { get; set; }
         public bool IsActive { get; set; } 
+        public string? StripePaymentIntentId { get; set; } // Stripe payment intent ID for tracking payments
     }
 }

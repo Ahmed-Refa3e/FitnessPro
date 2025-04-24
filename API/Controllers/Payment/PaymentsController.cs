@@ -7,7 +7,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.Controllers.Payment;
 
-public class PaymentsController(SignInManager<ApplicationUser> signInManager, IOnlineTrainingRepository repo, IConfiguration configuration) : BaseApiController
+public class PaymentsController(
+    SignInManager<ApplicationUser> signInManager,
+    IOnlineTrainingRepository trainingRepo,
+    IOnlineTrainingSubscriptionRepository subscriptionRepo,
+    IConfiguration configuration) : BaseApiController
 {
 
     [HttpPost("create-checkout-session")]
@@ -21,9 +25,14 @@ public class PaymentsController(SignInManager<ApplicationUser> signInManager, IO
         if (user == null)
             return Unauthorized("User not found");
 
-        var onlineTraining = await repo.GetByIdAsync(request.OnlineTrainingId);
+        var onlineTraining = await trainingRepo.GetByIdAsync(request.OnlineTrainingId);
         if (onlineTraining == null)
             return NotFound("Online training not found");
+
+        //Check for existing active subscription
+        var hasActiveSubscription = await subscriptionRepo.HasActiveSubscriptionAsync(user.Id, request.OnlineTrainingId);
+        if (hasActiveSubscription)
+            return BadRequest(new { message = "You already have an active subscription for this training." });
 
         StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
 
@@ -31,32 +40,32 @@ public class PaymentsController(SignInManager<ApplicationUser> signInManager, IO
         {
             PaymentMethodTypes = ["card"],
             LineItems =
-        [
-            new SessionLineItemOptions
-            {
-                PriceData = new SessionLineItemPriceDataOptions
+            [
+                new SessionLineItemOptions
                 {
-                    Currency = "usd",
-                    UnitAmount = (long?)onlineTraining.Price * 100,
-                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    PriceData = new SessionLineItemPriceDataOptions
                     {
-                        Name = onlineTraining.Title ?? "Online Training"
-                    }
-                },
-                Quantity = 1,
-            }
-        ],
+                        Currency = "usd",
+                        UnitAmount = (long?)onlineTraining.Price * 100,
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = onlineTraining.Title ?? "Online Training"
+                        }
+                    },
+                    Quantity = 1,
+                }
+            ],
             Mode = "payment",
             PaymentIntentData = new SessionPaymentIntentDataOptions
             {
                 Metadata = new Dictionary<string, string>
-            {
-                { "traineeId", user.Id },
-                { "onlineTrainingId", request.OnlineTrainingId.ToString() }
-            }
+                {
+                    { "traineeId", user.Id },
+                    { "onlineTrainingId", request.OnlineTrainingId.ToString() }
+                }
             },
-            SuccessUrl = "https://your-frontend.com/success", // TODO: replace with your real success URL
-            CancelUrl = "https://your-frontend.com/cancel"   // TODO: replace with your real cancel URL
+            SuccessUrl = "https://your-frontend.com/success",
+            CancelUrl = "https://your-frontend.com/cancel"
         };
 
         var service = new SessionService();
@@ -71,6 +80,3 @@ public class PaymentsController(SignInManager<ApplicationUser> signInManager, IO
         public int OnlineTrainingId { get; set; }
     }
 }
-
-
-

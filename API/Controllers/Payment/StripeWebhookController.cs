@@ -2,12 +2,14 @@
 using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
+using Stripe.Checkout;
 
 namespace API.Controllers.Payment;
 
 public class StripeWebhookController(
     IConfiguration configuration,
-    ILogger<StripeWebhookController> logger,IOnlineTrainingSubscriptionRepository repo) : BaseApiController
+    ILogger<StripeWebhookController> logger,
+    IOnlineTrainingSubscriptionRepository repo) : BaseApiController
 {
     private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"] ??
         throw new ArgumentNullException("Stripe Webhook Secret not configured.");
@@ -44,11 +46,15 @@ public class StripeWebhookController(
         {
             switch (stripeEvent.Type)
             {
-                case "payment_intent.succeeded":
-                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    if (paymentIntent != null)
+                case "checkout.session.completed":
+                    var session = stripeEvent.Data.Object as Session;
+                    if (session != null)
                     {
-                        logger.LogInformation($"✅ Payment succeeded for ID: {paymentIntent.Id}, Amount: {paymentIntent.Amount / 100.0} {paymentIntent.Currency.ToUpper()}");
+                        logger.LogInformation($"✅ Checkout session completed. PaymentIntent: {session.PaymentIntent}, CustomerEmail: {session.CustomerEmail}");
+
+                        var paymentIntentService = new PaymentIntentService();
+                        var paymentIntent = await paymentIntentService.GetAsync(session.PaymentIntentId);
+
                         await HandleSuccessfulPayment(paymentIntent);
                     }
                     break;
@@ -90,15 +96,31 @@ public class StripeWebhookController(
                 return;
             }
 
+            // Check if already handled
+            bool alreadyExists = await repo.PaymentIntentExistsAsync(paymentIntent.Id);
+            if (alreadyExists)
+            {
+                logger.LogInformation($"ℹ️ PaymentIntent {paymentIntent.Id} already processed.");
+                return;
+            }
+
             var subscription = new OnlineTrainingSubscription
             {
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(30),
                 TraineeID = traineeId,
                 OnlineTrainingId = onlineTrainingId,
-                IsActive = true
+                IsActive = true,
+                StripePaymentIntentId = paymentIntent.Id
             };
 
+            // check if there is already a subscription for this trainee and online training
+            var existingSubscriptions = await repo.GetByOnlineTrainingIdAsync(onlineTrainingId);
+            if (existingSubscriptions != null && existingSubscriptions.Any(s => s.TraineeID == traineeId))
+            {
+                logger.LogWarning($"⚠️ Subscription already exists for Trainee: {traineeId} and OnlineTraining: {onlineTrainingId}");
+                return;
+            }
             repo.Add(subscription);
             await repo.SaveChangesAsync();
 
