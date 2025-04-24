@@ -5,9 +5,14 @@ using Stripe;
 
 namespace API.Controllers.Payment;
 
-public class StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger, IOnlineTrainingSubscriptionRepository Repo) : BaseApiController
+public class StripeWebhookController(
+    IConfiguration configuration,
+    ILogger<StripeWebhookController> logger,
+    IOnlineTrainingSubscriptionRepository repo
+) : BaseApiController
 {
-    private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"] ?? throw new ArgumentNullException("Stripe Webhook Secret not configured.");
+    private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"]
+        ?? throw new ArgumentNullException("Stripe Webhook Secret not configured.");
 
     [HttpPost]
     public async Task<IActionResult> HandleWebhook()
@@ -18,7 +23,7 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
         if (string.IsNullOrEmpty(stripeSignature))
         {
             logger.LogWarning("⚠️ Stripe signature header missing.");
-            return Unauthorized(); // 401 Unauthorized
+            return Unauthorized();
         }
 
         Event stripeEvent;
@@ -29,12 +34,12 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
         catch (StripeException ex)
         {
             logger.LogError($"🚨 Stripe signature verification failed: {ex.Message}");
-            return Unauthorized(); // 401 Unauthorized
+            return Unauthorized();
         }
         catch (Exception ex)
         {
             logger.LogError($"🚨 Unexpected error parsing webhook event: {ex.Message}");
-            return BadRequest(new { error = "Invalid webhook payload" }); // 400 Bad Request
+            return BadRequest(new { error = "Invalid webhook payload" });
         }
 
         try
@@ -73,8 +78,19 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
     {
         try
         {
+            if (!paymentIntent.Metadata.ContainsKey("traineeId") || !paymentIntent.Metadata.ContainsKey("onlineTrainingId"))
+            {
+                logger.LogWarning("❗ Missing metadata in payment intent.");
+                return;
+            }
+
             var traineeId = paymentIntent.Metadata["traineeId"];
-            var onlineTrainingId = int.Parse(paymentIntent.Metadata["onlineTrainingId"]);
+
+            if (!int.TryParse(paymentIntent.Metadata["onlineTrainingId"], out var onlineTrainingId))
+            {
+                logger.LogWarning("❗ Invalid onlineTrainingId in metadata.");
+                return;
+            }
 
             var subscription = new OnlineTrainingSubscription
             {
@@ -85,11 +101,10 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
                 IsActive = true
             };
 
-            Repo.Add(subscription);
-            await Repo.SaveChangesAsync();
+            repo.Add(subscription);
+            await repo.SaveChangesAsync();
 
-            //logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
-            logger.LogInformation($"✅ OnlineTrainingSubscription created");
+            logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
         }
         catch (Exception ex)
         {
@@ -97,5 +112,4 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
             throw;
         }
     }
-
 }
