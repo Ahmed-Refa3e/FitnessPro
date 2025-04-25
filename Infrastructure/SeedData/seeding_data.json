@@ -8,7 +8,8 @@
       "Gender": "Male",
       "Bio": "Passionate fitness coach with 10 years of experience in strength training.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/NFiHhyq.jpeg"
     },
     {
       "FirstName": "Mohamed",
@@ -18,7 +19,8 @@
       "Gender": "Male",
       "Bio": "Certified personal trainer specializing in weight loss and muscle gain.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/gqd1Bvw.jpeg"
     },
     {
       "FirstName": "Omar",
@@ -28,7 +30,8 @@
       "Gender": "Male",
       "Bio": "Former professional athlete turned fitness coach.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/4birKrT.jpeg"
     },
     {
       "FirstName": "Khaled",
@@ -38,7 +41,8 @@
       "Gender": "Male",
       "Bio": "Expert in high-intensity interval training and bodyweight exercises.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/ItWSG7w.jpeg"
     },
     {
       "FirstName": "Youssef",
@@ -48,7 +52,8 @@
       "Gender": "Male",
       "Bio": "Dedicated to helping clients achieve their fitness goals through personalized training.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/gm0ySIO.jpeg"
     },
     {
       "FirstName": "Hassan",
@@ -58,7 +63,8 @@
       "Gender": "Male",
       "Bio": "Lover of outdoor workouts and functional movement techniques.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/5BHpYjy.jpeg"
     },
     {
       "FirstName": "Mahmoud",
@@ -68,7 +74,8 @@
       "Gender": "Male",
       "Bio": "Believes in a holistic approach to health and wellness.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/vw1qmo7.jpeg"
     },
     {
       "FirstName": "Ali",
@@ -78,7 +85,8 @@
       "Gender": "Male",
       "Bio": "Specialist in injury prevention and rehabilitation exercises.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/qykPEvv.jpeg"
     },
     {
       "FirstName": "Mostafa",
@@ -88,7 +96,8 @@
       "Gender": "Male",
       "Bio": "Focuses on building endurance and cardiovascular strength.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/EVcKwph.jpeg"
     },
     {
       "FirstName": "Sherif",
@@ -98,7 +107,8 @@
       "Gender": "Male",
       "Bio": "Combining science-based training with motivational coaching.",
       "DateOfBirth": "1985-07-15",
-      "JoinedDate": "2023-01-10"
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/klVTy3C.jpeg"
     }
   ],
   "Trainees": [
@@ -213,7 +223,10 @@
       "MonthlyPrice": 500,
       "YearlyPrice": 5000,
       "PhoneNumber": "01000123456",
-      "Description": "Cairo Fit Club is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Cairo Fit Club is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 250,
+      "SessionPrice": 41,
+      "ProfilePictureUrl": "https://i.imgur.com/ExUMVQY.jpeg"
     },
     {
       "CoachEmail": "mohamedsalah@example.com",
@@ -224,7 +237,10 @@
       "MonthlyPrice": 550,
       "YearlyPrice": 5500,
       "PhoneNumber": "01001123456",
-      "Description": "Alex Muscle Zone is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Alex Muscle Zone is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 275,
+      "SessionPrice": 45,
+      "ProfilePictureUrl": "https://i.imgur.com/nSZhq8W.jpeg"
     },
     {
       "CoachEmail": "omarsamir@example.com",
@@ -235,7 +251,10 @@
       "MonthlyPrice": 600,
       "YearlyPrice": 6000,
       "PhoneNumber": "01002123456",
-      "Description": "Giza Power Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Giza Power Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 300,
+      "SessionPrice": 50,
+      "ProfilePictureUrl": "https://i.imgur.com/TwWHNk1.jpeg"
     },
     {
       "CoachEmail": "khaledmostafa@example.com",
@@ -246,7 +265,10 @@
       "MonthlyPrice": 650,
       "YearlyPrice": 6500,
       "PhoneNumber": "01003123456",
-      "Description": "Elite Fitness Hurghada is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Elite Fitness Hurghada is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 325,
+      "SessionPrice": 54,
+      "ProfilePictureUrl": "https://i.imgur.com/xFI4Ohl.jpeg"
     },
     {
       "CoachEmail": "youssefadel@example.com",
@@ -257,7 +279,10 @@
       "MonthlyPrice": 700,
       "YearlyPrice": 7000,
       "PhoneNumber": "01004123456",
-      "Description": "Sharm Strong Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Sharm Strong Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 350,
+      "SessionPrice": 58,
+      "ProfilePictureUrl": "https://i.imgur.com/2UWh313.jpeg"
     },
     {
       "CoachEmail": "hassanibrahim@example.com",
@@ -268,7 +293,10 @@
       "MonthlyPrice": 750,
       "YearlyPrice": 7500,
       "PhoneNumber": "01005123456",
-      "Description": "Port Said Athletes is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Port Said Athletes is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 375,
+      "SessionPrice": 62,
+      "ProfilePictureUrl": "https://i.imgur.com/3BLFSsY.jpeg"
     },
     {
       "CoachEmail": "mahmoudtarek@example.com",
@@ -279,7 +307,10 @@
       "MonthlyPrice": 800,
       "YearlyPrice": 8000,
       "PhoneNumber": "01006123456",
-      "Description": "Mansoura Flex Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Mansoura Flex Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 400,
+      "SessionPrice": 66,
+      "ProfilePictureUrl": "https://i.imgur.com/sDBDY6S.jpeg"
     },
     {
       "CoachEmail": "alisaeed@example.com",
@@ -290,7 +321,10 @@
       "MonthlyPrice": 850,
       "YearlyPrice": 8500,
       "PhoneNumber": "01007123456",
-      "Description": "Luxor Fit Center is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Luxor Fit Center is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 425,
+      "SessionPrice": 70,
+      "ProfilePictureUrl": "https://i.imgur.com/AgAflH9.jpeg"
     },
     {
       "CoachEmail": "mostafanabil@example.com",
@@ -301,7 +335,10 @@
       "MonthlyPrice": 900,
       "YearlyPrice": 9000,
       "PhoneNumber": "01008123456",
-      "Description": "Aswan Iron House is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Aswan Iron House is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 450,
+      "SessionPrice": 75,
+      "ProfilePictureUrl": "https://i.imgur.com/5QQwGxO.jpeg"
     },
     {
       "CoachEmail": "sherifgamal@example.com",
@@ -312,7 +349,10 @@
       "MonthlyPrice": 950,
       "YearlyPrice": 9500,
       "PhoneNumber": "01009123456",
-      "Description": "Tanta Pro Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers."
+      "Description": "Tanta Pro Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 475,
+      "SessionPrice": 79,
+      "ProfilePictureUrl": "https://i.imgur.com/mn7bVmU.jpeg"
     }
   ],
   "OnlineTrainings": [
