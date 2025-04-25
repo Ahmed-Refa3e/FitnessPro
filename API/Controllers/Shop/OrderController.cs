@@ -1,7 +1,9 @@
-﻿using Core.DTOs.ShopDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.ShopDTO;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Extensions;
 using System.Security.Claims;
 
 namespace API.Controllers.Shop
@@ -17,84 +19,95 @@ namespace API.Controllers.Shop
         }
         [HttpGet("Order")]
         [Authorize]
-        public ActionResult GetOrder(int id)
+        public async Task<ActionResult> GetOrder(int id)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderRepository.GetOrder(id, userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result =await _orderRepository.GetOrder(id, userId);
             if (result is null)
             {
-                return BadRequest("No Order has this id");
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Order has this id" });
             }
-            return Ok(result);
+            return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
         [HttpGet("UserOrders")]
         [Authorize]
-        public ActionResult GetOrdersForUser()
+        public async Task<ActionResult> GetOrdersForUser()
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderRepository.GetOrdersForUser(userId);
-            return Ok(result);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderRepository.GetOrdersForUser(userId);
+            return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
         [HttpGet("ShopOrders")]
         [Authorize(Roles = "Coach")]
-        public ActionResult GetOrdersForShop(int shopId)
+        public async Task<ActionResult> GetOrdersForShop(int shopId)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderRepository.GetOrdersForShop(shopId,userId);
-            return Ok(result);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderRepository.GetOrdersForShop(shopId,userId);
+            return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
         [HttpPost]
         [Authorize]
-        public ActionResult AddOrder(AddOrderDTO order)
+        public async Task<ActionResult> AddOrder(AddOrderDTO order)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderRepository.Add(order, userId);
+            if (result.Id == 0)
             {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var result = _orderRepository.Add(order,userId);
-                if (result.Id == 0)
-                {
-                    return BadRequest(result.Massage);
-                }
-                var url = Url.Action(nameof(GetOrder), new { id = result.Id, userId = userId });
-                return Created(url, _orderRepository.GetOrder(result.Id,userId));
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
             }
-            return BadRequest(ModelState);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
         }
-        [HttpPut("makeItReseaved")]
+        [HttpPut("MarkOrderReceived")]
         [Authorize(Roles = "Coach")]
-        public ActionResult MakeOrderReseaved(int orderId)
+        public async Task<ActionResult> MarkOrderReceived(int orderId)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderRepository.MakeItReseved(orderId,userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderRepository.MakeItReseved(orderId, userId);
             if (result.Id == 0)
             {
-                return BadRequest(result.Massage);
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
             }
-            return StatusCode(StatusCodes.Status204NoContent);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
         }
-        [HttpPut("makeItPaymented")]
+        [HttpPut("MakeOrderPaymented")]
         [Authorize]
-        public ActionResult makeItPaymented(int orderId)
+        public async Task<ActionResult> MakeOrderPaymented(int orderId)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderRepository.MakeItPaymented(orderId, userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderRepository.MakeItPaymented(orderId, userId);
             if (result.Id == 0)
             {
-                return BadRequest(result.Massage);
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
             }
-            return StatusCode(StatusCodes.Status204NoContent);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
         }
         [HttpDelete]
         [Authorize]
-        public ActionResult DeleteOrder(int orderId)
+        public async Task<ActionResult> DeleteOrder(int orderId)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = _orderRepository.Delete(orderId, userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _orderRepository.Delete(orderId, userId);
             if (result.Id == 0)
             {
-                return BadRequest(result.Massage);
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
             }
-            return StatusCode(StatusCodes.Status204NoContent);
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
         }
     }
 }

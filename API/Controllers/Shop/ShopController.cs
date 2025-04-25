@@ -27,12 +27,28 @@ namespace API.Controllers.Shop
             }
             return Ok(new Generalresponse { IsSuccess = true, Data = shop });
         }
+        [HttpGet("ShopsOfOwner")]
+        [Authorize(Roles = "Coach")]
+        public async Task<ActionResult> GetCoachShops()
+        {
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var shop = await _repository.GetShopsOfOwner(userId);
+            if (shop == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No shop found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = shop });
+        }
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Coach")]
         public async Task<ActionResult> Delete(int id)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = await _repository.DeleteAsync(id, userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _repository.Delete(userId,id);
             if (result.Id == 0)
             {
                 return NotFound(new Generalresponse { IsSuccess = false, Data = result.Massage });

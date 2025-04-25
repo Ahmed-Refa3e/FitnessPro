@@ -61,24 +61,24 @@ builder.Services.AddSwaggerGen(swagger =>
         Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"",
     });
     swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                    new OpenApiSecurityScheme
-                    {
-                    Reference = new OpenApiReference
-                    {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                    }
-                    },
-                    new string[] {}
-                    }
-                    });
-});
+    {
+         {
+         new OpenApiSecurityScheme
+            {
+        Reference = new OpenApiReference
+            {
+        Type = ReferenceType.SecurityScheme,
+        Id = "Bearer"
+            }
+            },
+        new string[] {}
+         }
+    });
+    });
 
 builder.Services.AddDbContext<FitnessContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("LocalConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("RemoteConnection"));
 });
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -165,6 +165,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+app.UseCors("AllowAllOrigins");
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -179,7 +180,6 @@ app.MapHub<ChatHub>("/ChatHub");
 
 app.MapControllers();
 
-app.UseCors("AllowAllOrigins");
 
 
 //Apply any pending migrations

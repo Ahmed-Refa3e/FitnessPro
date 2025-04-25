@@ -1,64 +1,218 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.PostDTO;
 using Core.Entities.PostEntities;
+using Core.Entities.ShopEntities;
 using Core.Enums;
 using Core.Interfaces.Repositories.PostRepositories;
 using Humanizer;
 using Infrastructure.Data;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.IdentityModel.Tokens;
+using System.Linq;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
     public class PostRepository : IPostRepository
     {
         private readonly FitnessContext _context;
-        protected readonly string _storagePath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedImagesForPosts");
-
         public PostRepository(FitnessContext context)
         {
             _context = context;
         }
-        public IntResult DeletePost(int id, string userId)
+        public async Task<List<ShowExternalFormOfShopPostDTO>> GetPostsOfShop(int shopId)
         {
-            var post = _context.Posts
+            if(await _context.Shops.FindAsync(shopId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.ShopPosts.Where(x => x.ShopId == shopId)
+                .Select(p => new ShowExternalFormOfShopPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Shop.PictureUrl ?? "",
+                    Name = p.Shop.Name,
+                    ShopId = p.ShopId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            foreach(var post in posts)
+            {
+                post.CreatedAt= DateHumanizeExtensions.Humanize((DateTime)post.CreatedAt);
+            }
+            return posts;
+        }
+        public async Task<List<ShowExternalFormOfGymPostDTO>> GetPostsOfGym(int gymId)
+        {
+            if (await _context.Gyms.FindAsync(gymId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.GymPosts.Where(x => x.GymId == gymId)
+                .Select(p => new ShowExternalFormOfGymPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Gym.PictureUrl ?? "",
+                    Name = p.Gym.GymName,
+                    GymId = p.GymId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            foreach (var post in posts)
+            {
+                post.CreatedAt = DateHumanizeExtensions.Humanize((DateTime)post.CreatedAt);
+            }
+            return posts;
+        }
+        public async Task<List<ShowExternalFormOfCoachPostDTO>> GetPostsOfCoach(string coachId)
+        {
+            if (await _context.Users.FindAsync(coachId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.CoachPosts.Where(x => x.CoachId == coachId)
+                .Select(p => new ShowExternalFormOfCoachPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Coach.ProfilePictureUrl ?? "",
+                    Name = $"{p.Coach.FirstName} {p.Coach.LastName}",
+                    CoachId = p.CoachId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            foreach (var post in posts)
+            {
+                post.CreatedAt = DateHumanizeExtensions.Humanize((DateTime)post.CreatedAt);
+            }
+            return posts;
+        }
+        public async Task<List<ShowGeneralFormOfPostDTO>> GetPostsForUserFromFollowers(string userId)
+        {
+            if (await _context.Users.FindAsync(userId) is null)
+            {
+                return null;
+            }
+
+            var gymIds = await _context.gymFollows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.GymId)
+                .ToListAsync();
+
+            var shopIds = await _context.ShopFollows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.ShopId)
+                .ToListAsync();
+
+            var followedUserIds = await _context.userFollows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.FollowingId)
+                .ToListAsync();
+
+            var coachPosts = await (
+                                    from post in _context.CoachPosts
+                                    join follow in _context.userFollows on post.CoachId equals follow.FollowingId
+                                    where follow.FollowerId == userId
+                                    select new ShowGeneralFormOfPostDTO
+                                    {
+                                        Id = post.Id,
+                                        Content = post.Content,
+                                        CreatedAt = post.CreatedAt,
+                                        PhotoPass = post.Coach.ProfilePictureUrl ?? "",
+                                        Name = post.Coach.FirstName + " " + post.Coach.LastName,
+                                        SourceId = post.CoachId,
+                                        PictureUrls = post.PictureUrls.Select(x => x.Url).ToList(),
+                                        SourceType = PageType.COACH
+                                    }
+                                    ).ToListAsync();
+
+            var gymPosts = await (
+                                from post in _context.GymPosts
+                                join follow in _context.gymFollows on post.GymId equals follow.GymId
+                                where follow.FollowerId == userId
+                                select new ShowGeneralFormOfPostDTO
+                                {
+                                    Id = post.Id,
+                                    Content = post.Content,
+                                    CreatedAt = post.CreatedAt,
+                                    PhotoPass = post.Gym.PictureUrl ?? "",
+                                    Name = post.Gym.GymName,
+                                    SourceId = post.GymId,
+                                    PictureUrls = post.PictureUrls.Select(x => x.Url).ToList(),
+                                    SourceType = PageType.GYM
+                                }
+                                ).ToListAsync();
+
+            var shopPosts = await (
+                                    from post in _context.ShopPosts
+                                    join follow in _context.ShopFollows on post.ShopId equals follow.ShopId
+                                    where follow.FollowerId == userId
+                                    select new ShowGeneralFormOfPostDTO
+                                    {
+                                        Id = post.Id,
+                                        Content = post.Content,
+                                        CreatedAt = post.CreatedAt,
+                                        PhotoPass = post.Shop.PictureUrl ?? "",
+                                        Name = post.Shop.Name,
+                                        SourceId = post.ShopId,
+                                        PictureUrls = post.PictureUrls.Select(x => x.Url).ToList(),
+                                        SourceType = PageType.SHOP
+                                    }
+                                    ).ToListAsync();
+
+            var allPosts = coachPosts
+                .Concat(gymPosts)
+                .Concat(shopPosts)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(50)
+                .ToList();
+
+            foreach( var post in allPosts)
+            {
+                post.CreatedAt = DateHumanizeExtensions.Humanize(post.CreatedAt);
+                post.LikesDetails = await this.LikesDetailsOnPost(post.Id);
+            }
+
+            return allPosts;
+        }
+        public async Task<IntResult> DeletePost(int id, string userId)
+        {
+            var post = await _context.Posts
                     .Include(x => x.PictureUrls)
                     .Include(x => x.Likes)
                     .Include(x => x.Comments).ThenInclude(x => x.Comments)
-                    .FirstOrDefault(x => x.Id == id);
+                    .FirstOrDefaultAsync(x => x.Id == id);
             if (post is null)
                 return new IntResult { Massage = "No post has this Id" };
-            if (!IsUserIsThePostOwner(post, userId))
+            if (!await IsUserIsThePostOwner(post, userId))
                 return new IntResult { Massage = "You are not the Owner of this page to delete" };
-            var uploadedFilePaths = post.PictureUrls?.Select(x => x.Url).ToList() ?? new List<string>();
-            var backupDirectory = Path.Combine(_storagePath, "Backup");
-            using var transaction = _context.Database.BeginTransaction();
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                Directory.CreateDirectory(backupDirectory);
-                var backupFiles = BackupFiles(uploadedFilePaths, backupDirectory);
                 _context.likes.RemoveRange(post.Likes);
                 foreach (var comment in post.Comments)
                 {
                     DeleteOneComment(comment);
                 }
                 _context.Posts.Remove(post);
-                _context.SaveChanges();
-                DeleteFiles(backupFiles);
-                transaction.Commit();
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return new IntResult { Id = 1 };
             }
             catch (Exception ex)
             {
-                RestoreBackupFiles(backupDirectory);
                 return new IntResult { Massage = ex.Message };
             }
         }
-        public IntResult AddCommentOnPost(AddCommentDTO commentDTO, string userId)
+        public async Task<IntResult> AddCommentOnPost(AddCommentDTO commentDTO, string userId)
         {
-            var post = FindPost(commentDTO.OwnerId);
+            var post = await FindPost(commentDTO.OwnerId);
             if (post is null)
             {
                 return new IntResult { Massage = "No post has tis Id." };
@@ -67,7 +221,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             post.Comments.Add(comment);
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -75,40 +229,40 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = comment.Id };
         }
-        public IntResult DeleteComment(int commentId,string userId)
+        public async Task<IntResult> DeleteComment(int commentId, string userId)
         {
-            var comment = _context.comments.Find(commentId);
+            var comment = await _context.comments.FindAsync(commentId);
             if (comment is null)
             {
                 return new IntResult { Massage = "No comment has this Id" };
             }
-            if (!IsUserAllowToDeleteComment(comment,userId))
+            if (!await IsUserAllowToDeleteComment(comment, userId))
             {
                 return new IntResult { Massage = "You do not allow to delete this comment." };
             }
-            using (var transaction = _context.Database.BeginTransaction())
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                try
-                {
-                    DeleteOneComment(comment);
-                    _context.SaveChanges();
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    return new IntResult { Massage = ex.Message };
-                }
+                await DeleteOneComment(comment);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
+            catch (Exception ex)
+            {
+                return new IntResult { Massage = ex.Message };
+            }
+
             return new IntResult { Id = comment.Id };
         }
-        public IntResult AddLikeOnPost(AddLikeDTO likeDTO,string userId)
+        public async Task<IntResult> AddLikeOnPost(AddLikeDTO likeDTO, string userId)
         {
-            var post = FindPost(likeDTO.OwnerId);
+            var post = await FindPost(likeDTO.OwnerId);
             if (post is null)
             {
                 return new IntResult { Massage = "No post has this Id." };
             }
-            var like = SearchWithUserIdAndPostId(userId, likeDTO.OwnerId);
+            var like = await SearchWithUserIdAndPostId(userId, likeDTO.OwnerId);
             if (like is not null)
             {
                 like.Type = CheckStringAndReturnLikeType(likeDTO.Type);
@@ -125,7 +279,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -133,9 +287,9 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = like.Id };
         }
-        public IntResult DeleteLikeFromPost(string userId, int postId)
+        public async Task<IntResult> DeleteLikeFromPost(string userId, int postId)
         {
-            var like = SearchWithUserIdAndPostId(userId, postId);
+            var like = await SearchWithUserIdAndPostId(userId, postId);
             if (like is null)
             {
                 return new IntResult { Massage = "you do not like this post yet to delete like" };
@@ -143,7 +297,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             _context.postLikes.Remove(like);
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -151,19 +305,19 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = 1 };
         }
-        public ShowLikeDTO GetLike(int id)
+        public async Task<ShowLikeDTO> GetLike(int id)
         {
-            var like = _context.postLikes.Where(x => x.Id == id).Select(x => new ShowLikeDTO
+            var like = await _context.postLikes.Where(x => x.Id == id).Select(x => new ShowLikeDTO
             {
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL",
                 UserName = x.User.FirstName + " " + x.User.LastName
-            }).FirstOrDefault();
+            }).FirstOrDefaultAsync();
             return like;
         }
-        public ShowMainCommentDTO GetComment(int id)
+        public async Task<ShowMainCommentDTO> GetComment(int id)
         {
-            var comment = _context.postComments.Where(x => x.Id == id).Select(x => new ShowMainCommentDTO
+            var comment = await _context.postComments.Where(x => x.Id == id).Select(x => new ShowMainCommentDTO
             {
                 Id = x.Id,
                 Date = x.Created,
@@ -179,12 +333,12 @@ namespace Infrastructure.Repositories.PostRepositoy
                     UserName = $"{c.User.FirstName} {c.User.LastName}",
                     HaveComments = c.Comments.Any()
                 }).ToList()
-            }).ToList().FirstOrDefault();
+            }).FirstOrDefaultAsync();
             if (comment is null)
             {
                 return null;
             }
-            comment.LikesDetails = LikesDetailsOnComment(id);
+            comment.LikesDetails = await LikesDetailsOnComment(id);
             comment.Date = DateHumanizeExtensions.Humanize((DateTime)comment.Date);
             foreach (var cmnt in comment.Comments)
             {
@@ -192,18 +346,18 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return comment;
         }
-        public List<ShowLikeDTO> GetLikeListOnPost(int id)
+        public async Task<List<ShowLikeDTO>> GetLikeListOnPost(int id)
         {
-            if (_context.Posts.Find(id) is null)
+            if (await _context.Posts.FindAsync(id) is null)
             {
                 return null;
             }
-            List<ShowLikeDTO> showLikes = _context.postLikes.Where(x => x.PostId == id).Select(x => new ShowLikeDTO
+            List<ShowLikeDTO> showLikes = await _context.postLikes.Where(x => x.PostId == id).Select(x => new ShowLikeDTO
             {
                 UserName = x.User.FirstName + " " + x.User.LastName,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
-            }).ToList();
+            }).ToListAsync();
             return showLikes;
         }
         string CheckLikeTypeAndReturnString(LikeType type)
@@ -215,20 +369,20 @@ namespace Infrastructure.Repositories.PostRepositoy
             return (type == "CARE") ? LikeType.Care : (type == "LOVE") ? LikeType.Love : LikeType.Normal;
         }
         //Get Post Detais
-        public ShowPostDTO GetPost(int id)
+        public async Task<ShowPostDTO> GetPost(int id)
         {
-            var post = FindPost(id);
+            var post = await FindPost(id);
             if (post is null) return null;
 
             ShowPostDTO newPost = post switch
             {
-                CoachPost => GetCoachPostDTO(id),
-                GymPost => GetGymPostDTO(id),
-                ShopPost => GetShopPostDTO(id),
+                CoachPost => await GetCoachPostDTO(id),
+                GymPost => await GetGymPostDTO(id),
+                ShopPost => await GetShopPostDTO(id),
                 _ => null
             };
             if (newPost is null) return null;
-            newPost.LikesDetails = LikesDetailsOnPost(id);
+            newPost.LikesDetails = await LikesDetailsOnPost(id);
             newPost.CreatedAt = DateHumanizeExtensions.Humanize((DateTime)newPost.CreatedAt);
             foreach (var comment in newPost.Comments)
             {
@@ -240,16 +394,16 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return newPost;
         }
-        
+
         //comment
-        public IntResult AddLikeOnComment(AddLikeDTO likeDTO,string userId)
+        public async Task<IntResult> AddLikeOnComment(AddLikeDTO likeDTO, string userId)
         {
-            var comment = _context.comments.Find(likeDTO.OwnerId);
+            var comment = await _context.comments.FindAsync(likeDTO.OwnerId);
             if (comment is null)
             {
                 return new IntResult { Massage = "No comment has this Id." };
             }
-            var like = SearchWithUserIdAndCommentId(userId, likeDTO.OwnerId);
+            var like = await SearchWithUserIdAndCommentId(userId, likeDTO.OwnerId);
             if (like is not null)
             {
                 like.Type = CheckStringAndReturnLikeType(likeDTO.Type);
@@ -266,7 +420,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -274,9 +428,9 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = like.Id };
         }
-        public IntResult DeleteLikeFromComment(string userId, int commentId)
+        public async Task<IntResult> DeleteLikeFromComment(string userId, int commentId)
         {
-            var like = SearchWithUserIdAndCommentId(userId, commentId);
+            var like = await SearchWithUserIdAndCommentId(userId, commentId);
             if (like is null)
             {
                 return new IntResult { Massage = "you do not like this comment yet to delete like" };
@@ -284,7 +438,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             _context.commentLikes.Remove(like);
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -292,9 +446,9 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = 1 };
         }
-        public IntResult AddCommentOnComment(AddCommentDTO commentDTO,string userId)
+        public async Task<IntResult> AddCommentOnComment(AddCommentDTO commentDTO, string userId)
         {
-            var oldComment = _context.comments.Find(commentDTO.OwnerId);
+            var oldComment = await _context.comments.FindAsync(commentDTO.OwnerId);
             if (oldComment is null)
             {
                 return new IntResult { Massage = "No comment has tis Id." };
@@ -303,7 +457,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             oldComment.Comments.Add(comment);
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -311,46 +465,51 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return new IntResult { Id = comment.Id };
         }
-        public List<ShowLikeDTO> GetLikeListOnComment(int id)
+        public async Task<List<ShowLikeDTO>> GetLikeListOnComment(int id)
         {
-            if (_context.comments.Find(id) is null)
+            if (await _context.comments.FindAsync(id) is null)
             {
                 return null;
             }
-            List<ShowLikeDTO> showLikes = _context.commentLikes.Where(x => x.CommentId == id).Select(x => new ShowLikeDTO
+            List<ShowLikeDTO> showLikes = await _context.commentLikes.Where(x => x.CommentId == id).Select(x => new ShowLikeDTO
             {
                 UserName = x.User.FirstName + " " + x.User.LastName,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
-            }).ToList();
+            }).ToListAsync();
             return showLikes;
         }
         //private method that work for more than method
-        private Post FindPost(int id) => _context.Posts.Find(id);
-        private void DeleteOneComment(Comment comment)
+        private async Task<Post> FindPost(int id) => await _context.Posts.FindAsync(id);
+        private async Task DeleteOneComment(Comment comment)
         {
-            comment = _context.comments.Include(x => x.Comments).Include(x => x.Likes).Where(x => x.Id == comment.Id).FirstOrDefault();
+            comment = await _context.comments
+                .Include(x => x.Comments)
+                .Include(x => x.Likes)
+                .FirstOrDefaultAsync(x => x.Id == comment.Id);
+
             foreach (var like in comment.Likes)
-            {
                 _context.likes.Remove(like);
-            }
+
             foreach (var comnt in comment.Comments)
-            {
-                DeleteOneComment(comnt);
-            }
+                await DeleteOneComment(comnt);
+
             _context.comments.Remove(comment);
         }
-        PostLike SearchWithUserIdAndPostId(string userId, int postId)
+
+        private async Task<PostLike> SearchWithUserIdAndPostId(string userId, int postId)
         {
-            return _context.postLikes.Where(x => x.UserId == userId && x.PostId == postId).FirstOrDefault();
+            return await _context.postLikes
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.PostId == postId);
         }
-        CommentLike SearchWithUserIdAndCommentId(string userId, int commentId)
+
+        async Task<CommentLike> SearchWithUserIdAndCommentId(string userId, int commentId)
         {
-            return _context.commentLikes.Where(x => x.UserId == userId && x.CommentId == commentId).FirstOrDefault();
+            return await _context.commentLikes.FirstOrDefaultAsync(x => x.UserId == userId && x.CommentId == commentId);
         }
-        private ShowCoachPostDTO GetCoachPostDTO(int id)
+        private async Task<ShowCoachPostDTO> GetCoachPostDTO(int id)
         {
-            return _context.CoachPosts
+            return await _context.CoachPosts
                 .Select(p => new ShowCoachPostDTO
                 {
                     Id = p.Id,
@@ -378,12 +537,11 @@ namespace Infrastructure.Repositories.PostRepositoy
                         }).ToList()
                     }).ToList()
                 })
-                .Where(p => p.Id == id)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
-        private ShowGymPostDTO GetGymPostDTO(int id)
+        private async Task<ShowGymPostDTO> GetGymPostDTO(int id)
         {
-            return _context.GymPosts
+            return await _context.GymPosts
                 .Select(p => new ShowGymPostDTO
                 {
                     Id = p.Id,
@@ -411,12 +569,11 @@ namespace Infrastructure.Repositories.PostRepositoy
                         }).ToList()
                     }).ToList()
                 })
-                .Where(p => p.Id == id)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
-        private ShowShopPostDTO GetShopPostDTO(int id)
+        private async Task<ShowShopPostDTO> GetShopPostDTO(int id)
         {
-            return _context.ShopPosts
+            return await _context.ShopPosts
                 .Select(p => new ShowShopPostDTO
                 {
                     Id = p.Id,
@@ -443,13 +600,12 @@ namespace Infrastructure.Repositories.PostRepositoy
                             HaveComments = x.Comments.Any()
                         }).ToList()
                     }).ToList()
-                }).Where(p => p.Id == id)
-                .FirstOrDefault();
+                }).FirstOrDefaultAsync(p => p.Id == id);
         }
-        private LikesDetailsDTO LikesDetailsOnComment(int id)
+        private async Task<LikesDetailsDTO> LikesDetailsOnComment(int id)
         {
-            var result = _context.commentLikes
-                .Where(x => x.CommentId == id).ToList();
+            var result = await _context.commentLikes
+                .Where(x => x.CommentId == id).ToListAsync();
             var dic = result
                 .GroupBy(x => x.Type)
                 .OrderByDescending(g => g.Count())
@@ -465,83 +621,58 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return returnedResult;
         }
-        private List<string> BackupFiles(List<string> paths, string backupDir)
-        {
-            var backupFiles = new List<string>();
-            foreach (var path in paths)
-            {
-                if (File.Exists(path))
-                {
-                    var backupPath = Path.Combine(backupDir, Path.GetFileName(path));
-                    File.Move(path, backupPath);
-                    backupFiles.Add(backupPath);
-                }
-            }
-            return backupFiles;
-        }
-        private void DeleteFiles(List<string> paths)
-        {
-            foreach (var path in paths)
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-            }
-        }
-        private void RestoreBackupFiles(string backupDir)
-        {
-            foreach (var backupPath in Directory.GetFiles(backupDir))
-            {
-                var originalPath = Path.Combine(_storagePath, Path.GetFileName(backupPath));
-                File.Move(backupPath, originalPath);
-            }
-        }
-        private bool IsUserAllowToDeleteComment(Comment comment, string userId)
+        private async Task<bool> IsUserAllowToDeleteComment(Comment comment, string userId)
         {
             if (comment is CommentComment)
             {
-                var commentComment = _context.commentComments.Include(x => x.Comment).FirstOrDefault(x => x.Id == comment.Id);
-                if (commentComment.UserId != userId && commentComment.Comment.UserId != userId)
-                    return false;
-                return true;
+                var commentComment = await _context.commentComments
+                    .Include(x => x.Comment)
+                    .FirstOrDefaultAsync(x => x.Id == comment.Id);
+
+                return commentComment.UserId == userId || commentComment.Comment.UserId == userId;
             }
+
             if (comment is PostComment)
             {
-                var postComment = _context.postComments.Include(x => x.Post).FirstOrDefault(x => x.Id == comment.Id);
-                if (postComment.UserId != userId && !IsUserIsThePostOwner(postComment.Post, userId))
-                    return false;
-                return true;
+                var postComment = await _context.postComments
+                    .Include(x => x.Post)
+                    .FirstOrDefaultAsync(x => x.Id == comment.Id);
+
+                return postComment.UserId == userId || await IsUserIsThePostOwner(postComment.Post, userId);
             }
+
             return false;
         }
-        private bool IsUserIsThePostOwner(Post post, string userId)
+
+        private async Task<bool> IsUserIsThePostOwner(Post post, string userId)
         {
             if (post is CoachPost)
             {
-                var coachPost = _context.CoachPosts.FirstOrDefault(x => x.Id == post.Id);
+                var coachPost = await _context.CoachPosts.FirstOrDefaultAsync(x => x.Id == post.Id);
                 if (coachPost?.CoachId != userId)
                     return false;
                 return true;
             }
             if (post is GymPost)
             {
-                var gymPost = _context.GymPosts.Include(x => x.Gym).FirstOrDefault(x => x.Id == post.Id);
+                var gymPost = await _context.GymPosts.Include(x => x.Gym).FirstOrDefaultAsync(x => x.Id == post.Id);
                 if (gymPost?.Gym.CoachID != userId)
                     return false;
                 return true;
             }
             if (post is ShopPost)
             {
-                var shopPost = _context.ShopPosts.Include(x => x.Shop).FirstOrDefault(x => x.Id == post.Id);
+                var shopPost = await _context.ShopPosts.Include(x => x.Shop).FirstOrDefaultAsync(x => x.Id == post.Id);
                 if (shopPost?.Shop.OwnerID != userId)
                     return false;
                 return true;
             }
             return false;
         }
-        private LikesDetailsDTO LikesDetailsOnPost(int id)
+        private async Task<LikesDetailsDTO> LikesDetailsOnPost(int id)
         {
-            var result = _context.postLikes
-                .Where(x => x.PostId == id).ToList();
+            var result = await _context.postLikes
+                .Where(x => x.PostId == id).ToListAsync();
             var dic = result
                 .GroupBy(x => x.Type)
                 .OrderByDescending(g => g.Count())

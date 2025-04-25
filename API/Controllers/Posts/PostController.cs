@@ -1,8 +1,12 @@
-﻿using Core.DTOs.PostDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.PostDTO;
+using Core.Entities.PostEntities;
+using Core.Entities.ShopEntities;
 using Core.Interfaces.Factories;
 using Core.Interfaces.Repositories.PostRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services.Extensions;
 using System.Security.Claims;
 
 namespace API.Controllers.Posts
@@ -18,208 +22,230 @@ namespace API.Controllers.Posts
             _postRepository = postRepository;
             _factoryRepository = factoryRepository;
         }
+
         [HttpPost("AddCoachPost")]
         [Authorize(Roles = "Coach")]
-        public async Task<IActionResult> AddCoachPost(AddPostDTO postDto)
-        {
-            if (ModelState.IsValid)
-            {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var repository = _factoryRepository.CreateRepository("COACH");
-                var result = await repository.Add(postDto, userId);
-                if (result.Id == 0)
-                {
-                    return BadRequest(result.Massage);
-                }
-                return Created("", _postRepository.GetPost(result.Id));
-            }
-            return BadRequest(ModelState);
-        }
+        public async Task<IActionResult> AddCoachPost(AddPostDTO dto) =>await AddPost(dto, "COACH");
+
         [HttpPost("AddGymPost")]
         [Authorize(Roles = "Coach")]
-        public async Task<IActionResult> AddGymPost(AddGymPostDTO postDto)
-        {
-            if (ModelState.IsValid)
-            {
-                var userId= User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var repository = _factoryRepository.CreateRepository("GYM");
-                var result = await repository.Add(postDto,userId);
-                if (result.Id == 0)
-                {
-                    return BadRequest(result.Massage);
-                }
-                return Created("", _postRepository.GetPost(result.Id));
-            }
-            return BadRequest(ModelState);
-        }
+        public async Task<IActionResult> AddGymPost(AddGymPostDTO dto) =>await AddPost(dto, "GYM");
+
         [HttpPost("AddShopPost")]
         [Authorize(Roles = "Coach")]
-        public async Task<IActionResult> AddShopPost(AddShopPostDTO postDto)
+        public async Task<IActionResult> AddShopPost(AddShopPostDTO dto) =>await AddPost(dto, "SHOP");
+
+        private async Task<IActionResult> AddPost(AddPostDTO postDto, string type)
         {
-            if (ModelState.IsValid)
-            {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var repository = _factoryRepository.CreateRepository("SHOP");
-                var result = await repository.Add(postDto, userId);
-                if (result.Id == 0)
-                {
-                    return BadRequest(result.Massage);
-                }
-                return Created("", _postRepository.GetPost(result.Id));
-            }
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+
+            var repository = _factoryRepository.CreateRepository(type);
+            var result = await repository.Add(postDto, userId);
+
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
         }
-        [HttpDelete("DeletePost")]
+        [HttpGet("PostsForUser")]
+        public async Task<IActionResult> PostsForUser()
+        {
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var posts = await _postRepository.GetPostsForUserFromFollowers(userId);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetAllPostsOfShop/{id:int}")]
+        public async Task<IActionResult> PostsOfShop(int id)
+        {
+            var posts = await _postRepository.GetPostsOfShop(id);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetAllPostsOfGym/{id:int}")]
+        public async Task<IActionResult> PostsOfGym(int id)
+        {
+            var posts = await _postRepository.GetPostsOfGym(id);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetAllPostsOfCoach/{id}")]
+        public async Task<IActionResult> PostsOfShop(string id)
+        {
+            var posts = await _postRepository.GetPostsOfCoach(id);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
+        [HttpDelete("DeletePost/{id:int}")]
         [Authorize(Roles = "Coach")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value??"";
-            var result = _postRepository.DeletePost(id, userId);
-            if (string.IsNullOrEmpty(result.Massage))
-            {
-                return StatusCode(StatusCodes.Status204NoContent);
-            }
-            return BadRequest(result.Massage);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result =await _postRepository.DeletePost(id, userId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
         }
-        [HttpGet("{id:int}")]
-        public IActionResult GetPost(int id)
+        [HttpGet("GetPost/{id:int}")]
+        public async Task<IActionResult> GetPost(int id)
         {
-            var post = _postRepository.GetPost(id);
+            var post = await _postRepository.GetPost(id);
             if (post == null)
             {
-                return NotFound("Post not found");
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
             }
-            return Ok(post);
+            return Ok(new Generalresponse { IsSuccess = true, Data = post });
         }
         [HttpPost("AddLikeOnPost")]
         [Authorize]
-        public IActionResult AddLikeOnPost(AddLikeDTO addLikeDTO)
+        public async Task<IActionResult> AddLikeOnPost(AddLikeDTO addLikeDTO)
         {
-            if (ModelState.IsValid)
-            {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-                var result = _postRepository.AddLikeOnPost(addLikeDTO, userId);
-                if (string.IsNullOrEmpty(result.Massage))
-                {
-                    return Created("", _postRepository.GetLike(result.Id));
-                }
-                return BadRequest(result.Massage);
-            }
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _postRepository.AddLikeOnPost(addLikeDTO, userId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
         }
-        [HttpDelete("DeleteLikeFromPost")]
+        [HttpDelete("DeleteLikeFromPost/{postId:int}")]
         [Authorize]
-        public IActionResult DeleteLikeFromPost(int postId)
+        public async Task<IActionResult> DeleteLikeFromPost(int postId)
         {
-            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-            var result = _postRepository.DeleteLikeFromPost(userId, postId);
-            if (string.IsNullOrEmpty(result.Massage))
-            {
-                return StatusCode(StatusCodes.Status204NoContent);
-            }
-            return BadRequest(result.Massage);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _postRepository.DeleteLikeFromPost(userId, postId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
         }
         [HttpPost("AddCommentOnPost")]
         [Authorize]
-        public IActionResult AddCommentOnPost(AddCommentDTO addCommentDTO)
+        public async Task<IActionResult> AddCommentOnPost(AddCommentDTO addCommentDTO)
         {
-            if (ModelState.IsValid)
-            {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-                var result = _postRepository.AddCommentOnPost(addCommentDTO, userId);
-                if (string.IsNullOrEmpty(result.Massage))
-                {
-                    return Created("", _postRepository.GetComment(result.Id));
-                }
-                return BadRequest(result.Massage);
-            }
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _postRepository.AddCommentOnPost(addCommentDTO, userId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Added successfully" });
         }
-        [HttpDelete("DeleteComment")]
+        [HttpDelete("DeleteComment/{commentId:int}")]
         [Authorize]
-        public IActionResult DeleteComment(int commentId)
+        public async Task<IActionResult> DeleteComment(int commentId)
         {
-            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-            var result = _postRepository.DeleteComment(commentId,userId);
-            if (string.IsNullOrEmpty(result.Massage))
-            {
-                return StatusCode(StatusCodes.Status204NoContent);
-            }
-            return BadRequest(result.Massage);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _postRepository.DeleteComment(commentId,userId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
         }
-        [HttpGet("GetLikesOnPost")]
-        public IActionResult GetLikeListOnPost(int id)
+        [HttpGet("GetPostLikes/{id:int}")]
+        public async Task<IActionResult> GetPostLikes(int id)
         {
-            var result = _postRepository.GetLikeListOnPost(id);
+            var result = await _postRepository.GetLikeListOnPost(id);
             if (result is null)
             {
-                return BadRequest("No Post has this Id");
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No post has this id." });
             }
-            return Ok(result);
+            return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
         [HttpPost("AddLikeOnComment")]
         [Authorize]
-        public IActionResult AddLikeOnComment(AddLikeDTO addLikeDTO)
+        public async Task<IActionResult> AddLikeOnComment(AddLikeDTO addLikeDTO)
         {
-            if (ModelState.IsValid)
-            {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-                var result = _postRepository.AddLikeOnComment(addLikeDTO,userId);
-                if (string.IsNullOrEmpty(result.Massage))
-                {
-                    return Created("", _postRepository.GetLike(result.Id));
-                }
-                return BadRequest(result.Massage);
-            }
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _postRepository.AddLikeOnComment(addLikeDTO,userId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Added successfully" });
         }
-        [HttpDelete("DeleteLikeFromComment")]
+        [HttpDelete("DeleteLikeFromComment/{commentId:int}")]
         [Authorize]
-        public IActionResult DeleteLikeFromComment(int commentId)
+        public async Task<IActionResult> DeleteLikeFromComment(int commentId)
         {
-            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-            var result = _postRepository.DeleteLikeFromComment(userId, commentId);
-            if (string.IsNullOrEmpty(result.Massage))
-            {
-                return StatusCode(StatusCodes.Status204NoContent);
-            }
-            return BadRequest(result.Massage);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _postRepository.DeleteLikeFromComment(userId, commentId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
         }
         [HttpPost("AddCommentOnComment")]
         [Authorize]
-        public IActionResult AddCommentOnComment(AddCommentDTO addCommentDTO)
+        public async Task<IActionResult> AddCommentOnComment(AddCommentDTO addCommentDTO)
         {
-            if (ModelState.IsValid)
-            {
-                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-                var result = _postRepository.AddCommentOnComment(addCommentDTO,userId);
-                if (string.IsNullOrEmpty(result.Massage))
-                {
-                    return Created("", _postRepository.GetComment(result.Id));
-                }
-                return BadRequest(result.Massage);
-            }
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var result = await _postRepository.AddCommentOnComment(addCommentDTO,userId);
+            if (result.Id == 0)
+                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+
+            return Ok(new Generalresponse { IsSuccess = true, Data = "Added successfully" });
         }
-        [HttpGet("GetLikesOnComment")]
-        public IActionResult GetLikeListOnComment(int id)
+        [HttpGet("GetCommentLikes/{id:int}")]
+        public async Task<IActionResult> GetCommentLikes(int id)
         {
-            var result = _postRepository.GetLikeListOnComment(id);
+            var result = await _postRepository.GetLikeListOnComment(id);
             if (result is null)
             {
-                return BadRequest("No Post has this Id");
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No comment found with this ID." });
             }
-            return Ok(result);
+            return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
-        [HttpGet("GetComment")]
-        public IActionResult GetComment(int id)
+        [HttpGet("GetComment{id:int}")]
+        public async Task<IActionResult> GetComment(int id)
         {
-            var result = _postRepository.GetComment(id);
+            var result = await _postRepository.GetComment(id);
             if (result is null)
             {
-                return BadRequest("No Post has this Id");
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No comment found with this ID." });
             }
-            return Ok(result);
+            return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
     }
 }

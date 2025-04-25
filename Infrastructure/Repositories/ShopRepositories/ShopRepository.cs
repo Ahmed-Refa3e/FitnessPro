@@ -44,12 +44,12 @@ namespace Infrastructure.Repositories.IShopRepositories
             }
         }
 
-        public async Task<IntResult> DeleteAsync(int id, string userId)
+        public async Task<IntResult> Delete(string userId, int shopId)
         {
-            var shop = await _context.Shops.FindAsync(id);
-            if (shop is null || shop.OwnerID != userId)
+            var shop = await _context.Shops.FindAsync(shopId);
+            if (shop is null||shop.OwnerID!=userId)
             {
-                return new IntResult { Massage = "Id is not valid" };
+                return new IntResult { Massage = "You did not have a shop." };
             }
             _context.Shops.Remove(shop);
             try
@@ -64,30 +64,47 @@ namespace Infrastructure.Repositories.IShopRepositories
         }
         public async Task<ShowShopDTO> GetShop(int id)
         {
-            return await _context.Shops
-            .Where(s => s.Id == id)
-            .Select(s => new ShowShopDTO
-            {
-                GymId = s.Id,
-                Address = s.Address,
-                City = s.City,
-                OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}" ?? "",
-                Description = s.Description,
-                Governorate = s.Governorate,
-                GymName = s.Name,
-                PhoneNumber = s.PhoneNumber,
-                PictureUrl = s.PictureUrl,
-                OwnerID = s.OwnerID,
-                FollowerNumber = _context.ShopFollows.Count(f => f.ShopId == s.Id)
-            })
-            .FirstOrDefaultAsync();
+            return await _context.Shops.Where(s => s.Id == id)
+                .Select(s => new ShowShopDTO
+                {
+                    GymId = s.Id,
+                    Address = s.Address,
+                    City = s.City,
+                    OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}" ?? "",
+                    Description = s.Description,
+                    Governorate = s.Governorate,
+                    GymName = s.Name,
+                    PhoneNumber = s.PhoneNumber,
+                    PictureUrl = s.PictureUrl,
+                    OwnerID = s.OwnerID,
+                    FollowerNumber = _context.ShopFollows.Count(f => f.ShopId == s.Id)
+                })
+                .FirstOrDefaultAsync();
         }
-        public async Task<IntResult> Update(AddShopDTO shopDto, int id, string userId)
+        public async Task<List<ShowShopDTO>> GetShopsOfOwner(string userId)
         {
-            var existingShop = await _context.Shops.FindAsync(id);
-            if (existingShop is null || existingShop.OwnerID != userId)
+            return await _context.Shops.Where(s => s.OwnerID == userId)
+                .Select(s => new ShowShopDTO
+                {
+                    GymId = s.Id,
+                    Address = s.Address,
+                    City = s.City,
+                    OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}" ?? "",
+                    Description = s.Description,
+                    Governorate = s.Governorate,
+                    GymName = s.Name,
+                    PhoneNumber = s.PhoneNumber,
+                    PictureUrl = s.PictureUrl,
+                    OwnerID = s.OwnerID,
+                    FollowerNumber = _context.ShopFollows.Count(f => f.ShopId == s.Id)
+                }).ToListAsync();
+        }
+        public async Task<IntResult> Update(AddShopDTO shopDto,int shopId, string userId)
+        {
+            var existingShop = await _context.Shops.FindAsync(shopId);
+            if (existingShop is null||existingShop.OwnerID!=userId)
             {
-                return new IntResult { Massage = "Not valid Id" };
+                return new IntResult { Massage = "You did not have a shop." };
             }
             existingShop.Name = shopDto.Name;
             existingShop.Address = shopDto.Address;

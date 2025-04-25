@@ -24,11 +24,11 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<GymPost>? GymPosts { get; set; }
     public DbSet<ShopPost>? ShopPosts { get; set; }
     public DbSet<CoachPost>? CoachPosts { get; set; }
-    public DbSet<Shop> Shops { get; set; }
-    public DbSet<Category> categories { get; set; }
-    public DbSet<Order> orders { get; set; }
-    public DbSet<OrderItem> ordersItems { get; set; }
-    public DbSet<Product> products { get; set; }
+    public DbSet<Shop>? Shops { get; set; }
+    public DbSet<Category>? categories { get; set; }
+    public DbSet<Order>? orders { get; set; }
+    public DbSet<OrderItem>? ordersItems { get; set; }
+    public DbSet<Product>? products { get; set; }
     public DbSet<UserFollow>? userFollows { get; set; }
     public DbSet<GymFollow>? gymFollows { get; set; }
     public DbSet<ShopFollow>? ShopFollows { get; set; }

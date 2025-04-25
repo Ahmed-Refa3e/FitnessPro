@@ -2,12 +2,17 @@
 using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
+using Stripe.Checkout;
 
 namespace API.Controllers.Payment;
 
-public class StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger, IOnlineTrainingSubscriptionRepository Repo) : BaseApiController
+public class StripeWebhookController(
+    IConfiguration configuration,
+    ILogger<StripeWebhookController> logger,
+    IOnlineTrainingSubscriptionRepository repo) : BaseApiController
 {
-    private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"] ?? throw new ArgumentNullException("Stripe Webhook Secret not configured.");
+    private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"] ??
+        throw new ArgumentNullException("Stripe Webhook Secret not configured.");
 
     [HttpPost]
     public async Task<IActionResult> HandleWebhook()
@@ -18,7 +23,7 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
         if (string.IsNullOrEmpty(stripeSignature))
         {
             logger.LogWarning("⚠️ Stripe signature header missing.");
-            return Unauthorized(); // 401 Unauthorized
+            return Unauthorized();
         }
 
         Event stripeEvent;
@@ -29,23 +34,27 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
         catch (StripeException ex)
         {
             logger.LogError($"🚨 Stripe signature verification failed: {ex.Message}");
-            return Unauthorized(); // 401 Unauthorized
+            return Unauthorized();
         }
         catch (Exception ex)
         {
             logger.LogError($"🚨 Unexpected error parsing webhook event: {ex.Message}");
-            return BadRequest(new { error = "Invalid webhook payload" }); // 400 Bad Request
+            return BadRequest(new { error = "Invalid webhook payload" });
         }
 
         try
         {
             switch (stripeEvent.Type)
             {
-                case "payment_intent.succeeded":
-                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    if (paymentIntent != null)
+                case "checkout.session.completed":
+                    var session = stripeEvent.Data.Object as Session;
+                    if (session != null)
                     {
-                        logger.LogInformation($"✅ Payment succeeded for ID: {paymentIntent.Id}, Amount: {paymentIntent.Amount / 100.0} {paymentIntent.Currency.ToUpper()}");
+                        logger.LogInformation($"✅ Checkout session completed. PaymentIntent: {session.PaymentIntent}, CustomerEmail: {session.CustomerEmail}");
+
+                        var paymentIntentService = new PaymentIntentService();
+                        var paymentIntent = await paymentIntentService.GetAsync(session.PaymentIntentId);
+
                         await HandleSuccessfulPayment(paymentIntent);
                     }
                     break;
@@ -73,8 +82,27 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
     {
         try
         {
+            if (!paymentIntent.Metadata.ContainsKey("traineeId") || !paymentIntent.Metadata.ContainsKey("onlineTrainingId"))
+            {
+                logger.LogWarning("❗ Missing metadata in payment intent.");
+                return;
+            }
+
             var traineeId = paymentIntent.Metadata["traineeId"];
-            var onlineTrainingId = int.Parse(paymentIntent.Metadata["onlineTrainingId"]);
+
+            if (!int.TryParse(paymentIntent.Metadata["onlineTrainingId"], out var onlineTrainingId))
+            {
+                logger.LogWarning("❗ Invalid onlineTrainingId in metadata.");
+                return;
+            }
+
+            // Check if already handled
+            bool alreadyExists = await repo.PaymentIntentExistsAsync(paymentIntent.Id);
+            if (alreadyExists)
+            {
+                logger.LogInformation($"ℹ️ PaymentIntent {paymentIntent.Id} already processed.");
+                return;
+            }
 
             var subscription = new OnlineTrainingSubscription
             {
@@ -82,14 +110,21 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
                 EndDate = DateTime.Now.AddDays(30),
                 TraineeID = traineeId,
                 OnlineTrainingId = onlineTrainingId,
-                IsActive = true
+                IsActive = true,
+                StripePaymentIntentId = paymentIntent.Id
             };
 
-            Repo.Add(subscription);
-            await Repo.SaveChangesAsync();
+            // check if there is already a subscription for this trainee and online training
+            var existingSubscriptions = await repo.GetByOnlineTrainingIdAsync(onlineTrainingId);
+            if (existingSubscriptions != null && existingSubscriptions.Any(s => s.TraineeID == traineeId))
+            {
+                logger.LogWarning($"⚠️ Subscription already exists for Trainee: {traineeId} and OnlineTraining: {onlineTrainingId}");
+                return;
+            }
+            repo.Add(subscription);
+            await repo.SaveChangesAsync();
 
-            //logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
-            logger.LogInformation($"✅ OnlineTrainingSubscription created");
+            logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
         }
         catch (Exception ex)
         {
@@ -97,5 +132,4 @@ public class StripeWebhookController(IConfiguration configuration, ILogger<Strip
             throw;
         }
     }
-
 }
