@@ -52,7 +52,49 @@ namespace API.Controllers.Posts
 
             return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
         }
-
+        [HttpGet("PostsForUser")]
+        public async Task<IActionResult> PostsForUser()
+        {
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+            var posts = await _postRepository.GetPostsForUserFromFollowers(userId);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetAllPostsOfShop/{id:int}")]
+        public async Task<IActionResult> PostsOfShop(int id)
+        {
+            var posts = await _postRepository.GetPostsOfShop(id);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetAllPostsOfGym/{id:int}")]
+        public async Task<IActionResult> PostsOfGym(int id)
+        {
+            var posts = await _postRepository.GetPostsOfGym(id);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetAllPostsOfCoach/{id}")]
+        public async Task<IActionResult> PostsOfShop(string id)
+        {
+            var posts = await _postRepository.GetPostsOfCoach(id);
+            if (posts == null)
+            {
+                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new Generalresponse { IsSuccess = true, Data = posts });
+        }
         [HttpDelete("DeletePost/{id:int}")]
         [Authorize(Roles = "Coach")]
         public async Task<IActionResult> Delete(int id)

@@ -31,14 +31,14 @@ namespace API.Controllers.Shop
             }
             return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
-        [HttpGet("Categories")]
+        [HttpGet("ProductCategories")]
         public async Task<ActionResult> GetAllProductCategories()
         {
             var result =await _categoryRepository.GetAll();
             return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
         [HttpGet("Products")]
-        public async Task<ActionResult> GetProducts(ProductSearchDTO searchDTO)
+        public async Task<ActionResult> GetProducts([FromQuery]ProductSearchDTO searchDTO)
         {
             var result = await _productRepository.GetProducts(searchDTO);
             return Ok(new Generalresponse { IsSuccess = true, Data = result });

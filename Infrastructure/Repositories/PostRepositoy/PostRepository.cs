@@ -1,22 +1,185 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.PostDTO;
 using Core.Entities.PostEntities;
+using Core.Entities.ShopEntities;
 using Core.Enums;
 using Core.Interfaces.Repositories.PostRepositories;
 using Humanizer;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
     public class PostRepository : IPostRepository
     {
         private readonly FitnessContext _context;
-        protected readonly string _storagePath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedImagesForPosts");
-
         public PostRepository(FitnessContext context)
         {
             _context = context;
+        }
+        public async Task<List<ShowExternalFormOfShopPostDTO>> GetPostsOfShop(int shopId)
+        {
+            if(await _context.Shops.FindAsync(shopId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.ShopPosts.Where(x => x.ShopId == shopId)
+                .Select(p => new ShowExternalFormOfShopPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Shop.PictureUrl ?? "",
+                    Name = p.Shop.Name,
+                    ShopId = p.ShopId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            foreach(var post in posts)
+            {
+                post.CreatedAt= DateHumanizeExtensions.Humanize((DateTime)post.CreatedAt);
+            }
+            return posts;
+        }
+        public async Task<List<ShowExternalFormOfGymPostDTO>> GetPostsOfGym(int gymId)
+        {
+            if (await _context.Gyms.FindAsync(gymId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.GymPosts.Where(x => x.GymId == gymId)
+                .Select(p => new ShowExternalFormOfGymPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Gym.PictureUrl ?? "",
+                    Name = p.Gym.GymName,
+                    GymId = p.GymId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            foreach (var post in posts)
+            {
+                post.CreatedAt = DateHumanizeExtensions.Humanize((DateTime)post.CreatedAt);
+            }
+            return posts;
+        }
+        public async Task<List<ShowExternalFormOfCoachPostDTO>> GetPostsOfCoach(string coachId)
+        {
+            if (await _context.Users.FindAsync(coachId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.CoachPosts.Where(x => x.CoachId == coachId)
+                .Select(p => new ShowExternalFormOfCoachPostDTO
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = p.CreatedAt,
+                    PhotoPass = p.Coach.ProfilePictureUrl ?? "",
+                    Name = $"{p.Coach.FirstName} {p.Coach.LastName}",
+                    CoachId = p.CoachId,
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+            foreach (var post in posts)
+            {
+                post.CreatedAt = DateHumanizeExtensions.Humanize((DateTime)post.CreatedAt);
+            }
+            return posts;
+        }
+        public async Task<List<ShowGeneralFormOfPostDTO>> GetPostsForUserFromFollowers(string userId)
+        {
+            if (await _context.Users.FindAsync(userId) is null)
+            {
+                return null;
+            }
+
+            var gymIds = await _context.gymFollows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.GymId)
+                .ToListAsync();
+
+            var shopIds = await _context.ShopFollows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.ShopId)
+                .ToListAsync();
+
+            var followedUserIds = await _context.userFollows
+                .Where(f => f.FollowerId == userId)
+                .Select(f => f.FollowingId)
+                .ToListAsync();
+
+            var coachPosts = await (
+                                    from post in _context.CoachPosts
+                                    join follow in _context.userFollows on post.CoachId equals follow.FollowingId
+                                    where follow.FollowerId == userId
+                                    select new ShowGeneralFormOfPostDTO
+                                    {
+                                        Id = post.Id,
+                                        Content = post.Content,
+                                        CreatedAt = post.CreatedAt,
+                                        PhotoPass = post.Coach.ProfilePictureUrl ?? "",
+                                        Name = post.Coach.FirstName + " " + post.Coach.LastName,
+                                        SourceId = post.CoachId,
+                                        PictureUrls = post.PictureUrls.Select(x => x.Url).ToList(),
+                                        SourceType = PageType.COACH
+                                    }
+                                    ).ToListAsync();
+
+            var gymPosts = await (
+                                from post in _context.GymPosts
+                                join follow in _context.gymFollows on post.GymId equals follow.GymId
+                                where follow.FollowerId == userId
+                                select new ShowGeneralFormOfPostDTO
+                                {
+                                    Id = post.Id,
+                                    Content = post.Content,
+                                    CreatedAt = post.CreatedAt,
+                                    PhotoPass = post.Gym.PictureUrl ?? "",
+                                    Name = post.Gym.GymName,
+                                    SourceId = post.GymId,
+                                    PictureUrls = post.PictureUrls.Select(x => x.Url).ToList(),
+                                    SourceType = PageType.GYM
+                                }
+                                ).ToListAsync();
+
+            var shopPosts = await (
+                                    from post in _context.ShopPosts
+                                    join follow in _context.ShopFollows on post.ShopId equals follow.ShopId
+                                    where follow.FollowerId == userId
+                                    select new ShowGeneralFormOfPostDTO
+                                    {
+                                        Id = post.Id,
+                                        Content = post.Content,
+                                        CreatedAt = post.CreatedAt,
+                                        PhotoPass = post.Shop.PictureUrl ?? "",
+                                        Name = post.Shop.Name,
+                                        SourceId = post.ShopId,
+                                        PictureUrls = post.PictureUrls.Select(x => x.Url).ToList(),
+                                        SourceType = PageType.SHOP
+                                    }
+                                    ).ToListAsync();
+
+            var allPosts = coachPosts
+                .Concat(gymPosts)
+                .Concat(shopPosts)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(50)
+                .ToList();
+
+            foreach( var post in allPosts)
+            {
+                post.CreatedAt = DateHumanizeExtensions.Humanize(post.CreatedAt);
+                post.LikesDetails = await this.LikesDetailsOnPost(post.Id);
+            }
+
+            return allPosts;
         }
         public async Task<IntResult> DeletePost(int id, string userId)
         {
