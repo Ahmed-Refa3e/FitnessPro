@@ -2,46 +2,81 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
+using Stripe.Checkout;
 using System.ComponentModel.DataAnnotations;
 
 namespace API.Controllers.Payment;
 
-public class PaymentsController(SignInManager<ApplicationUser> signInManager,IOnlineTrainingRepository repo) : BaseApiController
+public class PaymentsController(
+    SignInManager<ApplicationUser> signInManager,
+    IOnlineTrainingRepository trainingRepo,
+    IOnlineTrainingSubscriptionRepository subscriptionRepo,
+    IConfiguration configuration) : BaseApiController
 {
-    [HttpPost("create-payment-intent")]
+
+    [HttpPost("create-checkout-session")]
     [Authorize(Roles = "Trainee")]
-    public async Task<IActionResult> CreatePaymentIntent([FromBody] CreatePaymentIntentRequest request)
+    public async Task<IActionResult> CreateCheckoutSession([FromBody] CreatePaymentIntentRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+
         ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
         if (user == null)
             return Unauthorized("User not found");
-        var onlineTraining = await repo.GetByIdAsync(request.OnlineTrainingId);
+
+        var onlineTraining = await trainingRepo.GetByIdAsync(request.OnlineTrainingId);
         if (onlineTraining == null)
             return NotFound("Online training not found");
-        var options = new PaymentIntentCreateOptions
+
+        //Check for existing active subscription
+        var hasActiveSubscription = await subscriptionRepo.HasActiveSubscriptionAsync(user.Id, request.OnlineTrainingId);
+        if (hasActiveSubscription)
+            return BadRequest(new { message = "You already have an active subscription for this training." });
+
+        StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
+
+        var options = new SessionCreateOptions
         {
-            Amount = (long?)onlineTraining.Price, // Amount in cents (2000 = $20.00) 
             PaymentMethodTypes = ["card"],
-            Currency = "usd",
-            Metadata = new Dictionary<string, string>
-        {
-            { "traineeId", user.Id },
-            { "onlineTrainingId", request.OnlineTrainingId.ToString()}
-        }
+            LineItems =
+            [
+                new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = "usd",
+                        UnitAmount = (long?)onlineTraining.Price * 100,
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = onlineTraining.Title ?? "Online Training"
+                        }
+                    },
+                    Quantity = 1,
+                }
+            ],
+            Mode = "payment",
+            PaymentIntentData = new SessionPaymentIntentDataOptions
+            {
+                Metadata = new Dictionary<string, string>
+                {
+                    { "traineeId", user.Id },
+                    { "onlineTrainingId", request.OnlineTrainingId.ToString() }
+                }
+            },
+            SuccessUrl = "https://your-frontend.com/success",
+            CancelUrl = "https://your-frontend.com/cancel"
         };
 
-        var service = new PaymentIntentService();
-        var paymentIntent = await service.CreateAsync(options);
+        var service = new SessionService();
+        Session session = await service.CreateAsync(options);
 
-        return Ok(new { clientSecret = paymentIntent.ClientSecret });
+        return Ok(new { url = session.Url });
+    }
+
+    public class CreatePaymentIntentRequest
+    {
+        [Required]
+        public int OnlineTrainingId { get; set; }
     }
 }
-public class CreatePaymentIntentRequest
-{
-    [Required]
-    public int OnlineTrainingId { get; set; }
-}
-
-

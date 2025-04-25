@@ -34,5 +34,22 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
                 .Include(x => x.Trainee);
             return ExecuteQueryAsync(query).ContinueWith(t => t.Result.FirstOrDefault());
         }
+
+        public async Task<bool> PaymentIntentExistsAsync(string paymentIntentId)
+        {
+            return await context.OnlineTrainingSubscriptions!
+                .AnyAsync(s => s.StripePaymentIntentId == paymentIntentId);
+        }
+
+        public async Task<bool> HasActiveSubscriptionAsync(string traineeId, int trainingId)
+        {
+            return await context.OnlineTrainingSubscriptions!
+                .AnyAsync(s =>
+                    s.TraineeID == traineeId &&
+                    s.OnlineTrainingId == trainingId &&
+                    s.IsActive &&
+                    s.EndDate > DateTime.Now);
+        }
+
     }
 }
