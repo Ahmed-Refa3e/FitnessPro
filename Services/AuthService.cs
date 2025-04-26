@@ -175,7 +175,7 @@ namespace Services
                     {
                         token,
                         refreshToken,
-                        exipiration = DateTime.Now.AddHours(1)
+                        exipiration = DateTime.UtcNow.AddMinutes(30)
                     };
                     return response;
                 }
@@ -730,7 +730,7 @@ namespace Services
             JwtSecurityToken token = new JwtSecurityToken(
                issuer: _jwtSettings.IssuerIP,
                audience: _jwtSettings.AudienceIP,
-               expires: DateTime.Now.AddMinutes(30),
+               expires: DateTime.UtcNow.AddMinutes(30),
                claims: userclaims,
                signingCredentials: credentials
             );

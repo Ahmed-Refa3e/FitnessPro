@@ -71,7 +71,8 @@ public static class DataSeeder
                     Gender = coach.Gender,
                     Bio = coach.Bio,
                     JoinedDate = DateTime.Now,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    ProfilePictureUrl = coach.ProfilePictureUrl,
                 };
 
                 var result = await userManager.CreateAsync(newCoach, "P@ssw0rd");
@@ -134,7 +135,8 @@ public static class DataSeeder
                         SessionPrice = gym.SessionPrice,
                         PhoneNumber = gym.PhoneNumber,
                         Description = gym.Description,
-                        CoachID = coach.Id
+                        CoachID = coach.Id,
+                        PictureUrl = gym.ProfilePictureUrl
                     });
                 }
             }
