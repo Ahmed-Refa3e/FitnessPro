@@ -41,6 +41,12 @@ namespace API.Controllers.Shop
             }
             return Ok(new Generalresponse { IsSuccess = true, Data = shop });
         }
+        [HttpGet("ShopSearch")]
+        public async Task<ActionResult> GetShops([FromQuery] SearchShopDTO searchDTO)
+        {
+            var shop = await _repository.GetShopsWithFilter(searchDTO);
+            return Ok(new Generalresponse { IsSuccess = true, Data = shop });
+        }
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Coach")]
         public async Task<ActionResult> Delete(int id)
