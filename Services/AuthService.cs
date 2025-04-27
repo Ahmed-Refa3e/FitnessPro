@@ -44,7 +44,7 @@ namespace Services
 
         public async Task<Generalresponse> RegisterTraineeAsync(RegisterDTO model)
         {
-            Generalresponse response = new Generalresponse();
+            Generalresponse response = new();
 
             var userFromDb = await _userManager.FindByEmailAsync(model.Email);
             if (userFromDb != null)
