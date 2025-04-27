@@ -2,8 +2,10 @@
 using Core.DTOs.ShopDTO;
 using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
+using Core.Utilities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infrastructure.Repositories.IShopRepositories
 {
@@ -13,6 +15,45 @@ namespace Infrastructure.Repositories.IShopRepositories
         public ShopRepository(FitnessContext context)
         {
             _context = context;
+        }
+        public async Task<List<ShowShopDTO>> GetShopsWithFilter(SearchShopDTO searchDTO)
+        {
+            var shops = _context.Shops.AsQueryable();
+            if (!string.IsNullOrEmpty(searchDTO.Governorate))
+            {
+                shops=shops.Where(x=>x.Governorate== searchDTO.Governorate);
+            }
+            if (!string.IsNullOrEmpty(searchDTO.City))
+            {
+                shops = shops.Where(x => x.City == searchDTO.City);
+            }
+            if (searchDTO.OrderedByTheMostFollowerNumber)
+            {
+                shops = shops.OrderByDescending(x => x.Followers.Count());
+            }
+            (searchDTO.PageNumber, searchDTO.PageSize) = await PaginationHelper.NormalizePaginationAsync(
+                shops,
+                searchDTO.PageNumber,
+                searchDTO.PageSize
+            );
+            return await shops
+                .Skip((searchDTO.PageNumber - 1) * searchDTO.PageSize)
+                .Take(searchDTO.PageSize)
+                .Select(s => new ShowShopDTO
+                {
+                    ShopId = s.Id,
+                    Address = s.Address,
+                    City = s.City,
+                    OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}" ?? "",
+                    Description = s.Description,
+                    Governorate = s.Governorate,
+                    ShopName = s.Name,
+                    PhoneNumber = s.PhoneNumber,
+                    PictureUrl = s.PictureUrl,
+                    OwnerID = s.OwnerID,
+                    FollowerNumber = _context.ShopFollows.Count(f => f.ShopId == s.Id)
+                })
+                .ToListAsync();
         }
         public async Task<IntResult> Add(AddShopDTO shopDto, string userId)
         {
@@ -67,13 +108,13 @@ namespace Infrastructure.Repositories.IShopRepositories
             return await _context.Shops.Where(s => s.Id == id)
                 .Select(s => new ShowShopDTO
                 {
-                    GymId = s.Id,
+                    ShopId = s.Id,
                     Address = s.Address,
                     City = s.City,
                     OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}" ?? "",
                     Description = s.Description,
                     Governorate = s.Governorate,
-                    GymName = s.Name,
+                    ShopName = s.Name,
                     PhoneNumber = s.PhoneNumber,
                     PictureUrl = s.PictureUrl,
                     OwnerID = s.OwnerID,
@@ -86,13 +127,13 @@ namespace Infrastructure.Repositories.IShopRepositories
             return await _context.Shops.Where(s => s.OwnerID == userId)
                 .Select(s => new ShowShopDTO
                 {
-                    GymId = s.Id,
+                    ShopId = s.Id,
                     Address = s.Address,
                     City = s.City,
                     OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}" ?? "",
                     Description = s.Description,
                     Governorate = s.Governorate,
-                    GymName = s.Name,
+                    ShopName = s.Name,
                     PhoneNumber = s.PhoneNumber,
                     PictureUrl = s.PictureUrl,
                     OwnerID = s.OwnerID,
