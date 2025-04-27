@@ -2,8 +2,8 @@
 {
     public class ShowShopDTO
     {
-        public int GymId { get; set; }
-        public string GymName { get; set; }
+        public int ShopId { get; set; }
+        public string ShopName { get; set; }
         public string? PictureUrl { get; set; }
         public string Address { get; set; }
         public string City { get; set; }
