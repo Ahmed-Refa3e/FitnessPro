@@ -12,7 +12,7 @@ namespace Core.Interfaces.Services
         Task<Generalresponse> SetUserRoleAsync(string userId, string role);
         Task<Generalresponse> LogOutAsync(string userId);
         Task<Generalresponse> ConfirmEmailAsync(ConfirmEmailDTO request);
-        Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto);
+        Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto,string userId);
         Task<Generalresponse> ForgetPasswordAsync(string email);
         Task<Generalresponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO);
         Task<Generalresponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);

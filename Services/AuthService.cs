@@ -44,7 +44,7 @@ namespace Services
 
         public async Task<Generalresponse> RegisterTraineeAsync(RegisterDTO model)
         {
-            Generalresponse response = new Generalresponse();
+            Generalresponse response = new();
 
             var userFromDb = await _userManager.FindByEmailAsync(model.Email);
             if (userFromDb != null)
@@ -413,11 +413,12 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto)
+        public async Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto,string userId)
         {
             Generalresponse response = new Generalresponse();
+            
 
-            var user = await _userManager.FindByEmailAsync(dto.Email);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 response.IsSuccess = false;

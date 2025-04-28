@@ -146,7 +146,7 @@ namespace API.Controllers
             else
                 return StatusCode(500, result);
         }
-
+        [Authorize]
         [HttpPost("ChangePassword")]
         public async Task<ActionResult> ChangePassword(ChangePaswwordDTO dto)
         {
@@ -155,7 +155,11 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await service.ChangePasswordAsync(dto);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if(string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var result = await service.ChangePasswordAsync(dto,userId);
 
             if (result.IsSuccess)
                 return Ok(result);
