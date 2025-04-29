@@ -8,7 +8,7 @@ namespace API.Controllers
     [Authorize]
     public class ChatController(IChatService service) : BaseApiController
     {
-        [HttpGet("history/{ohterUserId}")]
+        [HttpGet("history/{otherUserId}")]
         public async Task<IActionResult> GetChatHistory(string ohterUserId, int pageNumber = 1, int pageSize = 20)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -39,13 +39,13 @@ namespace API.Controllers
         }
 
         [HttpGet("unread-messages/count")]
-        public async Task<IActionResult> GetAllUnreadMessagges()
+        public async Task<IActionResult> GetAllUnreadMessages()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
                 return Unauthorized();
 
-            var count = await service.GetAllUnreadMessaggesAsync(userId);
+            var count = await service.GetAllUnreadMessagesAsync(userId);
             return Ok(count);
         }
 

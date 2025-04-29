@@ -23,19 +23,20 @@ namespace Infrastructure.Hubs
             this.connectionRepository = connectionRepository;
         }
 
-        public async Task SendMessage(string receiverId, string message)
+        public async Task SendMessage(string receiverId, string message,string? imageUrl)
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 throw new HubException("User is not authenticated.");
 
-            var ChatMessage = new ChatMessage
+            var chatMessage = new ChatMessage
             {
                 ReceiverId = receiverId,
                 SenderId = userId,
-                Content = message
+                Content = message,
+                ImageUrl = imageUrl
             };
-            chatRepository.Add(ChatMessage);
+            chatRepository.Add(chatMessage);
             await chatRepository.SaveChangesAsync();
 
             await Clients.Users(receiverId, userId).SendAsync("ReceiveMessage", new
@@ -43,7 +44,8 @@ namespace Infrastructure.Hubs
                 SenderId = userId,
                 ReceiverId = receiverId,
                 Content = message,
-                TimeStamp = ChatMessage.timeStamp
+                ImageUrl = imageUrl,
+                TimeStamp = chatMessage.timeStamp
             });
         }
 

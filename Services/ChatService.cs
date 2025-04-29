@@ -35,6 +35,7 @@ namespace Services
                 {
                     id = message.id,
                     Content = message.Content,
+                    ImageUrl = message.ImageUrl,
                     SeenAt = message.SeenAt,
                     SenderId = message.SenderId,
                     IsSeen = message.IsSeen,
@@ -53,6 +54,16 @@ namespace Services
 
         public async Task<Generalresponse> GetContactsAsync(string UserId)
         {
+            var userfromdb = await userRepository.GetAsync(e=>e.Id == UserId);
+            if (userfromdb == null)
+            {
+                return new Generalresponse
+                {
+                    Data = "User Not Found",
+                    IsSuccess = false,
+                };
+            }
+
             var messages = await chatRepository.ExecuteQueryAsync(
                chatRepository.GetQueryable().Where(m => m.ReceiverId == UserId || m.SenderId == UserId)
             );
@@ -107,7 +118,7 @@ namespace Services
             };
         }
 
-        public async Task<int> GetAllUnreadMessaggesAsync(string UserId)
+        public async Task<int> GetAllUnreadMessagesAsync(string UserId)
         {
             var messagesCount = await
                 chatRepository.GetQueryable().Where(e => e.ReceiverId == UserId && e.IsSeen == false)

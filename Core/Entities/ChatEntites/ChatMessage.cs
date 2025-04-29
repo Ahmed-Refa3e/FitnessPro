@@ -5,7 +5,8 @@ namespace Core.Entities.ChatEntites
     public class ChatMessage
     {
         public int id { get; set; }
-        public required string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
         public required string SenderId { get; set; }
         public required string ReceiverId { get; set; }
         public ApplicationUser? receiver { get; set; }

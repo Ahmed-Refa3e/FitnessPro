@@ -304,4 +304,20 @@ public class ImagesController(IBlobService _blobService,
         await _context.SaveChangesAsync();
         return Ok("Images deleted successfully.");
     }
+
+    [HttpPost("upload-message-image")]
+    [Authorize(Roles = "Coach,Trainee")]
+    public async Task<IActionResult> UploadMessageImage([FromForm] IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        var checkResult = CheckImage(file);
+        if (checkResult is BadRequestObjectResult)
+            return checkResult;
+
+        var imageUrl = await _blobService.UploadImageAsync(file);
+
+        return Ok(new { Url = imageUrl });
+    }
 }
