@@ -9,13 +9,13 @@ namespace API.Controllers
     public class ChatController(IChatService service) : BaseApiController
     {
         [HttpGet("history/{otherUserId}")]
-        public async Task<IActionResult> GetChatHistory(string ohterUserId, int pageNumber = 1, int pageSize = 20)
+        public async Task<IActionResult> GetChatHistory(string otherUserId, int pageNumber = 1, int pageSize = 20)
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (currentUserId == null)
                 return Unauthorized();
 
-            var result = await service.GetChatHistoryAsync(currentUserId, ohterUserId, pageNumber, pageSize);
+            var result = await service.GetChatHistoryAsync(currentUserId, otherUserId, pageNumber, pageSize);
 
             return Ok(result);
         }

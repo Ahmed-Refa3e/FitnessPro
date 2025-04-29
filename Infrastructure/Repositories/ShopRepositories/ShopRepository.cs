@@ -64,7 +64,7 @@ namespace Infrastructure.Repositories.IShopRepositories
             }
             var newShop = new Shop
             {
-                Name = shopDto.Name,
+                Name = shopDto.ShopName,
                 PictureUrl = shopDto.ImageUrl,
                 Address = shopDto.Address,
                 City = shopDto.City,
@@ -147,7 +147,7 @@ namespace Infrastructure.Repositories.IShopRepositories
             {
                 return new IntResult { Massage = "You did not have a shop." };
             }
-            existingShop.Name = shopDto.Name;
+            existingShop.Name = shopDto.ShopName;
             existingShop.Address = shopDto.Address;
             existingShop.City = shopDto.City;
             existingShop.Governorate = shopDto.Governorate;
