@@ -55,23 +55,27 @@ namespace API.Controllers.GymAndRating
 
             var success = await service.CreateGymAsync(CreateGymDTO, user!);
 
-            if (success) return Created();
-            // CreatedAtAction(nameof(GetGymById), CreateGymDTO);
+            if (success)
+                return Created(string.Empty, new { IsSuccess = true, Data = "Gym created successfully" });
 
             return BadRequest("Problem creating Gym");
         }
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Coach")]
-
         public async Task<ActionResult> UpdateGym(int id, UpdateGymDTO Gym)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var user = await signInManager.UserManager.GetUserAsync(User);
-            var gymToBeUpdated = service.GetGymByIdAsync(id);
-            if (gymToBeUpdated.Result!.CoachID != user!.Id)
+            var gymToBeUpdated = await service.GetGymByIdAsync(id); // Await the task to get the actual Gym object
+
+            // Check if gym is found
+            if (gymToBeUpdated == null)
+                return NotFound("Gym not found");
+
+            if (gymToBeUpdated.CoachID != user!.Id)
             {
                 return Unauthorized("You are not authorized to update this gym");
             }
@@ -79,7 +83,7 @@ namespace API.Controllers.GymAndRating
             var success = await service.UpdateGymAsync(id, Gym);
 
             if (!success)
-                return NotFound("Gym not found");
+                return NotFound("Problem updating Gym");
 
             return NoContent();
         }
@@ -88,8 +92,11 @@ namespace API.Controllers.GymAndRating
         [Authorize(Roles = "Coach")]
         public async Task<ActionResult> DeleteGym(int id)
         {
-            var gymToBeDeleted = service.GetGymByIdAsync(id);
             var user = await signInManager.UserManager.GetUserAsync(User);
+            var gymToBeDeleted = service.GetGymByIdAsync(id);
+            // Check if gym is found
+            if (gymToBeDeleted == null)
+                return NotFound("Gym not found");
             if (gymToBeDeleted.Result!.CoachID != user!.Id)
             {
                 return Unauthorized("You are not authorized to Delete this gym");
@@ -97,7 +104,7 @@ namespace API.Controllers.GymAndRating
 
             var success = await service.DeleteGymAsync(id);
 
-            if (!success) return NotFound("Gym not found");
+            if (!success) return NotFound("Problem deleting Gym");
 
             return NoContent();
         }

@@ -6,7 +6,7 @@ namespace Core.DTOs.ShopDTO
     public class AddShopDTO
     {
         [Required(ErrorMessage = "Name is required.")]
-        public string Name { get; set; }
+        public string ShopName { get; set; }
         public string? ImageUrl {  get; set; }
 
         [Required(ErrorMessage = "Address is required.")]
