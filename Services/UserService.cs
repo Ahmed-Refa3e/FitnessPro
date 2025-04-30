@@ -17,7 +17,7 @@ namespace Services
 
         public async Task<PagedResult<CoachResponseDTO>> GetAllCoachesAsync(GetCoachesDTO getCoachesDTO)
         {
-            var query = repository.GetAll().OfType<Coach>();
+            var query = repository.GetAll(includeProperties: "Ratings").OfType<Coach>();
 
             if (!string.IsNullOrEmpty(getCoachesDTO.CoachName))
             {
