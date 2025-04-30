@@ -54,7 +54,7 @@ namespace API.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("GetCoachRatingByCoachRatingId/{id}")]
         public async Task<IActionResult> GetCoachRatingById(int id)
         {
             var coachRating = await repository.GetByIdAsync(id);
@@ -73,8 +73,36 @@ namespace API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetCoachRatingByCoachId/{CoachId}")]
-        public async Task<IActionResult> GetCoachRating(string CoachId)
+        [Authorize(Roles = "Trainee")]
+        [HttpGet("GetCoachRatingByCoachId/{coachId}")]
+        public async Task<IActionResult> GetCoachRatingByCoachId(string coachId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User Not Found");
+
+
+            var coachRating = repository.GetQueryable()
+                .Where(e => e.CoachId == coachId && e.TraineeId == user.Id)
+                .FirstOrDefault();
+
+            if (coachRating == null)
+                return NotFound("You didn't add any rating");
+
+            var response = new CoachRatingResponse()
+            {
+                CoachId = coachRating.CoachId,
+                CoachRatingId = coachRating.CoachRatingId,
+                TraineeId = coachRating.TraineeId,
+                ratingValue = coachRating.Rating,
+                Review = coachRating.Content,
+                CreatedAt = coachRating.CreatedAt
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("GetAllCoachRating/{CoachId}")]
+        public async Task<IActionResult> GetAllCoachRating(string CoachId)
         {
             if (string.IsNullOrWhiteSpace(CoachId))
                 return BadRequest("Coach ID is required");
@@ -98,18 +126,23 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Trainee")]
-        [HttpPut(("{id}"))]
-        public async Task<IActionResult> UpdateCoachRating(int id, UpdateCoachRatingDTO coachRatingDTO)
+        [HttpPut(("{coachId}"))]
+        public async Task<IActionResult> UpdateCoachRating(string coachId, UpdateCoachRatingDTO coachRatingDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return NotFound("User Not Found");
 
-            var coachRating = await repository.GetByIdAsync(id);
+
+            var coachRating = repository.GetQueryable()
+                .Where(e=>e.CoachId == coachId && e.TraineeId == user.Id)
+                .FirstOrDefault();
 
             if (coachRating == null)
                 return NotFound("You didn't add any rating");
 
-            var user = await userManager.GetUserAsync(User);
             if (user?.Id != coachRating.TraineeId)
                 return Unauthorized("You can't update this rating");
 
@@ -123,20 +156,23 @@ namespace API.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{CoachRatingid}")]
+        [HttpDelete("{coachId}")]
         [Authorize(Roles = "Trainee")]
-        public async Task<IActionResult> DeleteCoachRating(int CoachRatingid)
+        public async Task<IActionResult> DeleteCoachRating(string coachId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
                 return NotFound("User Not Found");
 
-            var coachRating = await repository.GetByIdAsync(CoachRatingid);
+            var coachRating = repository.GetQueryable()
+                .Where(e => e.CoachId == coachId && e.TraineeId == user.Id)
+                .FirstOrDefault();
+
             if (coachRating == null)
-                return NotFound($"Coach Rating with ID {CoachRatingid} not found");
+                return NotFound("Coach Rating not found");
 
             if (user.Id != coachRating.TraineeId)
-                return Unauthorized("You don't have any acces to delete this rating");
+                return Unauthorized("You don't have any access to delete this rating");
 
             repository.Delete(coachRating);
             if (await repository.SaveChangesAsync())
