@@ -1,6 +1,7 @@
 ﻿using Core.Helpers;
 using Core.Interfaces.Factories;
 using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.ChatRepositories;
 using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Core.Interfaces.Repositories.PostRepositories;
 using Core.Interfaces.Repositories.ShopRepositories;
@@ -8,6 +9,7 @@ using Core.Interfaces.Services;
 using Infrastructure.Factories;
 using Infrastructure.Hubs;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.ChatRepositories;
 using Infrastructure.Repositories.GymRepositories;
 using Infrastructure.Repositories.IShopRepositories;
 using Infrastructure.Repositories.OnlineTrainingRepositories;
@@ -160,6 +162,8 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
 builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTrainingSubscriptionRepository>();
 builder.Services.AddSingleton<IBlobService, BlobService>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
 
 builder.Services.AddSignalR();
 
