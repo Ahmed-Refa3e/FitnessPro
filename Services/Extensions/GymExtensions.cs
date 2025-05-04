@@ -82,5 +82,16 @@ public static class GymExtensions
             };
     }
 
+    public static GymRatingResponseDTO ToResponseDto(this GymRating gymRating)
+    {
+        return gymRating == null
+            ? throw new ArgumentNullException(nameof(gymRating))
+            : new GymRatingResponseDTO
+            {
+                GymRatingID = gymRating.GymRatingID,
+                RatingValue = gymRating.RatingValue,
+                Review = gymRating.Review
+            };
+    }
 
 }
