@@ -25,6 +25,8 @@ namespace Core.Entities.GymEntities
         public string? Description { get; set; }
         public string? CoachID { get; set; }
         public Coach? Owner { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
 
         //navigation property
         public ICollection<GymSubscription>? GymSubscriptions { get; set; }
