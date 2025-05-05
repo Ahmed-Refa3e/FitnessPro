@@ -1,4 +1,5 @@
 ﻿using Core.DTOs.UserDTO;
+using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
 using Infrastructure.Repositories.UserRepository;
 using Microsoft.AspNetCore.Authorization;
@@ -124,6 +125,21 @@ namespace API.Controllers
 
             return Ok(rating);
         }
+
+        [Authorize]
+        [HttpGet("hasRated/{coachId}")]
+        public async Task<IActionResult> CheckCoachRating(string coachId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User Not Found");
+
+            var hasRated = repository.GetQueryable()
+                 .Any(r => r.CoachId == coachId && r.TraineeId == user.Id);
+
+            return Ok(hasRated);
+        }
+
 
         [Authorize(Roles = "Trainee")]
         [HttpPut(("{coachId}"))]
