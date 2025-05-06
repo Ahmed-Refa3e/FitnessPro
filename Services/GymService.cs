@@ -129,4 +129,61 @@ public class GymService(IGymRepository repository) : IGymService
     {
         return await repository.GetByCoachIdAsync(CoachId);
     }
+    public async Task<List<GymResponseDto>> GetNearbyGymsAsync(GetNearbyGymsDTO dto)
+    {
+        const double MaxDistanceKm = 5;
+
+        var query = repository.GetQueryable()
+            .Include(g => g.Ratings)
+            .Include(g => g.Owner);
+
+        var gyms = await query.ToListAsync();
+
+        var nearbyGyms = gyms
+            .Where(g => CalculateDistance(g.Latitude, g.Longitude, dto.Latitude, dto.Longitude) <= MaxDistanceKm)
+            .Select(g => g.ToResponseDto())
+            .ToList();
+
+        return nearbyGyms;
+    }
+
+    public async Task<bool> AddGymLocationAsync(int gymId, double latitude, double longitude)
+    {
+        var gym = await repository.GetByIdAsync(gymId);
+        if (gym == null || (gym.Latitude != 0 || gym.Longitude != 0)) return false;
+
+        gym.Latitude = latitude;
+        gym.Longitude = longitude;
+
+        repository.Update(gym);
+        return await repository.SaveChangesAsync();
+    }
+
+    public async Task<bool> UpdateGymLocationAsync(int gymId, double latitude, double longitude)
+    {
+        var gym = await repository.GetByIdAsync(gymId);
+        if (gym == null) return false;
+        
+        gym.Latitude = latitude;
+        gym.Longitude = longitude;
+
+        repository.Update(gym);
+        return await repository.SaveChangesAsync();
+    }
+
+    private static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double R = 6371; // Radius of Earth in km
+        var latRad1 = lat1 * (Math.PI / 180);
+        var latRad2 = lat2 * (Math.PI / 180);
+        var deltaLat = (lat2 - lat1) * (Math.PI / 180);
+        var deltaLon = (lon2 - lon1) * (Math.PI / 180);
+
+        var a = Math.Sin(deltaLat / 2) * Math.Sin(deltaLat / 2) +
+                Math.Cos(latRad1) * Math.Cos(latRad2) *
+                Math.Sin(deltaLon / 2) * Math.Sin(deltaLon / 2);
+
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        return R * c;
+    }
 }

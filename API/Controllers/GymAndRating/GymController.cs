@@ -114,5 +114,43 @@ namespace API.Controllers.GymAndRating
         {
             return Ok(await service.GetCitiesAsync());
         }
+
+        [HttpPost("Nearby")]
+        public async Task<ActionResult<List<GymResponseDto>>> GetNearbyGyms([FromBody] GetNearbyGymsDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            List<GymResponseDto> gyms = await service.GetNearbyGymsAsync(dto);
+            return Ok(gyms);
+        }
+
+        [HttpPut("{id:int}/UpdateLocation")]
+        [Authorize(Roles = "Coach")]
+        public async Task<IActionResult> UpdateLocation(int id, [FromBody] UpdateGymLocationDTO dto)
+        {
+            var user = await signInManager.UserManager.GetUserAsync(User);
+            var gym = await service.GetGymByIdAsync(id);
+
+            if (gym == null) return NotFound("Gym not found");
+            if (gym.CoachID != user!.Id) return Unauthorized();
+
+            var result = await service.UpdateGymLocationAsync(id, dto.Latitude, dto.Longitude);
+            return result ? NoContent() : BadRequest("Update failed");
+        }
+
+        [HttpPut("{id:int}/AddLocation")]
+        [Authorize(Roles = "Coach")]
+        public async Task<IActionResult> AddLocation(int id, [FromBody] UpdateGymLocationDTO dto)
+        {
+            var user = await signInManager.UserManager.GetUserAsync(User);
+            var gym = await service.GetGymByIdAsync(id);
+
+            if (gym == null) return NotFound("Gym not found");
+            if (gym.CoachID != user!.Id) return Unauthorized();
+
+            var result = await service.AddGymLocationAsync(id, dto.Latitude, dto.Longitude);
+            return result ? NoContent() : BadRequest("Add location failed or already exists");
+        }
     }
 }
