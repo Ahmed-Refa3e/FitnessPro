@@ -20,7 +20,7 @@ namespace Infrastructure.Repositories.ChatRepositories
                 .AsNoTracking()
                 .Where(e => (e.ReceiverId == userId1 && e.SenderId == userId2) ||
                                      (e.SenderId == userId1 && e.ReceiverId == userId2))
-                .OrderBy(e => e.timeStamp);
+                .OrderByDescending(e => e.timeStamp);
 
             var totalCount = await query.CountAsync();
 
