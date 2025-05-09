@@ -115,8 +115,8 @@ namespace API.Controllers.GymAndRating
             return Ok(await service.GetCitiesAsync());
         }
 
-        [HttpPost("Nearby")]
-        public async Task<ActionResult<List<GymResponseDto>>> GetNearbyGyms([FromBody] GetNearbyGymsDTO dto)
+        [HttpGet("Nearby")]
+        public async Task<ActionResult<List<GymResponseDto>>> GetNearbyGyms([FromQuery] GetNearbyGymsDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
