@@ -164,6 +164,7 @@ builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTraining
 builder.Services.AddSingleton<IBlobService, BlobService>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddSignalR();
 
