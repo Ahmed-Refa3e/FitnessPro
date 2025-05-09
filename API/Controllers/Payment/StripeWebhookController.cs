@@ -110,13 +110,12 @@ public class StripeWebhookController(
                 EndDate = DateTime.Now.AddDays(30),
                 TraineeID = traineeId,
                 OnlineTrainingId = onlineTrainingId,
-                IsActive = true,
                 StripePaymentIntentId = paymentIntent.Id
             };
 
             // check if there is already a subscription for this trainee and online training
             var existingSubscriptions = await repo.GetByOnlineTrainingIdAsync(onlineTrainingId);
-            if (existingSubscriptions != null && existingSubscriptions.Any(s => s.TraineeID == traineeId))
+            if (existingSubscriptions != null && existingSubscriptions.Any(s => s!.TraineeID == traineeId))
             {
                 logger.LogWarning($"⚠️ Subscription already exists for Trainee: {traineeId} and OnlineTraining: {onlineTrainingId}");
                 return;
