@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Core.Entities.ShopEntities
 {
@@ -6,6 +7,7 @@ namespace Core.Entities.ShopEntities
     {
         public int Id { get; set; }
         public DateTime OrderDate { get; set; } = DateTime.Now;
+        [Precision(18, 4)]
         public decimal TotalPrice { get; set; }
         public bool IsRecieved { get; set; } = false;
         public bool IsPayment { get; set; } = false;

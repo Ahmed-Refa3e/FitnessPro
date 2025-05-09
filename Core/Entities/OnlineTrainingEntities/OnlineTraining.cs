@@ -1,5 +1,5 @@
 ﻿using Core.Entities.Identity;
-using Core.Enums;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 namespace Core.Entities.OnlineTrainingEntities
@@ -13,6 +13,7 @@ namespace Core.Entities.OnlineTrainingEntities
         public required string Title { get; set; }
         public string? Description { get; set; }
         public required string TrainingType { get; set; }
+        [Precision(18, 4)]
         public decimal Price { get; set; }
         public int NoOfSessionsPerWeek { get; set; }
         public int DurationOfSession { get; set; } // Duration in minutes   

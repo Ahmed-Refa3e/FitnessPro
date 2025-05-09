@@ -134,10 +134,12 @@ public class GymService(IGymRepository repository) : IGymService
         const double MaxDistanceKm = 5;
 
         var query = repository.GetQueryable()
+            .Where(g => g.Latitude != 0 && g.Longitude != 0)
             .Include(g => g.Ratings)
             .Include(g => g.Owner);
 
         var gyms = await query.ToListAsync();
+        if(gyms.Count == 0) return [];  
 
         var nearbyGyms = gyms
             .Where(g => CalculateDistance(g.Latitude, g.Longitude, dto.Latitude, dto.Longitude) <= MaxDistanceKm)
