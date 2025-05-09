@@ -9,6 +9,11 @@ namespace API.Controllers.GymAndRating
 {
     public class GymRatingController(GymRatingRepository Repo, SignInManager<ApplicationUser> signInManager) : BaseApiController
     {
+        /// <summary>
+        /// Get rating by rating id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GymRatingResponseDTO>> GetGymRatingById(int id)
         {
@@ -70,7 +75,7 @@ namespace API.Controllers.GymAndRating
             if (!await Repo.SaveChangesAsync())
                 return BadRequest("Problem updating gym rating");
 
-            return NoContent();
+            return Ok(new { IsSuccess = true, Data = "Gym rating updated successfully"});
         }
 
         [HttpDelete("{id:int}")]
@@ -90,10 +95,14 @@ namespace API.Controllers.GymAndRating
             if (!await Repo.SaveChangesAsync())
                 return BadRequest("Problem deleting gym rating");
 
-            return NoContent();
+            return Ok(new { IsSuccess = true, Data = "Gym rating Deleted successfully" });
         }
 
-        // Endpoint to return if the user has rated the gym or not 
+        /// <summary>
+        /// Endpoint to return if the user has rated the gym or not 
+        /// </summary>
+        /// <param name="gymId"></param>
+        /// <returns></returns>
         [HttpGet("hasRated/{gymId:int}")]
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult<bool>> HasRatedGym(int gymId)
@@ -109,7 +118,11 @@ namespace API.Controllers.GymAndRating
             return Ok(existingRating != null);
         }
 
-        // Endpoint to return the rating of the user for the gym
+        /// <summary>
+        /// To get rating for signed in user of the gym by gym id
+        /// </summary>
+        /// <param name="gymId"></param>
+        /// <returns></returns>
         [HttpGet("UserRating/{gymId:int}")]
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult<GymRatingResponseDTO>> GetUserGymRating(int gymId)

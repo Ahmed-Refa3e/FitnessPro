@@ -1,5 +1,6 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
+using System;
 
 namespace Services.Extensions;
 
@@ -18,7 +19,7 @@ public static class GymExtensions
                 City = gym.City,
                 Governorate = gym.Governorate,
                 MonthlyPrice = gym.MonthlyPrice,
-                AverageRating = (decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0),
+                AverageRating = Math.Round((decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0), 1),
                 SubscriptionsCount = gym.GymSubscriptions?.Count ?? 0 // Calculate the number of subscriptions
             };
     }
@@ -44,7 +45,7 @@ public static class GymExtensions
                 CoachID = gym.CoachID,
                 CoachFullName = $"{gym.Owner?.FirstName} {gym.Owner?.LastName}",
                 CoachProfilePictureUrl = gym.Owner?.ProfilePictureUrl,
-                AverageRating = (decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0),
+                AverageRating = Math.Round((decimal)(gym.Ratings != null && gym.Ratings.Count != 0 ? gym.Ratings.Average(r => r.RatingValue) : 0), 1),
                 SubscriptionsCount = gym.GymSubscriptions?.Count ?? 0 // Calculate the number of subscriptions
             };
 
