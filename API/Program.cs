@@ -29,10 +29,10 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .SetIsOriginAllowed(origin => true);
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
         });
 });
 
@@ -186,20 +186,21 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-app.UseCors("AllowAllOrigins");
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<ChatHub>("/ChatHub");
+app.UseSwagger();
+app.UseSwaggerUI();
 
+app.MapHub<ChatHub>("/ChatHub");
 app.MapControllers();
+
 
 
 

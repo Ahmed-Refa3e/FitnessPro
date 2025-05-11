@@ -51,20 +51,26 @@ namespace API.Controllers.GymAndRating
             return BadRequest("Problem Adding Gym Rating");
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{GymID:int}")]
         [Authorize(Roles = "Trainee")]
-        public async Task<ActionResult> UpdateGymRating(int id, UpdateGymRatingDTO UpdateGymRatingDTO)
+        public async Task<ActionResult> UpdateGymRating(int GymID, UpdateGymRatingDTO UpdateGymRatingDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var gymRatingToBeUpdated = await Repo.GetByIdAsync(id);
             var user = await signInManager.UserManager.GetUserAsync(User);
-            if (gymRatingToBeUpdated == null)
-                return NotFound("Gym rating not found");
+            if (user is null)
+                return Unauthorized("User is not authenticated");
 
-            if (gymRatingToBeUpdated.TraineeID != user!.Id)
-                return Unauthorized("You are not authorized to update this gym rating");
+            var traineeId = user.Id;
+
+
+            if (await Repo.GetByConditionAsync(x =>
+                x is GymRating gr &&
+                gr.GymID == GymID &&
+                gr.TraineeID == traineeId) is not GymRating gymRatingToBeUpdated)
+                return NotFound($"No rating found for GymID {GymID} by this user.");
+
 
             gymRatingToBeUpdated.RatingDate = DateTime.Now;
             gymRatingToBeUpdated.RatingValue = UpdateGymRatingDTO.RatingValue;
@@ -72,30 +78,35 @@ namespace API.Controllers.GymAndRating
 
             Repo.Update(gymRatingToBeUpdated);
 
-            if (!await Repo.SaveChangesAsync())
-                return BadRequest("Problem updating gym rating");
+            var saved = await Repo.SaveChangesAsync();
+            if (!saved)
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update the gym rating.");
 
-            return Ok(new { IsSuccess = true, Data = "Gym rating updated successfully"});
+            return Ok(new { IsSuccess = true, Data = "Gym rating updated successfully" });
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{GymID:int}")]
         [Authorize(Roles = "Trainee")]
-        public async Task<ActionResult> DeleteGymRating(int id)
+        public async Task<ActionResult> DeleteGymRating(int GymID)
         {
-            var gymRatingToBeDeleted = await Repo.GetByIdAsync(id);
             var user = await signInManager.UserManager.GetUserAsync(User);
-            if (gymRatingToBeDeleted == null)
-                return NotFound("Gym rating not found");
+            if (user is null)
+                return Unauthorized("User is not authenticated");
 
-            if (gymRatingToBeDeleted.TraineeID != user!.Id)
-                return Unauthorized("You are not authorized to Delete this gym rating");
+            var traineeId = user.Id;
+
+            if (await Repo.GetByConditionAsync(x =>
+                x is GymRating gr &&
+                gr.GymID == GymID &&
+                gr.TraineeID == traineeId) is not GymRating gymRatingToBeDeleted)
+                return NotFound($"No rating found for GymID {GymID} by this user.");
 
             Repo.Delete(gymRatingToBeDeleted);
 
             if (!await Repo.SaveChangesAsync())
-                return BadRequest("Problem deleting gym rating");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete the gym rating.");
 
-            return Ok(new { IsSuccess = true, Data = "Gym rating Deleted successfully" });
+            return Ok(new { IsSuccess = true, Data = "Gym rating deleted successfully" });
         }
 
         /// <summary>
