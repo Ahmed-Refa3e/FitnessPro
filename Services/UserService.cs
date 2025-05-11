@@ -37,6 +37,8 @@ namespace Services
                          && e.Ratings.Average(e => e.Rating) <= getCoachesDTO.MaxRating.Value);
             }
 
+            List<Coach> coachesList = await query.ToListAsync();
+
             if (string.IsNullOrWhiteSpace(getCoachesDTO.SortBy))
             {
                 getCoachesDTO.SortBy = "joineddate";
@@ -45,25 +47,25 @@ namespace Services
             switch (getCoachesDTO.SortBy.ToLower())
             {
                 case "coachname":
-                    query = query.OrderBy(e => e.FirstName).ThenBy(e => e.LastName);
+                    coachesList = coachesList.OrderBy(e => e.FirstName).ThenBy(e => e.LastName).ToList();
                     break;
                 case "rating":
-                    query = query.OrderByDescending(e => e.Ratings != null && e.Ratings.Any()
+                    coachesList = coachesList.OrderByDescending(e => e.Ratings != null && e.Ratings.Any()
                                 ? e.Ratings.Average(k => k.Rating)
-                                : 0);
+                                : 0).ToList();
                     break;
                 case "joineddate":
                 default:
-                    query = query.OrderByDescending(c => c.JoinedDate);
+                    coachesList = coachesList.OrderByDescending(c => c.JoinedDate).ToList();
                     break;
             }
 
             var pageSize = getCoachesDTO.PageSize > MaxPageSize ? MaxPageSize : getCoachesDTO.PageSize;
-            var totalCount = await query.CountAsync();
+            var totalCount = coachesList.Count();
 
-            var PaginatedCoaches = await query
+            var PaginatedCoaches = coachesList
                                             .Skip((getCoachesDTO.PageNumber - 1) * getCoachesDTO.PageSize)
-                                            .Take(getCoachesDTO.PageSize).ToListAsync();
+                                            .Take(getCoachesDTO.PageSize).ToList();
 
             var Coaches = new List<CoachResponseDTO>();
             foreach (var coach in PaginatedCoaches)
