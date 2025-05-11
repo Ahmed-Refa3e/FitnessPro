@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
-            .SetIsOriginAllowed(origin => true);
+            .WithOrigins("http://localhost:4200", "https://your-production-url.com");
         });
 });
 
