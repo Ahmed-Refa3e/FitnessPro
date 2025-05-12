@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
-            .WithOrigins("http://localhost:4200", "https://your-production-url.com");
+            .WithOrigins("http://localhost:4200", "https://gym-graduation-pr0ject.vercel.app");
         });
 });
 
