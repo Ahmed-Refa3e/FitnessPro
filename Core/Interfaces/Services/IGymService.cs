@@ -14,5 +14,9 @@ namespace Core.Interfaces.Services
         Task<bool> UpdateGymAsync(int id, UpdateGymDTO Gym);
         Task<bool> DeleteGymAsync(int id);
         Task<Gym?> GetGymByCoachIdAsync(string CoachId);
+        Task<List<GymResponseDto>> GetNearbyGymsAsync(GetNearbyGymsDTO dto);
+        Task<bool> UpdateGymLocationAsync(int gymId, double latitude, double longitude);
+        Task<bool> AddGymLocationAsync(int gymId, double latitude, double longitude);
+
     }
 }

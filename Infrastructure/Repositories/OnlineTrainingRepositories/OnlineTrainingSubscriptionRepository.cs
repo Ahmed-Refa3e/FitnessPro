@@ -47,9 +47,7 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
                 .AnyAsync(s =>
                     s.TraineeID == traineeId &&
                     s.OnlineTrainingId == trainingId &&
-                    s.IsActive &&
                     s.EndDate > DateTime.Now);
         }
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Core.Helpers;
 using Core.Interfaces.Factories;
 using Core.Interfaces.Repositories;
+using Core.Interfaces.Repositories.ChatRepositories;
 using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Core.Interfaces.Repositories.PostRepositories;
 using Core.Interfaces.Repositories.ShopRepositories;
@@ -8,6 +9,7 @@ using Core.Interfaces.Services;
 using Infrastructure.Factories;
 using Infrastructure.Hubs;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.ChatRepositories;
 using Infrastructure.Repositories.GymRepositories;
 using Infrastructure.Repositories.IShopRepositories;
 using Infrastructure.Repositories.OnlineTrainingRepositories;
@@ -27,10 +29,10 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .SetIsOriginAllowed(origin => true);
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .WithOrigins("http://localhost:4200", "https://gym-graduation-pr0ject.vercel.app");
         });
 });
 
@@ -131,6 +133,21 @@ builder.Services.AddAuthentication(options =>
                 Encoding.UTF8.GetBytes(jwtSettings?.SecritKey ?? string.Empty))
 
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/ChatHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 })
 .AddGoogle(options =>
 {
@@ -145,6 +162,9 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
 builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTrainingSubscriptionRepository>();
 builder.Services.AddSingleton<IBlobService, BlobService>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IUserConnectionRepository, UserConnectionRepository>();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddSignalR();
 
@@ -167,20 +187,21 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-app.UseCors("AllowAllOrigins");
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<ChatHub>("/ChatHub");
+app.UseSwagger();
+app.UseSwaggerUI();
 
+app.MapHub<ChatHub>("/ChatHub");
 app.MapControllers();
+
 
 
 
