@@ -80,7 +80,7 @@ builder.Services.AddSwaggerGen(swagger =>
 
 builder.Services.AddDbContext<FitnessContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("RemoteConnection"));//DefaultConnection
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));//DefaultConnection
 });
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

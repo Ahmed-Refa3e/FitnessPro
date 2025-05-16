@@ -413,10 +413,10 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto,string userId)
+        public async Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto, string userId)
         {
             Generalresponse response = new Generalresponse();
-            
+
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)

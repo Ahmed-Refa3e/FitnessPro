@@ -2,10 +2,10 @@
 
 namespace Core.DTOs.PostDTO
 {
-    public class AddLikeDTO
+    public class AddLikeOnPostDTO
     {
         [Required]
-        public int OwnerId { get; set; }
+        public int PostId { get; set; }
         [Required]
         public string Type { get; set; }
     }
