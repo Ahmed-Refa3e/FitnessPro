@@ -423,6 +423,10 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
                 _context.Posts.Remove(post);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+                foreach(var url in post.PictureUrls.Select(x => x.Url))
+                {
+                    await _blobService.DeleteImageAsync(url);
+                }
                 return new IntResult { Id = 1 };
             }
             catch (Exception ex)
