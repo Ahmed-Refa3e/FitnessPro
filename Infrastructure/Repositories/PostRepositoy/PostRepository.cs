@@ -171,7 +171,7 @@ namespace Infrastructure.Repositories.PostRepositoy
         public async Task<List<ShowGeneralFormOfPostDTO>> GetPostsForUserFromFollowers(int pageNumber, string userId)
         {
             if (string.IsNullOrEmpty(userId) || await _context.Users.FindAsync(userId) is null)
-                return await GetRandoPosts(pageNumber);
+                return await GetRandoPosts(pageNumber, userId);
             var gymIds = await _context.gymFollows
                 .Where(f => f.FollowerId == userId)
                 .Select(f => f.GymId)
@@ -216,7 +216,7 @@ SELECT COUNT(*) AS Count FROM (
             (pageNumber, pageSize) = await PaginationHelper.NormalizePaginationWithCountAsync(count, pageNumber, pageSize);
             if (pageSize == -1)
             {
-                return await GetRandoPosts(pageNumber);
+                return await GetRandoPosts(pageNumber,userId);
             }
 
             int offset = (pageNumber - 1) * pageSize;
@@ -316,7 +316,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             return allPosts;
         }
 
-        private async Task<List<ShowGeneralFormOfPostDTO>> GetRandoPosts(int pageNumber)
+        private async Task<List<ShowGeneralFormOfPostDTO>> GetRandoPosts(int pageNumber,string userId)
         {
             var pageSize = 10;
             int offset = (pageNumber - 1) * pageSize;
@@ -340,21 +340,26 @@ SELECT
       WHEN 'ShopPost'  THEN s.Name
       ELSE '' END AS EntityName,
     p.Discriminator AS SourceType,
-    CAST(0 AS bit) AS IsYourPost
+    CASE
+      WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
+      WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+      WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+      ELSE CAST(0 AS bit)
+    END AS IsYourPost
 FROM Posts p
 LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
 LEFT JOIN Gyms        g ON p.GymId    = g.GymId
 LEFT JOIN Shops       s ON p.ShopId   = s.Id
 ORDER BY p.CreatedAt DESC
 OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
-
 ";
 
             var parameters = new[]
             {
+    new SqlParameter("@userId", userId),
     new SqlParameter("@offset", offset),
     new SqlParameter("@pageSize", pageSize)
-};
+            };
 
             var posts = await _context.RawPostDTOs
                 .FromSqlRaw(sql, parameters)
@@ -395,6 +400,12 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
                     newPost.SourceId = post.ShopId;
                 }
                 newPost.LikesDetails = await LikesDetailsOnPost(likes.Where(x => x.PostId == post.Id).ToList());
+                var like = likes.FirstOrDefault(x => x.PostId == post.Id && x.UserId == userId);
+                if (like is not null && userId != "")
+                {
+                    newPost.IsLikedByYou = true;
+                    newPost.LikeType = (like.Type == LikeType.Love) ? "LOVE" : (like.Type == LikeType.Care) ? "CARE" : "NORMAL";
+                }
                 newPost.PictureUrls = urls.Where(x => x.PostId == newPost.Id).Select(x => x.Url).ToList();
                 allPosts.Add(newPost);
             }
@@ -579,6 +590,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             List<ShowLikeDTO> showLikes = await _context.postLikes.Where(x => x.PostId == id).Select(x => new ShowLikeDTO
             {
                 UserName = x.User.FirstName + " " + x.User.LastName,
+                UserId=x.UserId,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
             }).ToListAsync();

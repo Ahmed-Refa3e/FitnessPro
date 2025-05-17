@@ -13,8 +13,6 @@ namespace Core.DTOs.ShopDTO
         [Range(0, (double)decimal.MaxValue)]
         public decimal Price { get; set; }
         [Required]
-        public string ImageUrl { get; set; }
-        [Required]
         [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
     }

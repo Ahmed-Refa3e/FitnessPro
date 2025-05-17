@@ -9,6 +9,7 @@ namespace Core.Interfaces.Repositories.ShopRepositories
         Task<List<ShowProductDTO>> GetProducts(ProductSearchDTO searchDTO);
         Task<ShowOneProductDTO> GetProductById(int productId);
         Task<IntResult> UpdateCategoriesOfProduct(ModifyCategoriesInProductDTO modifyCategories, string UserId);
+        Task<IntResult> UpdateImage(UpdateImageDTO imageDTO, int productId, string userId);
         Task<IntResult> Add(AddProductDTO product, string userId);
         Task<IntResult> Delete(int productId, string userId);
         Task<IntResult> Update(EditProductDTO product, int id, string userId);

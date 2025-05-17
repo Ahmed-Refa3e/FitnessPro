@@ -3,6 +3,7 @@ using Core.DTOs.ShopDTO;
 using Core.DTOs.ShopDTO.ProductDTO;
 using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
+using Core.Interfaces.Services;
 using Core.Utilities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace Infrastructure.Repositories.ShopRepositories
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly FitnessContext _context;
-        public ProductRepository(FitnessContext context, ICategoryRepository categoryRepository)
+        private readonly IBlobService _blobService;
+        public ProductRepository(FitnessContext context, ICategoryRepository categoryRepository,IBlobService blobService)
         {
             _context = context;
             _categoryRepository = categoryRepository;
+            _blobService = blobService;
         }
         public async Task<IntResult> Add(AddProductDTO product, string userId)
         {
@@ -31,7 +34,6 @@ namespace Infrastructure.Repositories.ShopRepositories
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImagePath = product.ImageUrl,
                 Quantity = product.Quantity,
                 ShopId = product.ShopId,
                 Shop = shop
@@ -50,7 +52,17 @@ namespace Infrastructure.Repositories.ShopRepositories
                     var category = await _categoryRepository.CheckIfItexistingAndGet(name);
                     newProduct.Categories.Add(category);
                 }
-
+                await _context.SaveChangesAsync();
+                if (product.Image is not null)
+                {
+                    var result = AddImageHelper.CheckImage(product.Image);
+                    if (result.Id == 0)
+                    {
+                        return result;
+                    }
+                    newProduct.ImagePath = await _blobService.UploadImageAsync(product.Image);
+                    await _context.SaveChangesAsync();
+                }
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -102,17 +114,14 @@ namespace Infrastructure.Repositories.ShopRepositories
 
             _context.products.Remove(product);
 
-            await using var transaction = await _context.Database.BeginTransactionAsync();
-
             try
             {
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                await _blobService.DeleteImageAsync(product.ImagePath);
                 return new IntResult { Id = 1 };
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
                 return new IntResult { Massage = ex.Message };
             }
         }
@@ -192,7 +201,6 @@ namespace Infrastructure.Repositories.ShopRepositories
             productDB.Description = product.Description;
             productDB.Name = product.Name;
             productDB.Quantity = product.Quantity;
-            productDB.ImagePath = product.ImageUrl;
 
             try
             {
@@ -241,6 +249,50 @@ namespace Infrastructure.Repositories.ShopRepositories
             }
 
             return new IntResult { Id = product.Id };
+        }
+        public async Task<IntResult> UpdateImage(UpdateImageDTO imageDTO, int productId, string userId)
+        {
+            var productDB = await _context.products
+                            .Include(x => x.Shop)
+                            .FirstOrDefaultAsync(x => x.Id == productId);
+            if (productDB is null || productDB.Shop.OwnerID != userId)
+            {
+                return new IntResult() { Massage = "No product has this Id" };
+            }
+            var oldPath = productDB.ImagePath;
+            if (imageDTO.Image is null)
+            {
+                productDB.ImagePath = null;
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    return new IntResult { Massage = ex.Message };
+                }
+                await _blobService.DeleteImageAsync(oldPath);
+            }
+            else
+            {
+                var result = AddImageHelper.CheckImage(imageDTO.Image);
+                if (result.Id == 0)
+                {
+                    return result;
+                }
+                productDB.ImagePath = await _blobService.UploadImageAsync(imageDTO.Image);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    await _blobService.DeleteImageAsync(productDB.ImagePath);
+                    return new IntResult { Massage = ex.Message };
+                }
+                await _blobService.DeleteImageAsync(oldPath);
+            }
+            return new IntResult { Id = productId };
         }
 
     }
