@@ -45,7 +45,7 @@ public class PaymentsController(
                 {
                     PriceData = new SessionLineItemPriceDataOptions
                     {
-                        Currency = "usd",
+                        Currency = "EGP",
                         UnitAmount = (long?)onlineTraining.Price * 100,
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
