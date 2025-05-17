@@ -2,13 +2,14 @@
 using Core.DTOs.PostDTO;
 using Core.Entities.Identity;
 using Core.Entities.PostEntities;
+using Core.Interfaces.Services;
 using Infrastructure.Data;
 
 namespace Infrastructure.Repositories.PostRepositoy
 {
     public class CoachPostRepository : GeneralPostRepository
     {
-        public CoachPostRepository(FitnessContext context) : base(context)
+        public CoachPostRepository(FitnessContext context, IBlobService blobService) : base(context,blobService)
         {
         }
         public override async Task<IntResult> Add(AddPostDTO post, string userId)

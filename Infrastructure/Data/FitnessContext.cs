@@ -1,4 +1,5 @@
-﻿using Core.Entities.ChatEntites;
+﻿using Core.DTOs.PostDTO;
+using Core.Entities.ChatEntites;
 using Core.Entities.FollowEntities;
 using Core.Entities.GymEntities;
 using Core.Entities.Identity;
@@ -7,6 +8,7 @@ using Core.Entities.PostEntities;
 using Core.Entities.ShopEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace Infrastructure.Data;
 public class FitnessContext(DbContextOptions options) : IdentityDbContext<ApplicationUser>(options)
@@ -41,6 +43,10 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     public DbSet<PostComment>? postComments { get; set; }
     public DbSet<ChatMessage> messages { get; set; }
     public DbSet<UserConnection> connections { get; set; }
+
+    //Schemas or View
+    public DbSet<RawPostDTO> RawPostDTOs { get; set; }
+    public DbSet<CountResult> countResults { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -228,5 +234,13 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
         //    }
         //);
         #endregion
+        builder
+            .Entity<CountResult>()
+            .HasNoKey()
+            .ToView(null);
+        builder
+    .Entity<RawPostDTO>()
+    .HasNoKey()
+    .ToView(null);
     }
 }

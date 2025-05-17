@@ -2,10 +2,10 @@
 
 namespace Core.DTOs.PostDTO
 {
-    public class AddCommentDTO
+    public class AddCommentOnCommentDTO
     {
         [Required]
-        public int OwnerId { get; set; }
+        public int CommentId { get; set; }
         [Required]
         [MaxLength(256)]
         public string Content { get; set; }
