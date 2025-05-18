@@ -1,7 +1,6 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.ShopDTO;
 using Core.Interfaces.Repositories.ShopRepositories;
-using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Extensions;
@@ -55,7 +54,7 @@ namespace API.Controllers.Shop
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
-            var result = await _repository.Delete(userId,id);
+            var result = await _repository.Delete(userId, id);
             if (result.Id == 0)
             {
                 return NotFound(new Generalresponse { IsSuccess = false, Data = result.Massage });
@@ -64,7 +63,7 @@ namespace API.Controllers.Shop
         }
         [HttpPost]
         [Authorize(Roles = "Coach")]
-        public async Task<ActionResult> Add( AddShopDTO shop)
+        public async Task<ActionResult> Add(AddShopDTO shop)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
@@ -99,7 +98,7 @@ namespace API.Controllers.Shop
         }
         [HttpPut("UpdateImage/{id:int}")]
         [Authorize(Roles = "Coach")]
-        public async Task<ActionResult> UpdateImage( UpdateImageDTO imageDTO, int id)
+        public async Task<ActionResult> UpdateImage(UpdateImageDTO imageDTO, int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });

@@ -15,7 +15,7 @@ namespace Infrastructure.Repositories.ShopRepositories
         private readonly ICategoryRepository _categoryRepository;
         private readonly FitnessContext _context;
         private readonly IBlobService _blobService;
-        public ProductRepository(FitnessContext context, ICategoryRepository categoryRepository,IBlobService blobService)
+        public ProductRepository(FitnessContext context, ICategoryRepository categoryRepository, IBlobService blobService)
         {
             _context = context;
             _categoryRepository = categoryRepository;
@@ -160,7 +160,7 @@ namespace Infrastructure.Repositories.ShopRepositories
 
             if (searchDTO.MinimumPrice is not null && searchDTO.MinimumPrice > 0)
             {
-                query = query.Where(x => x.Price>= searchDTO.MinimumPrice);
+                query = query.Where(x => x.Price >= searchDTO.MinimumPrice);
             }
 
             if (searchDTO.MaximumPrice is not null && searchDTO.MaximumPrice > 0)

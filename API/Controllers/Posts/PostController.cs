@@ -53,8 +53,8 @@ namespace API.Controllers.Posts
         [HttpGet("PostsForUser")]
         public async Task<IActionResult> PostsForUser(int pageNumber)
         {
-            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value??"";
-            var posts = await _postRepository.GetPostsForUserFromFollowers(pageNumber,userId);
+            var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
+            var posts = await _postRepository.GetPostsForUserFromFollowers(pageNumber, userId);
             if (posts == null)
             {
                 return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
@@ -65,7 +65,7 @@ namespace API.Controllers.Posts
         public async Task<IActionResult> PostsOfShop(int id, int pageNumber)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
-            var posts = await _postRepository.GetPostsOfShop(id,pageNumber,userId);
+            var posts = await _postRepository.GetPostsOfShop(id, pageNumber, userId);
             if (posts == null)
             {
                 return NotFound(new Generalresponse { IsSuccess = false, Data = "No Post found with this ID." });
@@ -84,7 +84,7 @@ namespace API.Controllers.Posts
             return Ok(new Generalresponse { IsSuccess = true, Data = posts });
         }
         [HttpGet("GetAllPostsOfCoach/{id}/{pageNumber:int}")]
-        public async Task<IActionResult> PostsOfShop(string id,int pageNumber)
+        public async Task<IActionResult> PostsOfShop(string id, int pageNumber)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var posts = await _postRepository.GetPostsOfCoach(id, pageNumber, userId);

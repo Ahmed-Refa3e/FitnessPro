@@ -1,5 +1,6 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.PostDTO;
+using Core.Entities.Identity;
 using Core.Entities.PostEntities;
 using Core.Enums;
 using Core.Interfaces.Repositories.PostRepositories;
@@ -17,7 +18,7 @@ namespace Infrastructure.Repositories.PostRepositoy
     {
         private readonly FitnessContext _context;
         private readonly IBlobService _blobService;
-        public PostRepository(FitnessContext context,IBlobService blobService)
+        public PostRepository(FitnessContext context, IBlobService blobService)
         {
             _context = context;
             _blobService = blobService;
@@ -42,7 +43,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                     PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
                 })
                 .OrderByDescending(p => p.CreatedAt)
-                .Skip((pageNumber-1) * 10).Take(10)
+                .Skip((pageNumber - 1) * 10).Take(10)
                 .ToListAsync();
             //var likes = _context.ShopPosts.Include(x => x.Likes).Where(x => x.ShopId == shopId).SelectMany(x => x.Likes);
             var postIds = posts.Select(p => p.Id).ToList();
@@ -216,7 +217,7 @@ SELECT COUNT(*) AS Count FROM (
             (pageNumber, pageSize) = await PaginationHelper.NormalizePaginationWithCountAsync(count, pageNumber, pageSize);
             if (pageSize == -1)
             {
-                return await GetRandoPosts(pageNumber,userId);
+                return await GetRandoPosts(pageNumber, userId);
             }
 
             int offset = (pageNumber - 1) * pageSize;
@@ -316,7 +317,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             return allPosts;
         }
 
-        private async Task<List<ShowGeneralFormOfPostDTO>> GetRandoPosts(int pageNumber,string userId)
+        private async Task<List<ShowGeneralFormOfPostDTO>> GetRandoPosts(int pageNumber, string userId)
         {
             var pageSize = 10;
             int offset = (pageNumber - 1) * pageSize;
@@ -434,7 +435,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
                 _context.Posts.Remove(post);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-                foreach(var url in post.PictureUrls.Select(x => x.Url))
+                foreach (var url in post.PictureUrls.Select(x => x.Url))
                 {
                     await _blobService.DeleteImageAsync(url);
                 }
@@ -545,6 +546,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             var like = await _context.postLikes.Where(x => x.Id == id).Select(x => new ShowLikeDTO
             {
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
+                IsCoach = x.User is Coach,
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL",
                 UserName = x.User.FirstName + " " + x.User.LastName
             }).FirstOrDefaultAsync();
@@ -590,7 +592,8 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             List<ShowLikeDTO> showLikes = await _context.postLikes.Where(x => x.PostId == id).Select(x => new ShowLikeDTO
             {
                 UserName = x.User.FirstName + " " + x.User.LastName,
-                UserId=x.UserId,
+                UserId = x.UserId,
+                IsCoach=x.User is Coach,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
             }).ToListAsync();
@@ -711,6 +714,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             {
                 UserName = x.User.FirstName + " " + x.User.LastName,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
+                IsCoach = x.User is Coach,
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
             }).ToListAsync();
             return showLikes;

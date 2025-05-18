@@ -1,7 +1,6 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.ShopDTO;
 using Core.DTOs.ShopDTO.ProductDTO;
-using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,11 +33,11 @@ namespace API.Controllers.Shop
         [HttpGet("ProductCategories")]
         public async Task<ActionResult> GetAllProductCategories()
         {
-            var result =await _categoryRepository.GetAll();
+            var result = await _categoryRepository.GetAll();
             return Ok(new Generalresponse { IsSuccess = true, Data = result });
         }
         [HttpGet("Products")]
-        public async Task<ActionResult> GetProducts([FromQuery]ProductSearchDTO searchDTO)
+        public async Task<ActionResult> GetProducts([FromQuery] ProductSearchDTO searchDTO)
         {
             var result = await _productRepository.GetProducts(searchDTO);
             return Ok(new Generalresponse { IsSuccess = true, Data = result });
@@ -65,7 +64,7 @@ namespace API.Controllers.Shop
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
-            var result = await _productRepository.Delete(id,userId);
+            var result = await _productRepository.Delete(id, userId);
             if (result.Id == 0)
             {
                 return NotFound(new Generalresponse { IsSuccess = false, Data = result.Massage });
@@ -115,7 +114,7 @@ namespace API.Controllers.Shop
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
-            var result =await _productRepository.UpdateCategoriesOfProduct(categories, userId);
+            var result = await _productRepository.UpdateCategoriesOfProduct(categories, userId);
             if (result.Id == 0)
                 return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
 
