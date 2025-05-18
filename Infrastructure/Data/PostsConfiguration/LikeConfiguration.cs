@@ -8,9 +8,10 @@ namespace Infrastructure.Data.PostsConfiguration
     {
         public void Configure(EntityTypeBuilder<Like> builder)
         {
-            builder.HasOne(x => x.User).WithMany(x => x.Likes).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
-            builder.HasDiscriminator<string>("Type").HasValue<PostLike>("POST").HasValue<CommentLike>("CMNT");
-            builder.Property("Type").HasMaxLength(4);
+            builder.HasOne(x => x.User).WithMany(x => x.Likes).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+            builder.HasDiscriminator<string>("LikeType").HasValue<PostLike>("POST").HasValue<CommentLike>("CMNT");
+            builder.HasIndex(x => x.UserId);
+            builder.Property("LikeType").HasMaxLength(4);
         }
     }
 }

@@ -8,6 +8,7 @@ using Core.Entities.PostEntities;
 using Core.Entities.ShopEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Reflection.Emit;
 
 namespace Infrastructure.Data;
@@ -50,6 +51,7 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(typeof(FitnessContext).Assembly);
 
         #region relationships
         // Gym Relationships
@@ -234,6 +236,9 @@ public class FitnessContext(DbContextOptions options) : IdentityDbContext<Applic
         //    }
         //);
         #endregion
+
+        //Index 
+        builder.Entity<ShopFollow>().HasIndex(f => f.ShopId);
         builder
             .Entity<CountResult>()
             .HasNoKey()

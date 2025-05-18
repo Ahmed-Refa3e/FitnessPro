@@ -36,6 +36,7 @@ namespace Infrastructure.Repositories.ShopRepositories
                 Price = product.Price,
                 Quantity = product.Quantity,
                 ShopId = product.ShopId,
+                OfferPrice=product.OfferPrice,
                 Shop = shop
             };
 
@@ -201,6 +202,7 @@ namespace Infrastructure.Repositories.ShopRepositories
             productDB.Description = product.Description;
             productDB.Name = product.Name;
             productDB.Quantity = product.Quantity;
+            productDB.OfferPrice = product.OfferPrice;
 
             try
             {

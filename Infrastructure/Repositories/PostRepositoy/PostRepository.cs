@@ -171,6 +171,7 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public async Task<List<ShowGeneralFormOfPostDTO>> GetPostsForUserFromFollowers(int pageNumber, string userId)
         {
+            pageNumber = Math.Max(1, pageNumber);
             if (string.IsNullOrEmpty(userId) || await _context.Users.FindAsync(userId) is null)
                 return await GetRandoPosts(pageNumber, userId);
             var gymIds = await _context.gymFollows
@@ -197,14 +198,14 @@ namespace Infrastructure.Repositories.PostRepositoy
                 ? string.Join(",", shopIds)
                 : "-1";
             var countSql = $@"
-SELECT COUNT(*) AS Count FROM (
-    SELECT Id FROM Posts WHERE CoachId IN ({followedUserIdsString})
-    UNION
-    SELECT Id FROM Posts WHERE GymId IN ({gymIdsString})
-    UNION
-    SELECT Id FROM Posts WHERE ShopId IN ({shopIdsString})
-) AS AllPosts
-";
+                                SELECT COUNT(*) AS Count FROM (
+                                    SELECT Id FROM Posts WHERE CoachId IN ({followedUserIdsString})
+                                    UNION
+                                    SELECT Id FROM Posts WHERE GymId IN ({gymIdsString})
+                                    UNION
+                                    SELECT Id FROM Posts WHERE ShopId IN ({shopIdsString})
+                                ) AS AllPosts
+                                ";
 
             var countResult = await _context.countResults
                 .FromSqlRaw(countSql)
@@ -223,41 +224,41 @@ SELECT COUNT(*) AS Count FROM (
             int offset = (pageNumber - 1) * pageSize;
 
             var sql = $@"
-SELECT
-    p.Id,
-    p.Content,
-    p.CreatedAt,
-    p.CoachId,
-    p.GymId,
-    p.ShopId,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.ProfilePictureUrl
-      WHEN 'GymPost'   THEN g.PictureUrl
-      WHEN 'ShopPost'  THEN s.PictureUrl
-      ELSE '' END AS PhotoPass,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
-      WHEN 'GymPost'   THEN g.GymName
-      WHEN 'ShopPost'  THEN s.Name
-      ELSE '' END AS EntityName,
-    p.Discriminator AS SourceType,
-    CASE
-      WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
-      WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
-      WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
-      ELSE CAST(0 AS bit)
-    END AS IsYourPost
-FROM Posts p
-LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
-LEFT JOIN Gyms        g ON p.GymId    = g.GymId
-LEFT JOIN Shops       s ON p.ShopId   = s.Id
-WHERE
-    (p.Discriminator = 'CoachPost' AND p.CoachId IN ({followedUserIdsString}))
- OR (p.Discriminator = 'GymPost'   AND p.GymId   IN ({gymIdsString}))
- OR (p.Discriminator = 'ShopPost'  AND p.ShopId  IN ({shopIdsString}))
-ORDER BY p.CreatedAt DESC
-OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
-";
+                            SELECT
+                                p.Id,
+                                p.Content,
+                                p.CreatedAt,
+                                p.CoachId,
+                                p.GymId,
+                                p.ShopId,
+                                CASE p.Discriminator
+                                  WHEN 'CoachPost' THEN c.ProfilePictureUrl
+                                  WHEN 'GymPost'   THEN g.PictureUrl
+                                  WHEN 'ShopPost'  THEN s.PictureUrl
+                                  ELSE '' END AS PhotoPass,
+                                CASE p.Discriminator
+                                  WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
+                                  WHEN 'GymPost'   THEN g.GymName
+                                  WHEN 'ShopPost'  THEN s.Name
+                                  ELSE '' END AS EntityName,
+                                p.Discriminator AS SourceType,
+                                CASE
+                                  WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  ELSE CAST(0 AS bit)
+                                END AS IsYourPost
+                            FROM Posts p
+                            LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
+                            LEFT JOIN Gyms        g ON p.GymId    = g.GymId
+                            LEFT JOIN Shops       s ON p.ShopId   = s.Id
+                            WHERE
+                                (p.Discriminator = 'CoachPost' AND p.CoachId IN ({followedUserIdsString}))
+                             OR (p.Discriminator = 'GymPost'   AND p.GymId   IN ({gymIdsString}))
+                             OR (p.Discriminator = 'ShopPost'  AND p.ShopId  IN ({shopIdsString}))
+                            ORDER BY p.CreatedAt DESC
+                            OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
+                            ";
 
             var parameters = new[]
             {
@@ -323,37 +324,37 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             int offset = (pageNumber - 1) * pageSize;
 
             var sql = $@"
-SELECT
-    p.Id,
-    p.Content,
-    p.CreatedAt,
-    p.CoachId,
-    p.GymId,
-    p.ShopId,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.ProfilePictureUrl
-      WHEN 'GymPost'   THEN g.PictureUrl
-      WHEN 'ShopPost'  THEN s.PictureUrl
-      ELSE '' END AS PhotoPass,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
-      WHEN 'GymPost'   THEN g.GymName
-      WHEN 'ShopPost'  THEN s.Name
-      ELSE '' END AS EntityName,
-    p.Discriminator AS SourceType,
-    CASE
-      WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
-      WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
-      WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
-      ELSE CAST(0 AS bit)
-    END AS IsYourPost
-FROM Posts p
-LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
-LEFT JOIN Gyms        g ON p.GymId    = g.GymId
-LEFT JOIN Shops       s ON p.ShopId   = s.Id
-ORDER BY p.CreatedAt DESC
-OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
-";
+                            SELECT
+                                p.Id,
+                                p.Content,
+                                p.CreatedAt,
+                                p.CoachId,
+                                p.GymId,
+                                p.ShopId,
+                                CASE p.Discriminator
+                                  WHEN 'CoachPost' THEN c.ProfilePictureUrl
+                                  WHEN 'GymPost'   THEN g.PictureUrl
+                                  WHEN 'ShopPost'  THEN s.PictureUrl
+                                  ELSE '' END AS PhotoPass,
+                                CASE p.Discriminator
+                                  WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
+                                  WHEN 'GymPost'   THEN g.GymName
+                                  WHEN 'ShopPost'  THEN s.Name
+                                  ELSE '' END AS EntityName,
+                                p.Discriminator AS SourceType,
+                                CASE
+                                  WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  ELSE CAST(0 AS bit)
+                                END AS IsYourPost
+                            FROM Posts p
+                            LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
+                            LEFT JOIN Gyms        g ON p.GymId    = g.GymId
+                            LEFT JOIN Shops       s ON p.ShopId   = s.Id
+                            ORDER BY p.CreatedAt DESC
+                            OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
+                            ";
 
             var parameters = new[]
             {

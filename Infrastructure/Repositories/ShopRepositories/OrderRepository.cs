@@ -156,7 +156,7 @@ namespace Infrastructure.Repositories.ShopRepositories
                         ProductName = x.Product != null ? x.Product.Name : "Unknown",
                         Quantity = x.Quantity
                     }).ToList()
-                }).ToListAsync();
+                }).OrderByDescending(x => x.IsRecieved).OrderBy(x=>x.IsPayment).OrderBy(x => x.OrderDate).ToListAsync();
         }
         public async Task<List<ShowShopOrderDTO>> GetOrdersForShop(int shopId, string userId)
         {
@@ -184,7 +184,7 @@ namespace Infrastructure.Repositories.ShopRepositories
                         ProductName = x.Product != null ? x.Product.Name : "Unknown",
                         Quantity = x.Quantity
                     }).ToList()
-                }).ToListAsync();
+                }).OrderByDescending(x=>x.IsRecieved).OrderBy(x => x.IsPayment).OrderBy(x=>x.OrderDate).ToListAsync();
         }
 
         public async Task<IntResult> MakeItReseved(int id, string userId)
