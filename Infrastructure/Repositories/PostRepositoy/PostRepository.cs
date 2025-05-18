@@ -231,21 +231,21 @@ namespace Infrastructure.Repositories.PostRepositoy
                                 p.CoachId,
                                 p.GymId,
                                 p.ShopId,
-                                CASE p.Discriminator
+                                CASE p.PostType
                                   WHEN 'CoachPost' THEN c.ProfilePictureUrl
                                   WHEN 'GymPost'   THEN g.PictureUrl
                                   WHEN 'ShopPost'  THEN s.PictureUrl
                                   ELSE '' END AS PhotoPass,
-                                CASE p.Discriminator
+                                CASE p.PostType
                                   WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
                                   WHEN 'GymPost'   THEN g.GymName
                                   WHEN 'ShopPost'  THEN s.Name
                                   ELSE '' END AS EntityName,
-                                p.Discriminator AS SourceType,
+                                p.PostType AS SourceType,
                                 CASE
-                                  WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
-                                  WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
-                                  WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
                                   ELSE CAST(0 AS bit)
                                 END AS IsYourPost
                             FROM Posts p
@@ -253,9 +253,9 @@ namespace Infrastructure.Repositories.PostRepositoy
                             LEFT JOIN Gyms        g ON p.GymId    = g.GymId
                             LEFT JOIN Shops       s ON p.ShopId   = s.Id
                             WHERE
-                                (p.Discriminator = 'CoachPost' AND p.CoachId IN ({followedUserIdsString}))
-                             OR (p.Discriminator = 'GymPost'   AND p.GymId   IN ({gymIdsString}))
-                             OR (p.Discriminator = 'ShopPost'  AND p.ShopId  IN ({shopIdsString}))
+                                (p.PostType = 'CoachPost' AND p.CoachId IN ({followedUserIdsString}))
+                             OR (p.PostType = 'GymPost'   AND p.GymId   IN ({gymIdsString}))
+                             OR (p.PostType = 'ShopPost'  AND p.ShopId  IN ({shopIdsString}))
                             ORDER BY p.CreatedAt DESC
                             OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
                             ";
@@ -278,7 +278,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             var likes = await _context.postLikes
                 .FromSqlRaw($"SELECT * FROM Likes WHERE PostId IN ({ids})")
                 .ToListAsync();
-            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PictureUrls WHERE PostId IN ({ids})")
+            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PostPictureUrl WHERE PostId IN ({ids})")
                 .ToListAsync();
             var allPosts = new List<ShowGeneralFormOfPostDTO>();
             foreach (var post in posts)
@@ -331,21 +331,21 @@ namespace Infrastructure.Repositories.PostRepositoy
                                 p.CoachId,
                                 p.GymId,
                                 p.ShopId,
-                                CASE p.Discriminator
+                                CASE p.PostType
                                   WHEN 'CoachPost' THEN c.ProfilePictureUrl
                                   WHEN 'GymPost'   THEN g.PictureUrl
                                   WHEN 'ShopPost'  THEN s.PictureUrl
                                   ELSE '' END AS PhotoPass,
-                                CASE p.Discriminator
+                                CASE p.PostType
                                   WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
                                   WHEN 'GymPost'   THEN g.GymName
                                   WHEN 'ShopPost'  THEN s.Name
                                   ELSE '' END AS EntityName,
-                                p.Discriminator AS SourceType,
+                                p.PostType AS SourceType,
                                 CASE
-                                  WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
-                                  WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
-                                  WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
                                   ELSE CAST(0 AS bit)
                                 END AS IsYourPost
                             FROM Posts p
@@ -374,7 +374,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             var likes = await _context.postLikes
                 .FromSqlRaw($"SELECT * FROM Likes WHERE PostId IN ({ids})")
                 .ToListAsync();
-            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PictureUrls WHERE PostId IN ({ids})")
+            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PostPictureUrl WHERE PostId IN ({ids})")
                 .ToListAsync();
             var allPosts = new List<ShowGeneralFormOfPostDTO>();
             foreach (var post in posts)
