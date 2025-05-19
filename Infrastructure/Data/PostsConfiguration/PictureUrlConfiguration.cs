@@ -10,6 +10,7 @@ namespace Infrastructure.Data.PostsConfiguration
         {
             builder.Property(x => x.Url).IsRequired();
             builder.HasOne(x => x.Post).WithMany(x => x.PictureUrls).HasForeignKey(x => x.PostId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasIndex(x => x.PostId);
             builder.ToTable("PostPictureUrl");
         }
     }

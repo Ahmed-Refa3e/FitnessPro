@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.ShopConfiguration
 {
-    internal class ShopConfiguration : IEntityTypeConfiguration<Shop>
+    public class ShopConfiguration : IEntityTypeConfiguration<Shop>
     {
         public void Configure(EntityTypeBuilder<Shop> builder)
         {
@@ -16,6 +16,8 @@ namespace Infrastructure.Data.ShopConfiguration
             builder.Property(x => x.PhoneNumber).HasMaxLength(15);
             builder.Property(x => x.Description).HasMaxLength(500).IsRequired();
             builder.HasOne(x => x.Owner).WithMany(x => x.Shops).HasForeignKey(x => x.OwnerID);
+            builder.HasIndex(c => c.OwnerID);
+            builder.HasIndex(c => c.City);
             builder.ToTable("Shops");
         }
     }

@@ -8,8 +8,8 @@ namespace Infrastructure.Data.PostsConfiguration
     {
         public void Configure(EntityTypeBuilder<ShopPost> builder)
         {
-            builder.HasOne(x => x.Shop).WithMany(x => x.Posts).HasForeignKey(x => x.ShopId).OnDelete(DeleteBehavior.Cascade);
-
+            builder.HasOne(x => x.Shop).WithMany(x => x.Posts).HasForeignKey(x => x.ShopId).OnDelete(DeleteBehavior.SetNull);
+            builder.HasIndex(x => x.ShopId);
         }
     }
 }

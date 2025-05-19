@@ -9,6 +9,7 @@ namespace Core.Entities.ShopEntities
         public string Description { get; set; }
         [Precision(18, 4)]
         public decimal Price { get; set; }
+        public decimal? OfferPrice { get; set; }
         public string? ImagePath { get; set; }
         public int Quantity { get; set; }
         public List<Category>? Categories { get; set; } = new List<Category>();

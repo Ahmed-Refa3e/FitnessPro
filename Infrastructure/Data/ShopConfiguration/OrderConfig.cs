@@ -12,6 +12,8 @@ namespace Infrastructure.Data.ShopConfiguration
             builder.Property(x => x.TotalPrice).HasColumnType("decimal(12,2)").IsRequired();
             builder.HasOne(x => x.User).WithMany(x => x.Orders).HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
             builder.HasOne(x => x.Shop).WithMany(x => x.Orders).HasForeignKey(x => x.ShopId).OnDelete(DeleteBehavior.SetNull);
+            builder.HasIndex(o => o.UserId);
+            builder.HasIndex(o => o.ShopId);
         }
     }
 }

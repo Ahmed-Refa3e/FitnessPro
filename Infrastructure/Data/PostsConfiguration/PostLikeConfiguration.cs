@@ -9,6 +9,8 @@ namespace Infrastructure.Data.PostsConfiguration
         public void Configure(EntityTypeBuilder<PostLike> builder)
         {
             builder.HasOne(x => x.Post).WithMany(x => x.Likes).HasForeignKey(x => x.PostId).OnDelete(DeleteBehavior.SetNull);
+            builder.HasIndex(x => x.PostId);
+            builder.HasIndex(x => new { x.UserId, x.PostId });
         }
     }
 }

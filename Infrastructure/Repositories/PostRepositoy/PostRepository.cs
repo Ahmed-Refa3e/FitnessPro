@@ -1,5 +1,6 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.PostDTO;
+using Core.Entities.Identity;
 using Core.Entities.PostEntities;
 using Core.Enums;
 using Core.Interfaces.Repositories.PostRepositories;
@@ -17,7 +18,7 @@ namespace Infrastructure.Repositories.PostRepositoy
     {
         private readonly FitnessContext _context;
         private readonly IBlobService _blobService;
-        public PostRepository(FitnessContext context,IBlobService blobService)
+        public PostRepository(FitnessContext context, IBlobService blobService)
         {
             _context = context;
             _blobService = blobService;
@@ -42,7 +43,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                     PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
                 })
                 .OrderByDescending(p => p.CreatedAt)
-                .Skip((pageNumber-1) * 10).Take(10)
+                .Skip((pageNumber - 1) * 10).Take(10)
                 .ToListAsync();
             //var likes = _context.ShopPosts.Include(x => x.Likes).Where(x => x.ShopId == shopId).SelectMany(x => x.Likes);
             var postIds = posts.Select(p => p.Id).ToList();
@@ -170,8 +171,9 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public async Task<List<ShowGeneralFormOfPostDTO>> GetPostsForUserFromFollowers(int pageNumber, string userId)
         {
+            pageNumber = Math.Max(1, pageNumber);
             if (string.IsNullOrEmpty(userId) || await _context.Users.FindAsync(userId) is null)
-                return await GetRandoPosts(pageNumber);
+                return await GetRandoPosts(pageNumber, userId);
             var gymIds = await _context.gymFollows
                 .Where(f => f.FollowerId == userId)
                 .Select(f => f.GymId)
@@ -196,14 +198,14 @@ namespace Infrastructure.Repositories.PostRepositoy
                 ? string.Join(",", shopIds)
                 : "-1";
             var countSql = $@"
-SELECT COUNT(*) AS Count FROM (
-    SELECT Id FROM Posts WHERE CoachId IN ({followedUserIdsString})
-    UNION
-    SELECT Id FROM Posts WHERE GymId IN ({gymIdsString})
-    UNION
-    SELECT Id FROM Posts WHERE ShopId IN ({shopIdsString})
-) AS AllPosts
-";
+                                SELECT COUNT(*) AS Count FROM (
+                                    SELECT Id FROM Posts WHERE CoachId IN ({followedUserIdsString})
+                                    UNION
+                                    SELECT Id FROM Posts WHERE GymId IN ({gymIdsString})
+                                    UNION
+                                    SELECT Id FROM Posts WHERE ShopId IN ({shopIdsString})
+                                ) AS AllPosts
+                                ";
 
             var countResult = await _context.countResults
                 .FromSqlRaw(countSql)
@@ -216,47 +218,47 @@ SELECT COUNT(*) AS Count FROM (
             (pageNumber, pageSize) = await PaginationHelper.NormalizePaginationWithCountAsync(count, pageNumber, pageSize);
             if (pageSize == -1)
             {
-                return await GetRandoPosts(pageNumber);
+                return await GetRandoPosts(pageNumber, userId);
             }
 
             int offset = (pageNumber - 1) * pageSize;
 
             var sql = $@"
-SELECT
-    p.Id,
-    p.Content,
-    p.CreatedAt,
-    p.CoachId,
-    p.GymId,
-    p.ShopId,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.ProfilePictureUrl
-      WHEN 'GymPost'   THEN g.PictureUrl
-      WHEN 'ShopPost'  THEN s.PictureUrl
-      ELSE '' END AS PhotoPass,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
-      WHEN 'GymPost'   THEN g.GymName
-      WHEN 'ShopPost'  THEN s.Name
-      ELSE '' END AS EntityName,
-    p.Discriminator AS SourceType,
-    CASE
-      WHEN p.Discriminator = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
-      WHEN p.Discriminator = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
-      WHEN p.Discriminator = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
-      ELSE CAST(0 AS bit)
-    END AS IsYourPost
-FROM Posts p
-LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
-LEFT JOIN Gyms        g ON p.GymId    = g.GymId
-LEFT JOIN Shops       s ON p.ShopId   = s.Id
-WHERE
-    (p.Discriminator = 'CoachPost' AND p.CoachId IN ({followedUserIdsString}))
- OR (p.Discriminator = 'GymPost'   AND p.GymId   IN ({gymIdsString}))
- OR (p.Discriminator = 'ShopPost'  AND p.ShopId  IN ({shopIdsString}))
-ORDER BY p.CreatedAt DESC
-OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
-";
+                            SELECT
+                                p.Id,
+                                p.Content,
+                                p.CreatedAt,
+                                p.CoachId,
+                                p.GymId,
+                                p.ShopId,
+                                CASE p.PostType
+                                  WHEN 'CoachPost' THEN c.ProfilePictureUrl
+                                  WHEN 'GymPost'   THEN g.PictureUrl
+                                  WHEN 'ShopPost'  THEN s.PictureUrl
+                                  ELSE '' END AS PhotoPass,
+                                CASE p.PostType
+                                  WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
+                                  WHEN 'GymPost'   THEN g.GymName
+                                  WHEN 'ShopPost'  THEN s.Name
+                                  ELSE '' END AS EntityName,
+                                p.PostType AS SourceType,
+                                CASE
+                                  WHEN p.PostType = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  ELSE CAST(0 AS bit)
+                                END AS IsYourPost
+                            FROM Posts p
+                            LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
+                            LEFT JOIN Gyms        g ON p.GymId    = g.GymId
+                            LEFT JOIN Shops       s ON p.ShopId   = s.Id
+                            WHERE
+                                (p.PostType = 'CoachPost' AND p.CoachId IN ({followedUserIdsString}))
+                             OR (p.PostType = 'GymPost'   AND p.GymId   IN ({gymIdsString}))
+                             OR (p.PostType = 'ShopPost'  AND p.ShopId  IN ({shopIdsString}))
+                            ORDER BY p.CreatedAt DESC
+                            OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
+                            ";
 
             var parameters = new[]
             {
@@ -276,7 +278,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             var likes = await _context.postLikes
                 .FromSqlRaw($"SELECT * FROM Likes WHERE PostId IN ({ids})")
                 .ToListAsync();
-            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PictureUrls WHERE PostId IN ({ids})")
+            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PostPictureUrl WHERE PostId IN ({ids})")
                 .ToListAsync();
             var allPosts = new List<ShowGeneralFormOfPostDTO>();
             foreach (var post in posts)
@@ -316,45 +318,50 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             return allPosts;
         }
 
-        private async Task<List<ShowGeneralFormOfPostDTO>> GetRandoPosts(int pageNumber)
+        private async Task<List<ShowGeneralFormOfPostDTO>> GetRandoPosts(int pageNumber, string userId)
         {
             var pageSize = 10;
             int offset = (pageNumber - 1) * pageSize;
 
             var sql = $@"
-SELECT
-    p.Id,
-    p.Content,
-    p.CreatedAt,
-    p.CoachId,
-    p.GymId,
-    p.ShopId,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.ProfilePictureUrl
-      WHEN 'GymPost'   THEN g.PictureUrl
-      WHEN 'ShopPost'  THEN s.PictureUrl
-      ELSE '' END AS PhotoPass,
-    CASE p.Discriminator
-      WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
-      WHEN 'GymPost'   THEN g.GymName
-      WHEN 'ShopPost'  THEN s.Name
-      ELSE '' END AS EntityName,
-    p.Discriminator AS SourceType,
-    CAST(0 AS bit) AS IsYourPost
-FROM Posts p
-LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
-LEFT JOIN Gyms        g ON p.GymId    = g.GymId
-LEFT JOIN Shops       s ON p.ShopId   = s.Id
-ORDER BY p.CreatedAt DESC
-OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
-
-";
+                            SELECT
+                                p.Id,
+                                p.Content,
+                                p.CreatedAt,
+                                p.CoachId,
+                                p.GymId,
+                                p.ShopId,
+                                CASE p.PostType
+                                  WHEN 'CoachPost' THEN c.ProfilePictureUrl
+                                  WHEN 'GymPost'   THEN g.PictureUrl
+                                  WHEN 'ShopPost'  THEN s.PictureUrl
+                                  ELSE '' END AS PhotoPass,
+                                CASE p.PostType
+                                  WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
+                                  WHEN 'GymPost'   THEN g.GymName
+                                  WHEN 'ShopPost'  THEN s.Name
+                                  ELSE '' END AS EntityName,
+                                p.PostType AS SourceType,
+                                CASE
+                                  WHEN p.PostType = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  ELSE CAST(0 AS bit)
+                                END AS IsYourPost
+                            FROM Posts p
+                            LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
+                            LEFT JOIN Gyms        g ON p.GymId    = g.GymId
+                            LEFT JOIN Shops       s ON p.ShopId   = s.Id
+                            ORDER BY p.CreatedAt DESC
+                            OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
+                            ";
 
             var parameters = new[]
             {
+    new SqlParameter("@userId", userId),
     new SqlParameter("@offset", offset),
     new SqlParameter("@pageSize", pageSize)
-};
+            };
 
             var posts = await _context.RawPostDTOs
                 .FromSqlRaw(sql, parameters)
@@ -367,7 +374,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             var likes = await _context.postLikes
                 .FromSqlRaw($"SELECT * FROM Likes WHERE PostId IN ({ids})")
                 .ToListAsync();
-            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PictureUrls WHERE PostId IN ({ids})")
+            var urls = await _context.PictureUrls.FromSqlRaw($"SELECT * FROM PostPictureUrl WHERE PostId IN ({ids})")
                 .ToListAsync();
             var allPosts = new List<ShowGeneralFormOfPostDTO>();
             foreach (var post in posts)
@@ -395,6 +402,12 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
                     newPost.SourceId = post.ShopId;
                 }
                 newPost.LikesDetails = await LikesDetailsOnPost(likes.Where(x => x.PostId == post.Id).ToList());
+                var like = likes.FirstOrDefault(x => x.PostId == post.Id && x.UserId == userId);
+                if (like is not null && userId != "")
+                {
+                    newPost.IsLikedByYou = true;
+                    newPost.LikeType = (like.Type == LikeType.Love) ? "LOVE" : (like.Type == LikeType.Care) ? "CARE" : "NORMAL";
+                }
                 newPost.PictureUrls = urls.Where(x => x.PostId == newPost.Id).Select(x => x.Url).ToList();
                 allPosts.Add(newPost);
             }
@@ -423,7 +436,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
                 _context.Posts.Remove(post);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-                foreach(var url in post.PictureUrls.Select(x => x.Url))
+                foreach (var url in post.PictureUrls.Select(x => x.Url))
                 {
                     await _blobService.DeleteImageAsync(url);
                 }
@@ -534,6 +547,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             var like = await _context.postLikes.Where(x => x.Id == id).Select(x => new ShowLikeDTO
             {
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
+                IsCoach = x.User is Coach,
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL",
                 UserName = x.User.FirstName + " " + x.User.LastName
             }).FirstOrDefaultAsync();
@@ -579,6 +593,8 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             List<ShowLikeDTO> showLikes = await _context.postLikes.Where(x => x.PostId == id).Select(x => new ShowLikeDTO
             {
                 UserName = x.User.FirstName + " " + x.User.LastName,
+                UserId = x.UserId,
+                IsCoach=x.User is Coach,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
             }).ToListAsync();
@@ -699,6 +715,7 @@ OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
             {
                 UserName = x.User.FirstName + " " + x.User.LastName,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
+                IsCoach = x.User is Coach,
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
             }).ToListAsync();
             return showLikes;

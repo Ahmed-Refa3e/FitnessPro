@@ -1,202 +1,693 @@
 {
-  "Admins": [
+  "Coaches": [
     {
-      "Name": "Admin User",
-      "Email": "admin@example.com",
-      "PhoneNumber": "01000000000",
-      "ProfilePictureUrl": "https://randomuser.me/api/portraits/men/1.jpg"
+      "FirstName": "Ahmed",
+      "LastName": "Hassan",
+      "Email": "ahmedhassan@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Passionate fitness coach with 10 years of experience in strength training.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/NFiHhyq.jpeg"
+    },
+    {
+      "FirstName": "Mohamed",
+      "LastName": "Salah",
+      "Email": "mohamedsalah@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Certified personal trainer specializing in weight loss and muscle gain.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/gqd1Bvw.jpeg"
+    },
+    {
+      "FirstName": "Omar",
+      "LastName": "Samir",
+      "Email": "omarsamir@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Former professional athlete turned fitness coach.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/4birKrT.jpeg"
+    },
+    {
+      "FirstName": "Khaled",
+      "LastName": "Mostafa",
+      "Email": "khaledmostafa@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Expert in high-intensity interval training and bodyweight exercises.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/ItWSG7w.jpeg"
+    },
+    {
+      "FirstName": "Youssef",
+      "LastName": "Adel",
+      "Email": "youssefadel@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Dedicated to helping clients achieve their fitness goals through personalized training.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/gm0ySIO.jpeg"
+    },
+    {
+      "FirstName": "Hassan",
+      "LastName": "Ibrahim",
+      "Email": "hassanibrahim@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Lover of outdoor workouts and functional movement techniques.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/5BHpYjy.jpeg"
+    },
+    {
+      "FirstName": "Mahmoud",
+      "LastName": "Tarek",
+      "Email": "mahmoudtarek@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Believes in a holistic approach to health and wellness.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/vw1qmo7.jpeg"
+    },
+    {
+      "FirstName": "Ali",
+      "LastName": "Saeed",
+      "Email": "alisaeed@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Specialist in injury prevention and rehabilitation exercises.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/qykPEvv.jpeg"
+    },
+    {
+      "FirstName": "Mostafa",
+      "LastName": "Nabil",
+      "Email": "mostafanabil@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Focuses on building endurance and cardiovascular strength.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/EVcKwph.jpeg"
+    },
+    {
+      "FirstName": "Sherif",
+      "LastName": "Gamal",
+      "Email": "sherifgamal@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Combining science-based training with motivational coaching.",
+      "DateOfBirth": "1985-07-15",
+      "JoinedDate": "2023-01-10",
+      "ProfilePictureUrl": "https://i.imgur.com/klVTy3C.jpeg"
     }
   ],
-  "Users": [
+  "Trainees": [
     {
-      "Name": "Abdo Meky",
-      "Email": "abdo@example.com",
-      "PhoneNumber": "01011111111",
-      "ProfilePictureUrl": "https://randomuser.me/api/portraits/men/2.jpg"
+      "FirstName": "Karim",
+      "LastName": "Ehab",
+      "Email": "karimehab@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Aspiring bodybuilder looking to gain muscle and strength.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
     },
     {
-      "Name": "Taha Shosha",
-      "Email": "taha@example.com",
-      "PhoneNumber": "01022222222",
-      "ProfilePictureUrl": "https://randomuser.me/api/portraits/men/3.jpg"
+      "FirstName": "Amr",
+      "LastName": "Nasser",
+      "Email": "amrnasser@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Beginner in fitness, eager to learn proper techniques.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
     },
     {
-      "Name": "Doha",
-      "Email": "doha@example.com",
-      "PhoneNumber": "01033333333",
-      "ProfilePictureUrl": "https://www.assawsana.com/portal/image/imgid536366.jpg?xxlarge"
+      "FirstName": "Hossam",
+      "LastName": "Fathy",
+      "Email": "hossamfathy@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Enjoys group fitness classes and high-energy workouts.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Adel",
+      "LastName": "Samy",
+      "Email": "adelsamy@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Working on weight loss and improving overall health.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Tamer",
+      "LastName": "Mohamed",
+      "Email": "tamermohamed@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Loves running and outdoor activities to stay fit.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Ibrahim",
+      "LastName": "Khaled",
+      "Email": "ibrahimkhaled@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Passionate about yoga and flexibility training.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Youssef",
+      "LastName": "Samir",
+      "Email": "youssefsamir@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Trying to improve stamina and conditioning for sports.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Osama",
+      "LastName": "Reda",
+      "Email": "osamareda@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "A busy professional looking for quick and effective workouts.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Fady",
+      "LastName": "Magdy",
+      "Email": "fadymagdy@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Interested in powerlifting and strength training.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
+    },
+    {
+      "FirstName": "Mina",
+      "LastName": "Essam",
+      "Email": "minaessam@example.com",
+      "EmailConfirmed": true,
+      "Gender": "Male",
+      "Bio": "Focusing on building confidence through fitness.",
+      "DateOfBirth": "1995-09-22",
+      "JoinedDate": "2023-03-05"
     }
   ],
-  "Categories": [
-    "Electronics",
-    "Clothing",
-    "Books",
-    "Home Appliances",
-    "Toys",
-    "Sports",
-    "Beauty",
-    "Groceries"
+  "Gyms": [
+    {
+      "CoachEmail": "ahmedhassan@example.com",
+      "GymName": "Cairo Fit Club",
+      "Address": "Street 1, Cairo",
+      "City": "Cairo",
+      "Governorate": "Cairo",
+      "MonthlyPrice": 500,
+      "YearlyPrice": 5000,
+      "PhoneNumber": "01000123456",
+      "Description": "Cairo Fit Club is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 250,
+      "SessionPrice": 41,
+      "ProfilePictureUrl": "https://i.imgur.com/ExUMVQY.jpeg"
+    },
+    {
+      "CoachEmail": "mohamedsalah@example.com",
+      "GymName": "Alex Muscle Zone",
+      "Address": "Street 2, Alexandria",
+      "City": "Alexandria",
+      "Governorate": "Alexandria",
+      "MonthlyPrice": 550,
+      "YearlyPrice": 5500,
+      "PhoneNumber": "01001123456",
+      "Description": "Alex Muscle Zone is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 275,
+      "SessionPrice": 45,
+      "ProfilePictureUrl": "https://i.imgur.com/nSZhq8W.jpeg"
+    },
+    {
+      "CoachEmail": "omarsamir@example.com",
+      "GymName": "Giza Power Gym",
+      "Address": "Street 3, Giza",
+      "City": "Giza",
+      "Governorate": "Giza",
+      "MonthlyPrice": 600,
+      "YearlyPrice": 6000,
+      "PhoneNumber": "01002123456",
+      "Description": "Giza Power Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 300,
+      "SessionPrice": 50,
+      "ProfilePictureUrl": "https://i.imgur.com/TwWHNk1.jpeg"
+    },
+    {
+      "CoachEmail": "khaledmostafa@example.com",
+      "GymName": "Elite Fitness Hurghada",
+      "Address": "Street 4, Hurghada",
+      "City": "Hurghada",
+      "Governorate": "Hurghada",
+      "MonthlyPrice": 650,
+      "YearlyPrice": 6500,
+      "PhoneNumber": "01003123456",
+      "Description": "Elite Fitness Hurghada is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 325,
+      "SessionPrice": 54,
+      "ProfilePictureUrl": "https://i.imgur.com/xFI4Ohl.jpeg"
+    },
+    {
+      "CoachEmail": "youssefadel@example.com",
+      "GymName": "Sharm Strong Gym",
+      "Address": "Street 5, Sharm El Sheikh",
+      "City": "Sharm El Sheikh",
+      "Governorate": "Sharm El Sheikh",
+      "MonthlyPrice": 700,
+      "YearlyPrice": 7000,
+      "PhoneNumber": "01004123456",
+      "Description": "Sharm Strong Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 350,
+      "SessionPrice": 58,
+      "ProfilePictureUrl": "https://i.imgur.com/2UWh313.jpeg"
+    },
+    {
+      "CoachEmail": "hassanibrahim@example.com",
+      "GymName": "Port Said Athletes",
+      "Address": "Street 6, Port Said",
+      "City": "Port Said",
+      "Governorate": "Port Said",
+      "MonthlyPrice": 750,
+      "YearlyPrice": 7500,
+      "PhoneNumber": "01005123456",
+      "Description": "Port Said Athletes is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 375,
+      "SessionPrice": 62,
+      "ProfilePictureUrl": "https://i.imgur.com/3BLFSsY.jpeg"
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "GymName": "Mansoura Flex Gym",
+      "Address": "Street 7, Mansoura",
+      "City": "Mansoura",
+      "Governorate": "Mansoura",
+      "MonthlyPrice": 800,
+      "YearlyPrice": 8000,
+      "PhoneNumber": "01006123456",
+      "Description": "Mansoura Flex Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 400,
+      "SessionPrice": 66,
+      "ProfilePictureUrl": "https://i.imgur.com/sDBDY6S.jpeg"
+    },
+    {
+      "CoachEmail": "alisaeed@example.com",
+      "GymName": "Luxor Fit Center",
+      "Address": "Street 8, Luxor",
+      "City": "Luxor",
+      "Governorate": "Luxor",
+      "MonthlyPrice": 850,
+      "YearlyPrice": 8500,
+      "PhoneNumber": "01007123456",
+      "Description": "Luxor Fit Center is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 425,
+      "SessionPrice": 70,
+      "ProfilePictureUrl": "https://i.imgur.com/AgAflH9.jpeg"
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "GymName": "Aswan Iron House",
+      "Address": "Street 9, Aswan",
+      "City": "Aswan",
+      "Governorate": "Aswan",
+      "MonthlyPrice": 900,
+      "YearlyPrice": 9000,
+      "PhoneNumber": "01008123456",
+      "Description": "Aswan Iron House is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 450,
+      "SessionPrice": 75,
+      "ProfilePictureUrl": "https://i.imgur.com/5QQwGxO.jpeg"
+    },
+    {
+      "CoachEmail": "sherifgamal@example.com",
+      "GymName": "Tanta Pro Gym",
+      "Address": "Street 10, Tanta",
+      "City": "Tanta",
+      "Governorate": "Tanta",
+      "MonthlyPrice": 950,
+      "YearlyPrice": 9500,
+      "PhoneNumber": "01009123456",
+      "Description": "Tanta Pro Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
+      "FortnightlyPrice": 475,
+      "SessionPrice": 79,
+      "ProfilePictureUrl": "https://i.imgur.com/mn7bVmU.jpeg"
+    }
   ],
-  "Products": [
+  "OnlineTrainings": [
     {
-      "Name": "Smartphone X",
-      "Description": "\u0647\u0627\u062a\u0641 \u0630\u0643\u064a \u0645\u062a\u0642\u062f\u0645 \u0628\u0645\u064a\u0632\u0627\u062a AI",
-      "Price": 599.99,
-      "ImagePath": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 25,
-      "CategoryName": "Electronics"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Flex & Fit Group – Ahmedhassan",
+      "Description": "A full-body group session targeting overall fitness.",
+      "TrainingType": "Group",
+      "Price": 1349,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Wireless Headphones",
-      "Description": "\u0633\u0645\u0627\u0639\u0627\u062a \u0639\u0627\u0644\u064a\u0629 \u0627\u0644\u062c\u0648\u062f\u0629 \u0628\u0639\u0632\u0644 \u0627\u0644\u0636\u0648\u0636\u0627\u0621",
-      "Price": 199.99,
-      "ImagePath": "https://images.unsplash.com/photo-1585386959984-a4155222f7d1?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 15,
-      "CategoryName": "Electronics"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Core Crusher Group – Ahmedhassan",
+      "Description": "Mobility and balance training in a supportive group.",
+      "TrainingType": "Group",
+      "Price": 1313,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Men's Jacket",
-      "Description": "\u062c\u0627\u0643\u064a\u062a \u0634\u062a\u0648\u064a \u0623\u0646\u064a\u0642",
-      "Price": 89.99,
-      "ImagePath": "https://images.unsplash.com/photo-1602810317792-8d1d3e6e1b2c?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 40,
-      "CategoryName": "Clothing"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Total Fit Group – Ahmedhassan",
+      "Description": "Mobility and balance training in a supportive group.",
+      "TrainingType": "Group",
+      "Price": 1787,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Elegant Dress",
-      "Description": "\u0641\u0633\u062a\u0627\u0646 \u0639\u0635\u0631\u064a \u0644\u0644\u0633\u0647\u0631\u0627\u062a",
-      "Price": 120.0,
-      "ImagePath": "https://images.unsplash.com/photo-1520975698519-152d9b1f3c5e?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 20,
-      "CategoryName": "Clothing"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Sweat Session Crew – Ahmedhassan",
+      "Description": "High-energy group session focusing on strength and endurance.",
+      "TrainingType": "Group",
+      "Price": 1530,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Microwave Oven",
-      "Description": "\u0645\u064a\u0643\u0631\u0648\u0648\u064a\u0641 \u062d\u062f\u064a\u062b \u0628\u062a\u0642\u0646\u064a\u0629 \u062a\u0633\u062e\u064a\u0646 \u0645\u062a\u0642\u062f\u0645\u0629",
-      "Price": 150.0,
-      "ImagePath": "https://images.unsplash.com/photo-1586201375761-83865001e17b?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 10,
-      "CategoryName": "Home Appliances"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Personal Power Session – Ahmedhassan",
+      "Description": "Personalized strength training for focused results.",
+      "TrainingType": "Private",
+      "Price": 1349,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Yoga Mat",
-      "Description": "\u062d\u0635\u064a\u0631\u0629 \u064a\u0648\u063a\u0627 \u0645\u0642\u0627\u0648\u0645\u0629 \u0644\u0644\u0627\u0646\u0632\u0644\u0627\u0642",
-      "Price": 35.0,
-      "ImagePath": "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 50,
-      "CategoryName": "Sports"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Elite 1-on-1 Training – Ahmedhassan",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1675,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Open Book",
-      "Description": "\u0643\u062a\u0627\u0628 \u0645\u0641\u062a\u0648\u062d \u064a\u0639\u0628\u0631 \u0639\u0646 \u0627\u0644\u0645\u0639\u0631\u0641\u0629",
-      "Price": 9.99,
-      "ImagePath": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 100,
-      "CategoryName": "Books"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Bespoke Strength Program – Ahmedhassan",
+      "Description": "Exclusive training with personalized feedback and pacing.",
+      "TrainingType": "Private",
+      "Price": 1453,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Olive Oil",
-      "Description": "\u0632\u064a\u062a \u0632\u064a\u062a\u0648\u0646 \u0637\u0628\u064a\u0639\u064a \u0645\u0645\u062a\u0627\u0632",
-      "Price": 8.99,
-      "ImagePath": "https://images.unsplash.com/photo-1581090700227-1e8c6d8f7b8c?auto=format&fit=crop&w=600&q=80",
-      "Quantity": 70,
-      "CategoryName": "Groceries"
+      "CoachEmail": "ahmedhassan@example.com",
+      "Title": "Custom Muscle Routine – Ahmedhassan",
+      "Description": "One-on-one session focusing on muscle development.",
+      "TrainingType": "Private",
+      "Price": 1315,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Wireless Charger",
-      "Description": "Fast wireless charger pad.",
-      "Price": 19.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/71kR1bVkk-L._AC_SL1500_.jpg",
-      "Quantity": 50,
-      "CategoryName": "Electronics"
+      "CoachEmail": "mohamedsalah@example.com",
+      "Title": "Total Fit Group – Mohamedsalah",
+      "Description": "A full-body group session targeting overall fitness.",
+      "TrainingType": "Group",
+      "Price": 1145,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Bluetooth Speaker",
-      "Description": "Portable Bluetooth speaker with deep bass.",
-      "Price": 49.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/81WcA5q3sTL._AC_SL1500_.jpg",
-      "Quantity": 35,
-      "CategoryName": "Electronics"
+      "CoachEmail": "mohamedsalah@example.com",
+      "Title": "Mobility Moves Group – Mohamedsalah",
+      "Description": "Boost your stamina with team-based training circuits.",
+      "TrainingType": "Group",
+      "Price": 1012,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Power Bank 20000mAh",
-      "Description": "High-capacity power bank.",
-      "Price": 34.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/61ynh-y+yPL._AC_SL1500_.jpg",
-      "Quantity": 60,
-      "CategoryName": "Electronics"
+      "CoachEmail": "mohamedsalah@example.com",
+      "Title": "Precision Fitness Plan – Mohamedsalah",
+      "Description": "One-on-one session focusing on muscle development.",
+      "TrainingType": "Private",
+      "Price": 1348,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
     },
     {
-      "Name": "C# in Depth",
-      "Description": "Comprehensive guide to modern C#",
-      "Price": 45.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/71m-MxdJ2WL.jpg",
-      "Quantity": 20,
-      "CategoryName": "Books"
+      "CoachEmail": "omarsamir@example.com",
+      "Title": "Flex & Fit Group – Omarsamir",
+      "Description": "Boost your stamina with team-based training circuits.",
+      "TrainingType": "Group",
+      "Price": 1677,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Clean Code",
-      "Description": "Handbook of Agile Software Craftsmanship",
-      "Price": 39.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/41jEbK-jG+L.jpg",
-      "Quantity": 15,
-      "CategoryName": "Books"
+      "CoachEmail": "omarsamir@example.com",
+      "Title": "Core Crusher Group – Omarsamir",
+      "Description": "Boost your stamina with team-based training circuits.",
+      "TrainingType": "Group",
+      "Price": 1764,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     },
     {
-      "Name": "The Pragmatic Programmer",
-      "Description": "Your journey to mastery",
-      "Price": 42.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/51A8l+FxFNL.jpg",
-      "Quantity": 25,
-      "CategoryName": "Books"
+      "CoachEmail": "omarsamir@example.com",
+      "Title": "Cardio Burn Group – Omarsamir",
+      "Description": "Sweat together in this intense, results-driven session.",
+      "TrainingType": "Group",
+      "Price": 1561,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Denim Jacket",
-      "Description": "Classic blue denim jacket.",
-      "Price": 55.0,
-      "ImagePath": "https://m.media-amazon.com/images/I/81xKMLZZK3L._AC_UX679_.jpg",
-      "Quantity": 40,
-      "CategoryName": "Fashion"
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Precision Fitness Plan – Khaledmostafa",
+      "Description": "High-performance coaching for your unique fitness path.",
+      "TrainingType": "Private",
+      "Price": 1948,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Sneakers",
-      "Description": "Comfortable walking shoes.",
-      "Price": 70.0,
-      "ImagePath": "https://m.media-amazon.com/images/I/71Zvm7wh6PL._AC_UX695_.jpg",
-      "Quantity": 30,
-      "CategoryName": "Fashion"
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Tailored Training Method – Khaledmostafa",
+      "Description": "Personalized strength training for focused results.",
+      "TrainingType": "Private",
+      "Price": 1051,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Office Chair",
-      "Description": "Ergonomic swivel chair.",
-      "Price": 120.0,
-      "ImagePath": "https://m.media-amazon.com/images/I/71hcR1dLrUL._AC_SL1500_.jpg",
-      "Quantity": 10,
-      "CategoryName": "Furniture"
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Personal Power Session – Khaledmostafa",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1666,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Bookshelf",
-      "Description": "5-tier wooden bookshelf.",
-      "Price": 89.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/81tT5K+QpoL._AC_SL1500_.jpg",
-      "Quantity": 15,
-      "CategoryName": "Furniture"
+      "CoachEmail": "khaledmostafa@example.com",
+      "Title": "Elite 1-on-1 Training – Khaledmostafa",
+      "Description": "Intense private coaching for fast and effective progress.",
+      "TrainingType": "Private",
+      "Price": 1086,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Remote Control Car",
-      "Description": "High-speed RC car for kids.",
-      "Price": 35.0,
-      "ImagePath": "https://m.media-amazon.com/images/I/71YlO4Y1r5L._AC_SL1500_.jpg",
-      "Quantity": 25,
-      "CategoryName": "Toys"
+      "CoachEmail": "youssefadel@example.com",
+      "Title": "HIIT Heroes – Youssefadel",
+      "Description": "Sweat together in this intense, results-driven session.",
+      "TrainingType": "Group",
+      "Price": 1076,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
     },
     {
-      "Name": "Lego Classic Set",
-      "Description": "Creative building blocks.",
-      "Price": 29.99,
-      "ImagePath": "https://m.media-amazon.com/images/I/81p2F07xDgL._AC_SL1500_.jpg",
-      "Quantity": 18,
-      "CategoryName": "Toys"
+      "CoachEmail": "youssefadel@example.com",
+      "Title": "Custom Muscle Routine – Youssefadel",
+      "Description": "One-on-one session focusing on muscle development.",
+      "TrainingType": "Private",
+      "Price": 1161,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "youssefadel@example.com",
+      "Title": "Bespoke Strength Program – Youssefadel",
+      "Description": "Goal-oriented fitness training with full customization.",
+      "TrainingType": "Private",
+      "Price": 1699,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "HIIT Heroes – Mahmoudtarek",
+      "Description": "Mobility and balance training in a supportive group.",
+      "TrainingType": "Group",
+      "Price": 1326,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "Cardio Burn Group – Mahmoudtarek",
+      "Description": "Engaging sessions with a mix of cardio and resistance.",
+      "TrainingType": "Group",
+      "Price": 1522,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "Total Fit Group – Mahmoudtarek",
+      "Description": "Dynamic group workout designed to enhance muscle power.",
+      "TrainingType": "Group",
+      "Price": 1403,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mahmoudtarek@example.com",
+      "Title": "Precision Fitness Plan – Mahmoudtarek",
+      "Description": "High-performance coaching for your unique fitness path.",
+      "TrainingType": "Private",
+      "Price": 1116,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "alisaeed@example.com",
+      "Title": "Endurance Squad – Alisaeed",
+      "Description": "Group workout focused on building a strong and stable core.",
+      "TrainingType": "Group",
+      "Price": 1693,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "alisaeed@example.com",
+      "Title": "Power Up Group – Alisaeed",
+      "Description": "Dynamic group workout designed to enhance muscle power.",
+      "TrainingType": "Group",
+      "Price": 1959,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Mobility Moves Group – Mostafanabil",
+      "Description": "Engaging sessions with a mix of cardio and resistance.",
+      "TrainingType": "Group",
+      "Price": 1449,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Cardio Burn Group – Mostafanabil",
+      "Description": "Mobility and balance training in a supportive group.",
+      "TrainingType": "Group",
+      "Price": 1025,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Endurance Squad – Mostafanabil",
+      "Description": "A full-body group session targeting overall fitness.",
+      "TrainingType": "Group",
+      "Price": 1370,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Power Up Group – Mostafanabil",
+      "Description": "Fun and functional group fitness tailored to all levels.",
+      "TrainingType": "Group",
+      "Price": 1508,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Precision Fitness Plan – Mostafanabil",
+      "Description": "Personalized strength training for focused results.",
+      "TrainingType": "Private",
+      "Price": 1522,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Elite 1-on-1 Training – Mostafanabil",
+      "Description": "Intense private coaching for fast and effective progress.",
+      "TrainingType": "Private",
+      "Price": 1310,
+      "NoOfSessionsPerWeek": 5,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Ultimate Personal Plan – Mostafanabil",
+      "Description": "Intense private coaching for fast and effective progress.",
+      "TrainingType": "Private",
+      "Price": 1158,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "mostafanabil@example.com",
+      "Title": "Focused Fit Coaching – Mostafanabil",
+      "Description": "Exclusive training with personalized feedback and pacing.",
+      "TrainingType": "Private",
+      "Price": 1320,
+      "NoOfSessionsPerWeek": 3,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "sherifgamal@example.com",
+      "Title": "Ultimate Personal Plan – Sherifgamal",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1267,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
+    },
+    {
+      "CoachEmail": "sherifgamal@example.com",
+      "Title": "Custom Muscle Routine – Sherifgamal",
+      "Description": "Custom sessions designed to match your body and goals.",
+      "TrainingType": "Private",
+      "Price": 1228,
+      "NoOfSessionsPerWeek": 4,
+      "DurationOfSession": 60
     }
   ]
 }

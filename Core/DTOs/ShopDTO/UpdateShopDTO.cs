@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Core.DTOs.ShopDTO
 {
-    public class AddShopDTO
+    public class UpdateShopDTO
     {
         [Required(ErrorMessage = "Name is required.")]
         public string ShopName { get; set; }
-        public IFormFile? Image {  get; set; }
 
         [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
@@ -24,5 +22,4 @@ namespace Core.DTOs.ShopDTO
         [MaxLength(500, ErrorMessage = "Description must not exceed 500 characters.")]
         public string? Description { get; set; }
     }
-
 }

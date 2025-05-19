@@ -142,7 +142,7 @@ namespace Infrastructure.Repositories.ShopRepositories
             try
             {
                 var result = await _productRepository.Decrease((int)item.ProductId, -1 * item.Quantity);
-                if (!string.IsNullOrEmpty(result.Massage) && result.Massage != "No Product has this Id")
+                if (!string.IsNullOrEmpty(result.Massage))
                     return new IntResult() { Massage = result.Massage };
 
                 var order = item.Order;

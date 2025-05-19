@@ -20,11 +20,23 @@ public class BlobService : IBlobService
     // Upload image to Blob Storage
     public async Task<string> UploadImageAsync(IFormFile file)
     {
-        var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        /*var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+
         var blobClient = blobContainerClient.GetBlobClient(file.FileName);
 
         // Upload the image
         await blobClient.UploadAsync(file.OpenReadStream(), true);
+        return blobClient.Uri.ToString();*/
+        var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+
+        var extension = Path.GetExtension(file.FileName);
+
+        var blobName = $"{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(file.FileName)}{extension}";
+
+        var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+        await blobClient.UploadAsync(file.OpenReadStream(), overwrite: true);
+
         return blobClient.Uri.ToString();
     }
 
