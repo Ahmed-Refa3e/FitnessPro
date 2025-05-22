@@ -13,6 +13,5 @@ namespace Core.DTOs.UserDTO
         public double? Rating { get; set; }
         public DateTime JoinedDate { get; set; }
         public List<GetOnlineTrainingDTO> OnlineTrainings { get; set; } = new();
-        public List<CoachPostSummaryDTO> CoachPosts { get; set; } = new();
     }
 }
