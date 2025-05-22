@@ -319,6 +319,21 @@ namespace Services
                     };
                 }
 
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles == null || !roles.Any())
+                {
+                    var checkToken = await GenerateJwtToken(user, setRole: true);
+                    return new Generalresponse
+                    {
+                        IsSuccess = true,
+                        Data = new
+                        {
+                            Checktoken = checkToken,
+                            exipiration = DateTime.Now.AddHours(1)
+                        }
+                    };
+                }
+
                 var token = await GenerateJwtToken(user);
                 var refreshToken = GenerateRefreshToken();
                 user.refreshTokens?.Add(new RefreshToken()
