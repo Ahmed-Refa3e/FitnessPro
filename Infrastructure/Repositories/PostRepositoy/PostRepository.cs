@@ -10,6 +10,7 @@ using Humanizer;
 using Infrastructure.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 
 namespace Infrastructure.Repositories.PostRepositoy
@@ -65,23 +66,6 @@ namespace Infrastructure.Repositories.PostRepositoy
                 }
             }
             return posts;
-        }
-        private async Task<LikesDetailsDTO> LikesDetailsOnPost(List<PostLike> result)
-        {
-            var dic = result
-                .GroupBy(x => x.Type)
-                .OrderByDescending(g => g.Count())
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Count()
-                );
-            var returnedResult = new LikesDetailsDTO();
-            foreach (var item in dic)
-            {
-                returnedResult.Count += item.Value;
-                returnedResult.OrderedType.Add(CheckLikeTypeAndReturnString(item.Key));
-            }
-            return returnedResult;
         }
         public async Task<List<ShowExternalFormOfGymPostDTO>> GetPostsOfGym(int gymId, int pageNumber, string userId = "")
         {
@@ -178,16 +162,19 @@ namespace Infrastructure.Repositories.PostRepositoy
                 .Where(f => f.FollowerId == userId)
                 .Select(f => f.GymId)
                 .ToListAsync();
+            gymIds.AddRange(await _context.Gyms.Where(x => x.CoachID == userId).Select(x => x.GymID).ToListAsync());
 
             var shopIds = await _context.ShopFollows
                 .Where(f => f.FollowerId == userId)
                 .Select(f => f.ShopId)
                 .ToListAsync();
+            shopIds.AddRange(await _context.Shops.Where(x => x.OwnerID == userId).Select(x => x.Id).ToListAsync());
 
             var followedUserIds = await _context.userFollows
                 .Where(f => f.FollowerId == userId)
                 .Select(f => f.FollowingId)
                 .ToListAsync();
+            followedUserIds.Add(userId);
             var followedUserIdsString = followedUserIds.Any()
                 ? $"'{string.Join("','", followedUserIds)}'"
                 : "'-1'";
@@ -232,20 +219,20 @@ namespace Infrastructure.Repositories.PostRepositoy
                                 p.GymId,
                                 p.ShopId,
                                 CASE p.PostType
-                                  WHEN 'CoachPost' THEN c.ProfilePictureUrl
-                                  WHEN 'GymPost'   THEN g.PictureUrl
-                                  WHEN 'ShopPost'  THEN s.PictureUrl
+                                  WHEN 'COH' THEN c.ProfilePictureUrl
+                                  WHEN 'GYM'   THEN g.PictureUrl
+                                  WHEN 'SHP'  THEN s.PictureUrl
                                   ELSE '' END AS PhotoPass,
                                 CASE p.PostType
-                                  WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
-                                  WHEN 'GymPost'   THEN g.GymName
-                                  WHEN 'ShopPost'  THEN s.Name
+                                  WHEN 'COH' THEN c.FirstName + ' ' + c.LastName
+                                  WHEN 'GYM'   THEN g.GymName
+                                  WHEN 'SHP'  THEN s.Name
                                   ELSE '' END AS EntityName,
                                 p.PostType AS SourceType,
                                 CASE
-                                  WHEN p.PostType = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
-                                  WHEN p.PostType = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
-                                  WHEN p.PostType = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'COH' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'GYM'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'SHP'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
                                   ELSE CAST(0 AS bit)
                                 END AS IsYourPost
                             FROM Posts p
@@ -253,9 +240,9 @@ namespace Infrastructure.Repositories.PostRepositoy
                             LEFT JOIN Gyms        g ON p.GymId    = g.GymId
                             LEFT JOIN Shops       s ON p.ShopId   = s.Id
                             WHERE
-                                (p.PostType = 'CoachPost' AND p.CoachId IN ({followedUserIdsString}))
-                             OR (p.PostType = 'GymPost'   AND p.GymId   IN ({gymIdsString}))
-                             OR (p.PostType = 'ShopPost'  AND p.ShopId  IN ({shopIdsString}))
+                                (p.PostType = 'COH' AND p.CoachId IN ({followedUserIdsString}))
+                             OR (p.PostType = 'GYM'   AND p.GymId   IN ({gymIdsString}))
+                             OR (p.PostType = 'SHP'  AND p.ShopId  IN ({shopIdsString}))
                             ORDER BY p.CreatedAt DESC
                             OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
                             ";
@@ -317,7 +304,6 @@ namespace Infrastructure.Repositories.PostRepositoy
             }
             return allPosts;
         }
-
         private async Task<List<ShowGeneralFormOfPostDTO>> GetRandoPosts(int pageNumber, string userId)
         {
             var pageSize = 10;
@@ -332,20 +318,20 @@ namespace Infrastructure.Repositories.PostRepositoy
                                 p.GymId,
                                 p.ShopId,
                                 CASE p.PostType
-                                  WHEN 'CoachPost' THEN c.ProfilePictureUrl
-                                  WHEN 'GymPost'   THEN g.PictureUrl
-                                  WHEN 'ShopPost'  THEN s.PictureUrl
+                                  WHEN 'COH' THEN c.ProfilePictureUrl
+                                  WHEN 'GYM'   THEN g.PictureUrl
+                                  WHEN 'SHP'  THEN s.PictureUrl
                                   ELSE '' END AS PhotoPass,
                                 CASE p.PostType
-                                  WHEN 'CoachPost' THEN c.FirstName + ' ' + c.LastName
-                                  WHEN 'GymPost'   THEN g.GymName
-                                  WHEN 'ShopPost'  THEN s.Name
+                                  WHEN 'COH' THEN c.FirstName + ' ' + c.LastName
+                                  WHEN 'GYM'   THEN g.GymName
+                                  WHEN 'SHP'  THEN s.Name
                                   ELSE '' END AS EntityName,
                                 p.PostType AS SourceType,
                                 CASE
-                                  WHEN p.PostType = 'CoachPost' AND p.CoachId = @userId THEN CAST(1 AS bit)
-                                  WHEN p.PostType = 'GymPost'   AND g.CoachID = @userId THEN CAST(1 AS bit)
-                                  WHEN p.PostType = 'ShopPost'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'COH' AND p.CoachId = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'GYM'   AND g.CoachID = @userId THEN CAST(1 AS bit)
+                                  WHEN p.PostType = 'SHP'  AND s.OwnerID = @userId THEN CAST(1 AS bit)
                                   ELSE CAST(0 AS bit)
                                 END AS IsYourPost
                             FROM Posts p
@@ -412,6 +398,23 @@ namespace Infrastructure.Repositories.PostRepositoy
                 allPosts.Add(newPost);
             }
             return allPosts;
+        }
+        private async Task<LikesDetailsDTO> LikesDetailsOnPost(List<PostLike> result)
+        {
+            var dic = result
+                .GroupBy(x => x.Type)
+                .OrderByDescending(g => g.Count())
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Count()
+                );
+            var returnedResult = new LikesDetailsDTO();
+            foreach (var item in dic)
+            {
+                returnedResult.Count += item.Value;
+                returnedResult.OrderedType.Add(CheckLikeTypeAndReturnString(item.Key));
+            }
+            return returnedResult;
         }
         public async Task<IntResult> DeletePost(int id, string userId)
         {
@@ -716,6 +719,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                 UserName = x.User.FirstName + " " + x.User.LastName,
                 PictureUrl = x.User.ProfilePictureUrl ?? "",
                 IsCoach = x.User is Coach,
+                UserId=x.UserId,
                 Type = (x.Type == LikeType.Love) ? "LOVE" : (x.Type == LikeType.Care) ? "CARE" : "NORMAL"
             }).ToListAsync();
             return showLikes;
