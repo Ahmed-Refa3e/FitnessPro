@@ -28,7 +28,10 @@ namespace Infrastructure.Repositories.ShopRepositories
             {
                 return new IntResult { Massage = "Id of shop not valid" };
             }
-
+            if (product.OfferPrice is null || product.OfferPrice > product.Price)
+            {
+                product.OfferPrice = product.Price;
+            }
             var newProduct = new Product
             {
                 Name = product.Name,
@@ -36,7 +39,7 @@ namespace Infrastructure.Repositories.ShopRepositories
                 Price = product.Price,
                 Quantity = product.Quantity,
                 ShopId = product.ShopId,
-                OfferPrice=product.OfferPrice,
+                OfferPrice = (decimal)product.OfferPrice,
                 Shop = shop
             };
 
@@ -149,6 +152,11 @@ namespace Infrastructure.Repositories.ShopRepositories
         {
             var query = _context.products.AsQueryable();
 
+            if(!string.IsNullOrEmpty(searchDTO.Name))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Name, $"%{searchDTO.Name}%"));
+            }
+
             if (searchDTO.CategoryID is not null && searchDTO.CategoryID != 0)
             {
                 query = query.Where(x => x.Categories.Any(c => c.Id == searchDTO.CategoryID));
@@ -168,6 +176,33 @@ namespace Infrastructure.Repositories.ShopRepositories
             {
                 query = query.Where(x => x.Price <= searchDTO.MaximumPrice);
             }
+            if (searchDTO.SearchByBiggetDiscount)
+            {
+                if (searchDTO.SearchByPriceAscending)
+                {
+                    query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100).ThenBy(x => x.OfferPrice);
+                }
+                else if (searchDTO.SearchByPriceDescending)
+                {
+                    query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100).ThenByDescending(x => x.OfferPrice);
+                }
+                else
+                {
+                    query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
+                }
+            }
+            else
+            {
+                if (searchDTO.SearchByPriceAscending)
+                {
+                    query = query.OrderBy(x => x.OfferPrice).ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
+                }
+                else if (searchDTO.SearchByPriceDescending)
+                {
+                    query = query.OrderByDescending(x => x.OfferPrice).ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
+                }
+            }
+
             (searchDTO.PageNumber, searchDTO.PageSize) = await PaginationHelper.NormalizePaginationAsync(
                 query,
                 searchDTO.PageNumber,
@@ -183,7 +218,9 @@ namespace Infrastructure.Repositories.ShopRepositories
                     Description = x.Description,
                     Name = x.Name,
                     Price = x.Price,
-                    ImagePath = x.ImagePath
+                    ImagePath = x.ImagePath,
+                    OfferPrice = x.OfferPrice,
+                    Discount = 100 - (x.OfferPrice / x.Price) * 100
                 })
                 .ToListAsync();
         }
@@ -197,12 +234,15 @@ namespace Infrastructure.Repositories.ShopRepositories
             {
                 return new IntResult() { Massage = "No product has this Id" };
             }
-
+            if (product.OfferPrice is null || product.OfferPrice > product.Price)
+            {
+                product.OfferPrice = product.Price;
+            }
             productDB.Price = product.Price;
             productDB.Description = product.Description;
             productDB.Name = product.Name;
             productDB.Quantity = product.Quantity;
-            productDB.OfferPrice = product.OfferPrice;
+            productDB.OfferPrice = (decimal)product.OfferPrice;
 
             try
             {
