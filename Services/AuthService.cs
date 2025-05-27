@@ -273,18 +273,17 @@ namespace Services
         {
             try
             {
-                var payload = await VerifyGoogleIdToken(request.IdToken);
-                if (payload == null)
-                    return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
+                var userInfo = await GetGoogleUserInfo(request.AccessToken);
+                if (userInfo == null)
+                    return new Generalresponse { IsSuccess = false, Data = "Invalid Access Token or missing permissions." };
+                //var payload = await VerifyGoogleIdToken(request.IdToken);
+                //if (payload == null)
+                //    return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
 
-                var user = await _userManager.FindByEmailAsync(payload.Email);
+                var user = await _userManager.FindByEmailAsync(userInfo.Email);
 
                 if (user == null)
                 {
-                    var userInfo = await GetGoogleUserInfo(request.AccessToken);
-                    if (userInfo == null)
-                        return new Generalresponse { IsSuccess = false, Data = "Invalid Access Token or missing permissions." };
-
                     user = new ApplicationUser
                     {
                         UserName = userInfo.Email,
@@ -315,6 +314,21 @@ namespace Services
                         Data = new
                         {
                             Checktoken,
+                            exipiration = DateTime.Now.AddHours(1)
+                        }
+                    };
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles == null || !roles.Any())
+                {
+                    var checkToken = await GenerateJwtToken(user, setRole: true);
+                    return new Generalresponse
+                    {
+                        IsSuccess = true,
+                        Data = new
+                        {
+                            Checktoken = checkToken,
                             exipiration = DateTime.Now.AddHours(1)
                         }
                     };
