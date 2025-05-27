@@ -15,8 +15,7 @@ public class ApplicationUser : IdentityUser
     public required string LastName { get; set; }
 
     public string? Gender { get; set; }
-
-    [MaxLength(100)]
+    [MaxLength(500)]
     public string? ProfilePictureUrl { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public DateTime JoinedDate { get; set; } = DateTime.Now;
