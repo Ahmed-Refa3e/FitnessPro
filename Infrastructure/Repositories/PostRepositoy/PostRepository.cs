@@ -278,7 +278,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                     IsYourPost = post.IsYourPost,
                     PhotoPass = post.PhotoPass ?? "",
                     Name = post.EntityName ?? "",
-                    SourceType = post.SourceType == "CoachPost" ? PageType.COACH : post.SourceType == "GymPost" ? PageType.GYM : PageType.SHOP
+                    SourceType = post.SourceType == "COH" ? PageType.COACH : post.SourceType == "GYM" ? PageType.GYM : PageType.SHOP
                 };
                 if (newPost.SourceType == PageType.COACH)
                 {
@@ -373,7 +373,7 @@ namespace Infrastructure.Repositories.PostRepositoy
                     IsYourPost = post.IsYourPost,
                     PhotoPass = post.PhotoPass ?? "",
                     Name = post.EntityName ?? "",
-                    SourceType = post.SourceType == "CoachPost" ? PageType.COACH : post.SourceType == "GymPost" ? PageType.GYM : PageType.SHOP
+                    SourceType = post.SourceType == "COH" ? PageType.COACH : post.SourceType == "GYM" ? PageType.GYM : PageType.SHOP
                 };
                 if (newPost.SourceType == PageType.COACH)
                 {

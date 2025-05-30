@@ -79,7 +79,7 @@ builder.Services.AddSwaggerGen(swagger =>
 
 // 4. EF Core & Identity
 builder.Services.AddDbContext<FitnessContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("RemoteConnection"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("RemoteConnection"))//DefaultConnection RemoteConnection
 );
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
