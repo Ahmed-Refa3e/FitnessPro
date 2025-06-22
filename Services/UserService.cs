@@ -203,24 +203,30 @@ namespace Services
             return response;
         }
 
-        public async Task<bool> CheckUserStatusAsync(ApplicationUser user)
+        public async Task<Generalresponse> CheckUserStatusAsync(ApplicationUser user)
         {
-            var userfromDb = await repository.GetAsync(e => e.Id == user.Id,
-                includeProperties: "OnlineTrainings,Shops,Gym");
+            var userfromDb = await repository.GetAsync(
+                e => e.Id == user.Id,
+                includeProperties: "OnlineTrainings,Shops,Gym"
+            );
 
-            if (userfromDb == null)
+            if (userfromDb is not Coach coach)
             {
-                return false;
+                return new Generalresponse { IsSuccess = false };
             }
 
-            if (userfromDb is Coach coach)
+            var result = new HasBusinessDTO
             {
-                return (coach.Gym != null) ||
-                       (coach.OnlineTrainings?.Any() == true) ||
-                       (coach.Shops?.Any() == true);
-            }
+                hasGym = coach.Gym != null,
+                hasOnlineTrainng = coach.OnlineTrainings?.Any() == true,
+                hasShop = coach.Shops?.Any() == true
+            };
 
-            return false;
+            return new Generalresponse
+            {
+                Data = result,
+                IsSuccess = true
+            };
         }
     }
 }

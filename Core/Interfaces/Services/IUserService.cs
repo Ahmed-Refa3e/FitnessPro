@@ -10,7 +10,7 @@ namespace Core.Interfaces.Services
         Task<PagedResult<CoachResponseDTO>> GetAllCoachesAsync(GetCoachesDTO getCoachesDTO);
         Task<Generalresponse> GetCoachDetailsAsync(string CoachId);
         GetProfileDTO GetProfileDetails(ApplicationUser user);
-        Task<bool> CheckUserStatusAsync(ApplicationUser user);
+        Task<Generalresponse> CheckUserStatusAsync(ApplicationUser user);
         Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user);
     }
 }
