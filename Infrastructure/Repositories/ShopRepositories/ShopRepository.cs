@@ -79,7 +79,7 @@ namespace Infrastructure.Repositories.IShopRepositories
             try
             {
                 await _context.SaveChangesAsync();
-                if (shopDto.Image is not null)
+                /*if (shopDto.Image is not null)
                 {
                     var result = AddImageHelper.CheckImage(shopDto.Image);
                     if (result.Id == 0)
@@ -88,13 +88,13 @@ namespace Infrastructure.Repositories.IShopRepositories
                     }
                     newShop.PictureUrl = await _blobService.UploadImageAsync(shopDto.Image);
                     await _context.SaveChangesAsync();
-                }
+                }*/
                 await transaction.CommitAsync();
                 return new IntResult { Id = newShop.Id };
             }
             catch (Exception ex)
             {
-                await _blobService.DeleteImageAsync(newShop.PictureUrl);
+                //await _blobService.DeleteImageAsync(newShop.PictureUrl);
                 return new IntResult { Massage = ex.Message };
             }
         }

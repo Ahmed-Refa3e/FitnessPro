@@ -7,7 +7,7 @@ namespace Core.DTOs.ShopDTO
     {
         [Required(ErrorMessage = "Name is required.")]
         public string ShopName { get; set; }
-        public IFormFile? Image {  get; set; }
+        //public IFormFile? Image {  get; set; }
 
         [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
