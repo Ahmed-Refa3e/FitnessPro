@@ -81,7 +81,7 @@ namespace API.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{UserId}")]
+        [HttpGet("get-profile-picture/{UserId}")]
         public async Task<IActionResult> GetProfilePicture(string UserId)
         {
             var result = await service.GetProfilePictureAsync(UserId);
