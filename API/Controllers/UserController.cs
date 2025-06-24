@@ -66,6 +66,7 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("check-coach-business")]
         public async Task<IActionResult> CheckCoachBusinessAsync()
         {
