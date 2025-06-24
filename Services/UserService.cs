@@ -209,9 +209,21 @@ namespace Services
                 includeProperties: "OnlineTrainings,Shops,Gym"
             );
 
+            // Even if user is not a Coach, return default values
             if (userfromDb is not Coach coach)
             {
-                return new Generalresponse { IsSuccess = false };
+                var defaultResult = new HasBusinessDTO
+                {
+                    hasGym = false,
+                    hasOnlineTrainng = false,
+                    hasShop = false
+                };
+
+                return new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = defaultResult
+                };
             }
 
             var result = new HasBusinessDTO
