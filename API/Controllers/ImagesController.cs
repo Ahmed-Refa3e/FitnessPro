@@ -77,7 +77,7 @@ public class ImagesController(IBlobService _blobService,
         _context.applicationUsers.Update(user);
         await _context.SaveChangesAsync();
 
-        return Ok("Image deleted successfully.");
+        return Ok(new { message = "Image deleted successfully." });
     }
 
     // POST api/images/upload-gym-image/{gymId}
@@ -144,7 +144,7 @@ public class ImagesController(IBlobService _blobService,
         gymRepo.Update(gym);
         await _context.SaveChangesAsync();
 
-        return Ok("Image deleted successfully.");
+        return Ok(new { message = "Image deleted successfully." });
     }
 
     // POST api/images/upload-shop-image/{shopId}
@@ -197,7 +197,7 @@ public class ImagesController(IBlobService _blobService,
         _context.Shops.Update(shop);
         await _context.SaveChangesAsync();
 
-        return Ok("Image deleted successfully.");
+        return Ok(new { message = "Image deleted successfully." });
     }
 
     // POST api/images/upload-product-image/{productId}
@@ -242,7 +242,7 @@ public class ImagesController(IBlobService _blobService,
         product.ImagePath = null;
         _context.products.Update(product);
         await _context.SaveChangesAsync();
-        return Ok("Image deleted successfully.");
+        return Ok(new { message = "Image deleted successfully." });
     }
     // Fixing the CS8602 error by ensuring that `post.PictureUrls` is not null before accessing it.
     [HttpPost("upload-post-image/{postId}")]
@@ -302,7 +302,7 @@ public class ImagesController(IBlobService _blobService,
         post.PictureUrls.Clear();
         _context.Posts.Update(post);
         await _context.SaveChangesAsync();
-        return Ok("Images deleted successfully.");
+        return Ok(new { message = "Image deleted successfully." });
     }
 
     [HttpPost("upload-message-image")]
