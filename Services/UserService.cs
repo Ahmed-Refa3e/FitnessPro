@@ -1,6 +1,5 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.OnlineTrainingDTO;
-using Core.DTOs.PostDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
 using Core.Helpers;
@@ -226,6 +225,24 @@ namespace Services
             {
                 Data = result,
                 IsSuccess = true
+            };
+        }
+
+        public async Task<Generalresponse> GetProfilePictureAsync(string userId)
+        {
+            var userFromDb = await repository.GetAsync(e => e.Id == userId);
+            if (userFromDb is null)
+            {
+                return new Generalresponse
+                {
+                    IsSuccess = false,
+                    Data = "User Not Found."
+                };
+            }
+            return new Generalresponse
+            {
+                IsSuccess = true,
+                Data = userFromDb.ProfilePictureUrl
             };
         }
     }

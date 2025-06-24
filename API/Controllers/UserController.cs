@@ -80,5 +80,14 @@ namespace API.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("{UserId}")]
+        public async Task<IActionResult> GetProfilePicture(string UserId)
+        {
+            var result = await service.GetProfilePictureAsync(UserId);
+            if(result.IsSuccess)
+                return Ok(result);
+            return NotFound(result);
+        }
     }
 }

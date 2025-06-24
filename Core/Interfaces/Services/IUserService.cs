@@ -12,5 +12,6 @@ namespace Core.Interfaces.Services
         GetProfileDTO GetProfileDetails(ApplicationUser user);
         Task<Generalresponse> CheckUserStatusAsync(ApplicationUser user);
         Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user);
+        Task<Generalresponse> GetProfilePictureAsync(string userId);
     }
 }
