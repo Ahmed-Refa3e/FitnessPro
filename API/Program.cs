@@ -1,26 +1,4 @@
-﻿using Core.Helpers;
-using Core.Interfaces.Factories;
-using Core.Interfaces.Repositories;
-using Core.Interfaces.Repositories.ChatRepositories;
-using Core.Interfaces.Repositories.OnlineTrainingRepositories;
-using Core.Interfaces.Repositories.PostRepositories;
-using Core.Interfaces.Repositories.ShopRepositories;
-using Core.Interfaces.Services;
-using Infrastructure.Factories;
-using Infrastructure.Hubs;
-using Infrastructure.Repositories;
-using Infrastructure.Repositories.ChatRepositories;
-using Infrastructure.Repositories.GymRepositories;
-using Infrastructure.Repositories.IShopRepositories;
-using Infrastructure.Repositories.OnlineTrainingRepositories;
-using Infrastructure.Repositories.PostRepositoy;
-using Infrastructure.Repositories.ShopRepositories;
-using Infrastructure.Repositories.UserRepository;
-using Microsoft.OpenApi.Models;
-using Services;
-using Stripe;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 // 1. CORS
 builder.Services.AddCors(options =>
@@ -47,20 +25,23 @@ builder.Services.AddSwaggerGen(swagger =>
     {
         Version = "v1",
         Title = "Fitness Pro Web API",
-        Description = "fitness"
+        Description = "Fitness Pro - Web API for managing gym services"
     });
 
-    // JWT in Swagger
-    swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    swagger.IncludeXmlComments(xmlPath);
+
+    swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description =
-            "Enter 'Bearer' [space] and then your valid token.\r\n\r\nExample: \"Bearer eyJhbGciOi...\""
+        Description = "Enter 'Bearer' followed by your JWT token.\r\n\r\nExample: Bearer eyJhbGciOi..."
     });
+
     swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -72,10 +53,11 @@ builder.Services.AddSwaggerGen(swagger =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            Array.Empty<string>()
         }
     });
 });
+
 
 // 4. EF Core & Identity
 builder.Services.AddDbContext<FitnessContext>(options =>
