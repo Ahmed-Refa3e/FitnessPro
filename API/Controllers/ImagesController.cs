@@ -1,6 +1,4 @@
 ﻿using Core.Entities.PostEntities;
-using Core.Interfaces.Repositories;
-using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -150,55 +148,6 @@ public class ImagesController(IBlobService _blobService,
     // POST api/images/upload-shop-image/{shopId}
     [HttpPost("upload-shop-image/{shopId}")]
     [Authorize(Roles = "Coach")]
-    public async Task<IActionResult> UploadShopImage(int shopId, [FromForm] IFormFile file)
-    {
-        // Check image validity
-        var checkResult = CheckImage(file);
-        if (checkResult is BadRequestObjectResult)
-            return checkResult;
-
-        var shop = await _context.Shops.FindAsync(shopId);
-        if (shop == null)
-            return NotFound("Shop not found.");
-        // Check if the shop already has an image
-        if (!string.IsNullOrEmpty(shop.PictureUrl))
-        {
-            // Delete the old image from Azure Blob Storage
-            await _blobService.DeleteImageAsync(shop.PictureUrl);
-        }
-        // Upload the image to Azure Blob
-        var imageUrl = await _blobService.UploadImageAsync(file);
-  
-        shop.PictureUrl = imageUrl;
-        _context.Shops.Update(shop);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { Url = imageUrl });
-    }
-
-    // DELETE api/images/delete-shop-image/{shopId}
-    [HttpDelete("delete-shop-image/{shopId}")]
-    [Authorize(Roles = "Coach")]
-    public async Task<IActionResult> DeleteShopImage(int shopId)
-    {
-        // Find the shop by Id
-        var shop = await _context.Shops.FindAsync(shopId);
-        if (shop == null)
-            return NotFound("Shop not found.");
-
-        // Delete image from Azure Blob Storage
-        if (string.IsNullOrEmpty(shop.PictureUrl))
-        {
-            return NotFound("No image found to delete.");
-        }
-        // Remove image URL from the database
-        await _blobService.DeleteImageAsync(shop.PictureUrl);
-        shop.PictureUrl = null;
-        _context.Shops.Update(shop);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Image deleted successfully." });
-    }
 
     // POST api/images/upload-product-image/{productId}
     [HttpPost("upload-product-image/{productId}")]
@@ -208,7 +157,7 @@ public class ImagesController(IBlobService _blobService,
         var checkResult = CheckImage(file);
         if (checkResult is BadRequestObjectResult)
             return checkResult;
-        var product = await _context.products.FindAsync(productId);
+        var product = await _context.products!.FindAsync(productId);
         if (product == null)
             return NotFound("Product not found.");
         // Check if the product already has an image
@@ -229,7 +178,7 @@ public class ImagesController(IBlobService _blobService,
     public async Task<IActionResult> DeleteProductImage(int productId)
     {
         // Find the product by Id
-        var product = await _context.products.FindAsync(productId);
+        var product = await _context.products!.FindAsync(productId);
         if (product == null)
             return NotFound("Product not found.");
         // Delete image from Azure Blob Storage

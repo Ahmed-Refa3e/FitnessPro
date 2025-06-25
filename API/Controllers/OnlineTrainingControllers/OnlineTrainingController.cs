@@ -1,13 +1,13 @@
 ﻿using Core.DTOs.OnlineTrainingDTO;
 using Core.Entities.OnlineTrainingEntities;
-using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Extensions;
+using System.Security.Claims;
 
 namespace API.Controllers.OnlineTrainingControllers
 {
-    public class OnlineTrainingController(IOnlineTrainingRepository Repo, SignInManager<ApplicationUser> signInManager) : BaseApiController
+    public class OnlineTrainingController(IOnlineTrainingRepository Repo) : BaseApiController
     {
 
         [HttpGet("{id:int}")]
@@ -46,11 +46,11 @@ namespace API.Controllers.OnlineTrainingControllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
+            string CoachId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             var onlineTraining = new OnlineTraining
             {
-                CoachID = user!.Id,
+                CoachID = CoachId,
                 Title = createOnlineTrainingDTO.Title,
                 Description = createOnlineTrainingDTO.Description,
                 TrainingType = createOnlineTrainingDTO.TrainingType,
@@ -79,8 +79,8 @@ namespace API.Controllers.OnlineTrainingControllers
             if (onlineTrainingToBeUpdated == null)
                 return NotFound("Online training not found");
 
-            var user = await signInManager.UserManager.GetUserAsync(User);
-            if (onlineTrainingToBeUpdated.CoachID != user!.Id)
+            string CoachId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            if (onlineTrainingToBeUpdated.CoachID != CoachId)
             {
                 return Unauthorized("You are not authorized to update this Online training");
             }
@@ -103,21 +103,24 @@ namespace API.Controllers.OnlineTrainingControllers
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Coach")]
-        public async Task<ActionResult> DeleteOnlineTraining(int id)
+        public async Task<IActionResult> DeleteOnlineTraining(int id)
         {
-            var OnlineTrainingToBeDeleted = await Repo.GetByIdAsync(id);
-            if (OnlineTrainingToBeDeleted == null) return NotFound("Online training not found");
-            var user = await signInManager.UserManager.GetUserAsync(User);
-            if (OnlineTrainingToBeDeleted!.CoachID != user!.Id)
-            {
-                return Unauthorized("You are not authorized to Delete this online training");
-            }
+            var training = await Repo.GetByIdAsync(id);
+            if (training is null)
+                return NotFound("Online training not found.");
 
-            Repo.Delete(OnlineTrainingToBeDeleted);
+            var coachId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(coachId) || training.CoachID != coachId)
+                return Forbid("You are not authorized to delete this online training.");
 
-            if (!await Repo.SaveChangesAsync()) return NotFound("Online training not found");
+            Repo.Remove(training);
+
+            var success = await Repo.SaveChangesAsync();
+            if (!success)
+                return StatusCode(500, "An error occurred while deleting the training.");
 
             return NoContent();
         }
+
     }
 }

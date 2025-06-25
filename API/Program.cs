@@ -13,9 +13,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 2. Stripe
-StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
-
 // 3. Add controllers & Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

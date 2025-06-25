@@ -87,9 +87,9 @@ namespace Services
             return new PagedResult<CoachResponseDTO>(Coaches, totalCount, getCoachesDTO.PageNumber, pageSize);
         }
 
-        public async Task<Generalresponse> GetCoachDetailsAsync(string CoachId)
+        public async Task<GeneralResponse> GetCoachDetailsAsync(string CoachId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await repository.GetAsync(e => e.Id == CoachId
                         , includeProperties: "OnlineTrainings,Ratings"
@@ -168,9 +168,9 @@ namespace Services
             };
         }
 
-        public async Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user)
+        public async Task<GeneralResponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             if (user is not Coach && !string.IsNullOrEmpty(profileDTO.Bio))
             {
@@ -202,7 +202,7 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> CheckUserStatusAsync(ApplicationUser user)
+        public async Task<GeneralResponse> CheckUserStatusAsync(ApplicationUser user)
         {
             var userfromDb = await repository.GetAsync(
                 e => e.Id == user.Id,
@@ -219,7 +219,7 @@ namespace Services
                     hasShop = false
                 };
 
-                return new Generalresponse
+                return new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = defaultResult
@@ -233,25 +233,25 @@ namespace Services
                 hasShop = coach.Shops?.Any() == true
             };
 
-            return new Generalresponse
+            return new GeneralResponse
             {
                 Data = result,
                 IsSuccess = true
             };
         }
 
-        public async Task<Generalresponse> GetProfilePictureAsync(string userId)
+        public async Task<GeneralResponse> GetProfilePictureAsync(string userId)
         {
             var userFromDb = await repository.GetAsync(e => e.Id == userId);
             if (userFromDb is null)
             {
-                return new Generalresponse
+                return new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = "User Not Found."
                 };
             }
-            return new Generalresponse
+            return new GeneralResponse
             {
                 IsSuccess = true,
                 Data = userFromDb.ProfilePictureUrl

@@ -23,9 +23,9 @@ namespace API.Controllers.Shop
             var shop = await _repository.GetShop(id);
             if (shop == null)
             {
-                return NotFound(new Generalresponse { IsSuccess = false, Data = "No shop found with this ID." });
+                return NotFound(new GeneralResponse { IsSuccess = false, Data = "No shop found with this ID." });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = shop });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = shop });
         }
         [HttpGet("ShopsOfOwner")]
         [Authorize(Roles = "Coach")]
@@ -33,19 +33,19 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var shop = await _repository.GetShopsOfOwner(userId);
             if (shop == null)
             {
-                return NotFound(new Generalresponse { IsSuccess = false, Data = "No shop found with this ID." });
+                return NotFound(new GeneralResponse { IsSuccess = false, Data = "No shop found with this ID." });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = shop });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = shop });
         }
         [HttpGet("ShopSearch")]
         public async Task<ActionResult> GetShops([FromQuery] SearchShopDTO searchDTO)
         {
             var shop = await _repository.GetShopsWithFilter(searchDTO);
-            return Ok(new Generalresponse { IsSuccess = true, Data = shop });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = shop });
         }
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Coach")]
@@ -53,30 +53,30 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _repository.Delete(userId, id);
             if (result.Id == 0)
             {
-                return NotFound(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return NotFound(new GeneralResponse { IsSuccess = false, Data = result.Massage });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Deleted" });
         }
         [HttpPost]
         [Authorize(Roles = "Coach")]
         public async Task<ActionResult> Add(AddShopDTO shop)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
 
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
 
             var result = await _repository.Add(shop, userId);
             if (result.Id == 0)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = result.Massage });
 
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Created successfully" });
         }
 
         [HttpPut("{id:int}")]
@@ -84,34 +84,34 @@ namespace API.Controllers.Shop
         public async Task<ActionResult> Update([FromBody] UpdateShopDTO shop, int id)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
 
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
 
             var result = await _repository.Update(shop, id, userId);
             if (result.Id == 0)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = result.Massage });
 
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Updated successfully" });
         }
         [HttpPut("UpdateImage/{id:int}")]
         [Authorize(Roles = "Coach")]
         public async Task<ActionResult> UpdateImage(UpdateImageDTO imageDTO, int id)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
 
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
 
             var result = await _repository.UpdateImage(imageDTO, id, userId);
             if (result.Id == 0)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = result.Massage });
 
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Updated successfully" });
         }
     }
 }

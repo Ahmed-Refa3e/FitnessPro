@@ -5,20 +5,20 @@ namespace Core.Interfaces.Services
 {
     public interface IAuthService
     {
-        Task<Generalresponse> RegisterTraineeAsync(RegisterDTO model);
-        Task<Generalresponse> RegisterCoachAsync(RegisterDTO model);
-        Task<Generalresponse> LoginAsync(LoginDTO loginDTO);
-        Task<Generalresponse> GoogleLoginAsync(GoogleAuthDTO request);
-        Task<Generalresponse> SetUserRoleAsync(string userId, string role);
-        Task<Generalresponse> LogOutAsync(string userId);
-        Task<Generalresponse> ConfirmEmailAsync(ConfirmEmailDTO request);
-        Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto,string userId);
-        Task<Generalresponse> ForgetPasswordAsync(string email);
-        Task<Generalresponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO);
-        Task<Generalresponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);
-        Task<Generalresponse> ResendConfirmationCodeAsync(string Email);
-        Task<Generalresponse> ResendResetPasswordCodeAsync(string Email);
-        Task<Generalresponse> RefreshTokenAsync(TokenRequestDTO request);
-        Task<Generalresponse> RevokeAllTokensAsync(string userId);
+        Task<GeneralResponse> RegisterTraineeAsync(RegisterDTO model);
+        Task<GeneralResponse> RegisterCoachAsync(RegisterDTO model);
+        Task<GeneralResponse> LoginAsync(LoginDTO loginDTO);
+        Task<GeneralResponse> GoogleLoginAsync(GoogleAuthDTO request);
+        Task<GeneralResponse> SetUserRoleAsync(string userId, string role);
+        Task<GeneralResponse> LogOutAsync(string userId);
+        Task<GeneralResponse> ConfirmEmailAsync(ConfirmEmailDTO request);
+        Task<GeneralResponse> ChangePasswordAsync(ChangePaswwordDTO dto,string userId);
+        Task<GeneralResponse> ForgetPasswordAsync(string email);
+        Task<GeneralResponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO);
+        Task<GeneralResponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO);
+        Task<GeneralResponse> ResendConfirmationCodeAsync(string Email);
+        Task<GeneralResponse> ResendResetPasswordCodeAsync(string Email);
+        Task<GeneralResponse> RefreshTokenAsync(TokenRequestDTO request);
+        Task<GeneralResponse> RevokeAllTokensAsync(string userId);
     }
 }

@@ -42,9 +42,9 @@ namespace Services
             _jwtSettings = options.Value;
         }
 
-        public async Task<Generalresponse> RegisterTraineeAsync(RegisterDTO model)
+        public async Task<GeneralResponse> RegisterTraineeAsync(RegisterDTO model)
         {
-            Generalresponse response = new();
+            GeneralResponse response = new();
 
             var userFromDb = await _userManager.FindByEmailAsync(model.Email);
             if (userFromDb != null)
@@ -91,9 +91,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> RegisterCoachAsync(RegisterDTO model)
+        public async Task<GeneralResponse> RegisterCoachAsync(RegisterDTO model)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var userFromDb = await _userManager.FindByEmailAsync(model.Email);
             if (userFromDb != null)
@@ -140,9 +140,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> LoginAsync(LoginDTO loginDTO)
+        public async Task<GeneralResponse> LoginAsync(LoginDTO loginDTO)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             ApplicationUser? user = await _userManager.FindByEmailAsync(loginDTO.Email);
 
@@ -185,9 +185,9 @@ namespace Services
             response.Data = "Invalid email or password";
             return response;
         }
-        public async Task<Generalresponse> SetUserRoleAsync(string userId, string role)
+        public async Task<GeneralResponse> SetUserRoleAsync(string userId, string role)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             var oldUser = await _userManager.FindByIdAsync(userId);
             if (oldUser == null)
             {
@@ -258,7 +258,7 @@ namespace Services
             });
 
             await repository.SaveAsync();
-            return new Generalresponse
+            return new GeneralResponse
             {
                 IsSuccess = true,
                 Data = new
@@ -269,13 +269,13 @@ namespace Services
                 }
             };
         }
-        public async Task<Generalresponse> GoogleLoginAsync(GoogleAuthDTO request)
+        public async Task<GeneralResponse> GoogleLoginAsync(GoogleAuthDTO request)
         {
             try
             {
                 var userInfo = await GetGoogleUserInfo(request.AccessToken);
                 if (userInfo == null)
-                    return new Generalresponse { IsSuccess = false, Data = "Invalid Access Token or missing permissions." };
+                    return new GeneralResponse { IsSuccess = false, Data = "Invalid Access Token or missing permissions." };
                 //var payload = await VerifyGoogleIdToken(request.IdToken);
                 //if (payload == null)
                 //    return new Generalresponse { IsSuccess = false, Data = "Invalid Google token" };
@@ -298,7 +298,7 @@ namespace Services
                     var result = await _userManager.CreateAsync(user);
                     if (!result.Succeeded)
                     {
-                        return new Generalresponse
+                        return new GeneralResponse
                         {
                             IsSuccess = false,
                             Data = result.Errors.Select(e => e.Description).ToList()
@@ -308,7 +308,7 @@ namespace Services
                     var Checktoken = await GenerateJwtToken(user, setRole: true);
 
                     await repository.SaveAsync();
-                    return new Generalresponse
+                    return new GeneralResponse
                     {
                         IsSuccess = true,
                         Data = new
@@ -323,7 +323,7 @@ namespace Services
                 if (roles == null || !roles.Any())
                 {
                     var checkToken = await GenerateJwtToken(user, setRole: true);
-                    return new Generalresponse
+                    return new GeneralResponse
                     {
                         IsSuccess = true,
                         Data = new
@@ -344,7 +344,7 @@ namespace Services
                 });
 
                 await repository.SaveAsync();
-                return new Generalresponse
+                return new GeneralResponse
                 {
                     IsSuccess = true,
                     Data = new
@@ -357,7 +357,7 @@ namespace Services
             }
             catch (Exception ex)
             {
-                return new Generalresponse
+                return new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = $"An error occurred: {ex.Message}"
@@ -365,9 +365,9 @@ namespace Services
             }
         }
 
-        public async Task<Generalresponse> LogOutAsync(string userId)
+        public async Task<GeneralResponse> LogOutAsync(string userId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             var user = await repository.GetAsync(e => e.Id == userId
            , includeProperties: "refreshTokens");
 
@@ -391,9 +391,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ConfirmEmailAsync(ConfirmEmailDTO request)
+        public async Task<GeneralResponse> ConfirmEmailAsync(ConfirmEmailDTO request)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
@@ -427,9 +427,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ChangePasswordAsync(ChangePaswwordDTO dto, string userId)
+        public async Task<GeneralResponse> ChangePasswordAsync(ChangePaswwordDTO dto, string userId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -461,9 +461,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ForgetPasswordAsync(string email)
+        public async Task<GeneralResponse> ForgetPasswordAsync(string email)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -496,9 +496,9 @@ namespace Services
 
         }
 
-        public async Task<Generalresponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO)
+        public async Task<GeneralResponse> VerifyResetCodeAsync(VerifyCodeDTO codeDTO)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var userModel = await _userManager.FindByEmailAsync(codeDTO.Email);
             if (userModel == null)
@@ -526,9 +526,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO)
+        public async Task<GeneralResponse> ResetPasswordAsync(ResetPasswordDTO resetPasswordDTO)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             var userModel = await _userManager.FindByEmailAsync(resetPasswordDTO.Email);
             if (userModel == null)
             {
@@ -560,9 +560,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ResendConfirmationCodeAsync(string Email)
+        public async Task<GeneralResponse> ResendConfirmationCodeAsync(string Email)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await _userManager.FindByEmailAsync(Email);
             if (user == null)
@@ -596,9 +596,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> ResendResetPasswordCodeAsync(string Email)
+        public async Task<GeneralResponse> ResendResetPasswordCodeAsync(string Email)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await _userManager.FindByEmailAsync(Email);
             if (user == null)
@@ -626,9 +626,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> RefreshTokenAsync(TokenRequestDTO request)
+        public async Task<GeneralResponse> RefreshTokenAsync(TokenRequestDTO request)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await repository
                 .GetAsync(e => e.refreshTokens != null
@@ -664,9 +664,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> RevokeAllTokensAsync(string userId)
+        public async Task<GeneralResponse> RevokeAllTokensAsync(string userId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await repository.GetAsync(e => e.Id == userId
                                      , includeProperties: "refreshTokens");
@@ -690,9 +690,9 @@ namespace Services
         }
 
 
-        private async Task<Generalresponse> SendConfirmationEmail(ApplicationUser user)
+        private async Task<GeneralResponse> SendConfirmationEmail(ApplicationUser user)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             if (string.IsNullOrEmpty(user.Email))
             {

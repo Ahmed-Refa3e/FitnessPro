@@ -1,5 +1,4 @@
 ﻿using Core.Entities.OnlineTrainingEntities;
-using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Extensions;
@@ -8,7 +7,7 @@ using System.Security.Claims;
 namespace API.Controllers.OnlineTrainingControllers;
 
 
-public class OnlineTrainingSubscriptionController(IOnlineTrainingSubscriptionRepository SubscriptionRepo,IOnlineTrainingRepository OnlineTrainingRepo) : BaseApiController
+public class OnlineTrainingSubscriptionController(IOnlineTrainingSubscriptionRepository SubscriptionRepo, IOnlineTrainingRepository OnlineTrainingRepo) : BaseApiController
 {
     /// <summary>
     /// Retrieves an online training subscription by its unique identifier.

@@ -4,9 +4,9 @@ namespace Core.Interfaces.Services
 {
     public interface IChatService
     {
-        Task<Generalresponse> GetChatHistoryAsync(string FirstUserId, string LastUserId, int pageNumber, int pageSize);
-        Task<Generalresponse> GetContactsAsync(string UserId);
-        Task<Generalresponse> GetUserStatusAsync(string UserId);
+        Task<GeneralResponse> GetChatHistoryAsync(string FirstUserId, string LastUserId, int pageNumber, int pageSize);
+        Task<GeneralResponse> GetContactsAsync(string UserId);
+        Task<GeneralResponse> GetUserStatusAsync(string UserId);
         Task<int> GetAllUnreadMessagesAsync(string UserId);
         Task<int> GetUnreadMessagesWithAnotherUserAsync(string UserId, string senderId);
     }

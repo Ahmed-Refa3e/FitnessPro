@@ -10,9 +10,9 @@ namespace Services
 {
     public class FollowService(IUserRepository userRepository, IGymRepository gymRepository, FitnessContext context) : IFollowService
     {
-        public async Task<Generalresponse> FollowGymAsync(ApplicationUser applicationUser, int gymId)
+        public async Task<GeneralResponse> FollowGymAsync(ApplicationUser applicationUser, int gymId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             var checkfollow = await userRepository.GetGymFollow(applicationUser.Id, gymId);
             if (checkfollow != null)
             {
@@ -48,9 +48,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> FollowShopAsync(ApplicationUser applicationUser, int shopId)
+        public async Task<GeneralResponse> FollowShopAsync(ApplicationUser applicationUser, int shopId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             var checkfollow = await userRepository.GetShopFollow(applicationUser.Id, shopId);
             if (checkfollow != null)
             {
@@ -86,9 +86,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> FollowUserAsync(ApplicationUser applicationUser, string followedId)
+        public async Task<GeneralResponse> FollowUserAsync(ApplicationUser applicationUser, string followedId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             if (applicationUser.Id == followedId)
             {
                 response.IsSuccess = false;
@@ -132,9 +132,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> UnfollowGymAsync(ApplicationUser applicationUser, int gymId)
+        public async Task<GeneralResponse> UnfollowGymAsync(ApplicationUser applicationUser, int gymId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             var follow = await userRepository.GetGymFollow(applicationUser.Id, gymId);
             if (follow == null)
             {
@@ -162,9 +162,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> UnfollowShopAsync(ApplicationUser applicationUser, int shopId)
+        public async Task<GeneralResponse> UnfollowShopAsync(ApplicationUser applicationUser, int shopId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             var follow = await userRepository.GetShopFollow(applicationUser.Id, shopId);
             if (follow == null)
             {
@@ -192,9 +192,9 @@ namespace Services
             return response;
         }
 
-        public async Task<Generalresponse> UnfollowUserAsync(ApplicationUser applicationUser, string followedId)
+        public async Task<GeneralResponse> UnfollowUserAsync(ApplicationUser applicationUser, string followedId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
             if (applicationUser.Id == followedId)
             {
                 response.IsSuccess = false;

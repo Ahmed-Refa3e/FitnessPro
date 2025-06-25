@@ -23,61 +23,61 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderItemRepository.GetById(id,userId);
             if (result == null)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = "Failed to create OrderItem" });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = "Failed to create OrderItem" });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = result });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = result });
         }
         [HttpPost("AddToSpecificOrder")]
         [Authorize]
         public async Task<ActionResult> AddToSpecificOrder(AddOrderItemDTO item)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderItemRepository.AddOrderItemInSpacificOrderWithCheckUserID(item, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = "Failed to create OrderItem" });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = "Failed to create OrderItem" });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Created successfully" });
         }
         [HttpPost("AddToUnreceivedOrder")]
         [Authorize]
         public async Task<ActionResult> AddToUnreceivedOrder(AddOrderItemInOrderDTO item)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderItemRepository.AddOrderItemInOrderDidnotReseived(item, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = "Failed to create OrderItem" });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = "Failed to create OrderItem" });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Created successfully" });
         }
         [HttpPut]
         [Authorize]
         public async Task<ActionResult> Update(EditOrderItemDTO item)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderItemRepository.UpdateOrderItem(item, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = "No OrderItem found with this Id" });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = "No OrderItem found with this Id" });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Updated successfully" });
         }
         [HttpDelete]
         [Authorize]
@@ -85,13 +85,13 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderItemRepository.DeleteOrderItemWithUserId(id, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = "No OrderItem found or you are not authorized" });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = "No OrderItem found or you are not authorized" });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Deleted successfully" });
         }
     }
 }

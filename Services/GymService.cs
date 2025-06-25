@@ -48,10 +48,11 @@ public class GymService(IGymRepository repository) : IGymService
         var count = await query.CountAsync();
         var paginatedQuery = query
             .Skip((GymDTO.PageNumber - 1) * pageSize)
-            .Take(pageSize);
+            .Take(pageSize)
+            .AsNoTracking();
 
         // Execute the query using the repository
-        var gyms = await repository.ExecuteQueryAsync(paginatedQuery);
+        IReadOnlyList<Gym> gyms = await repository.ExecuteQueryAsync(paginatedQuery);
 
         // Map to DTOs
         var dtoData = gyms.Select(g => g.ToResponseDto()).ToList();
@@ -87,41 +88,42 @@ public class GymService(IGymRepository repository) : IGymService
         return await repository.SaveChangesAsync();
     }
 
-    public async Task<bool> UpdateGymAsync(int id, UpdateGymDTO Gym)
+    public async Task<bool> UpdateGymAsync(int id, UpdateGymDTO dto)
     {
-        // Check if the gym exists
         var existingGym = await repository.GetByIdAsync(id);
         if (existingGym == null)
+            return false;
+
+        existingGym.GymName = dto.GymName;
+        existingGym.Address = dto.Address;
+        existingGym.City = dto.City;
+        existingGym.Governorate = dto.Governorate;
+        existingGym.MonthlyPrice = dto.MonthlyPrice;
+        existingGym.Description = dto.Description;
+        existingGym.PictureUrl = dto.PictureUrl;
+        existingGym.PhoneNumber = dto.PhoneNumber;
+        existingGym.SessionPrice = dto.SessionPrice;
+        existingGym.FortnightlyPrice = dto.FortnightlyPrice;
+        existingGym.YearlyPrice = dto.YearlyPrice;
+
+        try
         {
-            return false; // Gym not found
+            return await repository.SaveChangesAsync();
         }
-
-        // Update the properties of the gym entity
-        existingGym.GymName = Gym.GymName;
-        existingGym.Address = Gym.Address;
-        existingGym.City = Gym.City;
-        existingGym.Governorate = Gym.Governorate;
-        existingGym.MonthlyPrice = Gym.MonthlyPrice;
-        existingGym.Description = Gym.Description;
-        existingGym.PictureUrl = Gym.PictureUrl;
-        existingGym.PhoneNumber = Gym.PhoneNumber;
-        existingGym.SessionPrice = Gym.SessionPrice;
-        existingGym.FortnightlyPrice = Gym.FortnightlyPrice;
-        existingGym.YearlyPrice = Gym.YearlyPrice;
-
-        // Update the entity in the repository
-        repository.Update(existingGym);
-
-        // Save changes to the database
-        return await repository.SaveChangesAsync();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating gym: {ex.Message}");
+            return false;
+        }
     }
+
 
     public async Task<bool> DeleteGymAsync(int id)
     {
         var gym = await repository.GetByIdAsync(id);
         if (gym == null) return false;
 
-        repository.Delete(gym);
+        repository.Remove(gym);
         return await repository.SaveChangesAsync();
     }
 
@@ -133,13 +135,18 @@ public class GymService(IGymRepository repository) : IGymService
     {
         const double MaxDistanceKm = 5;
 
+        BoundingBox(dto, MaxDistanceKm, out double minLat, out double maxLat, out double minLng, out double maxLng);
+
         var query = repository.GetQueryable()
-            .Where(g => g.Latitude != 0 && g.Longitude != 0)
+            .Where(g => g.Latitude >= minLat && g.Latitude <= maxLat
+                     && g.Longitude >= minLng && g.Longitude <= maxLng
+                     && g.Latitude != 0 && g.Longitude != 0)
             .Include(g => g.Ratings)
-            .Include(g => g.Owner);
+            .Include(g => g.Owner)
+            .AsNoTracking();
 
         var gyms = await query.ToListAsync();
-        if(gyms.Count == 0) return [];  
+        if (gyms.Count == 0) return [];
 
         var nearbyGyms = gyms
             .Where(g => CalculateDistance(g.Latitude, g.Longitude, dto.Latitude, dto.Longitude) <= MaxDistanceKm)
@@ -147,6 +154,20 @@ public class GymService(IGymRepository repository) : IGymService
             .ToList();
 
         return nearbyGyms;
+    }
+
+    private static void BoundingBox(GetNearbyGymsDTO dto, double MaxDistanceKm, out double minLat, out double maxLat, out double minLng, out double maxLng)
+    {
+        double lat = dto.Latitude;
+        double lng = dto.Longitude;
+
+        double deltaLat = MaxDistanceKm / 111.0;
+        double deltaLng = MaxDistanceKm / (111.0 * Math.Cos(lat * (Math.PI / 180)));
+
+        minLat = lat - deltaLat;
+        maxLat = lat + deltaLat;
+        minLng = lng - deltaLng;
+        maxLng = lng + deltaLng;
     }
 
     public async Task<bool> AddGymLocationAsync(int gymId, double latitude, double longitude)
@@ -157,7 +178,6 @@ public class GymService(IGymRepository repository) : IGymService
         gym.Latitude = latitude;
         gym.Longitude = longitude;
 
-        repository.Update(gym);
         return await repository.SaveChangesAsync();
     }
 

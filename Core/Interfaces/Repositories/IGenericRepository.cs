@@ -7,7 +7,7 @@
         Task<T?> GetByIdAsync(int id);
         void Add(T entity);
         void Update(T entity);
-        void Delete(T entity);
+        void Remove(T entity);
         Task<bool> ExistsAsync(int id);
         Task<bool> SaveChangesAsync();
     }
