@@ -11,6 +11,7 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
         {
             return await GetQueryable()
                 .Where(ot => ot.CoachID == coachId && ot.TrainingType == "Group")
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -18,6 +19,7 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
         {
             return await GetQueryable()
                 .Where(ot => ot.CoachID == coachId && ot.TrainingType == "Private")
+                .AsNoTracking()
                 .ToListAsync();
         }
     }

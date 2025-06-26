@@ -1,6 +1,5 @@
 ﻿using Core.DTOs.AuthDTO;
 using Core.DTOs.GeneralDTO;
-using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -98,7 +97,7 @@ namespace API.Controllers
 
             if (purposeClaim != "NoRole")
             {
-                return Unauthorized(new Generalresponse
+                return Unauthorized(new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = "Unauthorized access or invalid token."
@@ -156,10 +155,10 @@ namespace API.Controllers
             }
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if(string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var result = await service.ChangePasswordAsync(dto,userId);
+            var result = await service.ChangePasswordAsync(dto, userId);
 
             if (result.IsSuccess)
                 return Ok(result);
@@ -206,7 +205,7 @@ namespace API.Controllers
 
             if (string.IsNullOrEmpty(emailClaim) || purposeClaim != "ResetPassword")
             {
-                return Unauthorized(new Generalresponse
+                return Unauthorized(new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = "Unauthorized access or invalid token purpose."
@@ -268,7 +267,7 @@ namespace API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(new Generalresponse
+                return Unauthorized(new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = ex.Message
@@ -283,7 +282,7 @@ namespace API.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse
+                return Unauthorized(new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = "User ID is missing."
@@ -296,7 +295,7 @@ namespace API.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                return Unauthorized(new Generalresponse
+                return Unauthorized(new GeneralResponse
                 {
                     IsSuccess = false,
                     Data = "User not found or not allowed."

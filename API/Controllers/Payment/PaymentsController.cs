@@ -1,14 +1,12 @@
-﻿using Core.Interfaces.Repositories.OnlineTrainingRepositories;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Stripe;
 using Stripe.Checkout;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace API.Controllers.Payment;
 
 public class PaymentsController(
-    SignInManager<ApplicationUser> signInManager,
     IOnlineTrainingRepository trainingRepo,
     IOnlineTrainingSubscriptionRepository subscriptionRepo,
     IConfiguration configuration) : BaseApiController
@@ -21,16 +19,14 @@ public class PaymentsController(
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
-        if (user == null)
-            return Unauthorized("User not found");
+        string TraineeId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         var onlineTraining = await trainingRepo.GetByIdAsync(request.OnlineTrainingId);
         if (onlineTraining == null)
             return NotFound("Online training not found");
 
         //Check for existing active subscription
-        var hasActiveSubscription = await subscriptionRepo.HasActiveSubscriptionAsync(user.Id, request.OnlineTrainingId);
+        var hasActiveSubscription = await subscriptionRepo.HasActiveSubscriptionAsync(TraineeId, request.OnlineTrainingId);
         if (hasActiveSubscription)
             return BadRequest(new { message = "You already have an active subscription for this training." });
 
@@ -60,7 +56,7 @@ public class PaymentsController(
             {
                 Metadata = new Dictionary<string, string>
                 {
-                    { "traineeId", user.Id },
+                    { "traineeId", TraineeId },
                     { "onlineTrainingId", request.OnlineTrainingId.ToString() }
                 }
             },

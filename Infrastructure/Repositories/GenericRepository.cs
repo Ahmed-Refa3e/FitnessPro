@@ -39,7 +39,7 @@ namespace Infrastructure.Repositories
             _dbSet.Update(entity);
         }
 
-        public void Delete(T entity)
+        public void Remove(T entity)
         {
             _dbSet.Remove(entity);
         }

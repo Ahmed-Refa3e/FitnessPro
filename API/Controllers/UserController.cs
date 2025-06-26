@@ -1,4 +1,5 @@
-﻿using Core.DTOs.UserDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.UserDTO;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,17 +67,27 @@ namespace API.Controllers
         }
 
         [Authorize]
-        [HttpGet("checkCoachBusiness")]
-        public async Task<IActionResult> checkCoachBusiness()
+        [HttpGet("check-coach-business")]
+        public async Task<IActionResult> CheckCoachBusinessAsync()
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
-            {
                 return NotFound("User not found.");
-            }
 
-            var hasBusiness = await service.CheckUserStatusAsync(user);
-            return Ok(new { HasBusiness = hasBusiness });
+            var response = await service.CheckUserStatusAsync(user);
+            if (!response.IsSuccess)
+                return Ok(response);
+
+            return Ok(response);
+        }
+
+        [HttpGet("get-profile-picture/{UserId}")]
+        public async Task<IActionResult> GetProfilePicture(string UserId)
+        {
+            var result = await service.GetProfilePictureAsync(UserId);
+            if(result.IsSuccess)
+                return Ok(result);
+            return NotFound(result);
         }
     }
 }

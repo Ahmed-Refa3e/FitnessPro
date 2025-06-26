@@ -1,5 +1,4 @@
 ﻿using Core.DTOs.GeneralDTO;
-using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -114,7 +113,7 @@ namespace API.Controllers
             bool isFollowing = await service.IsFollowingUserAsync(user.Id, followedId);
             return Ok(new { isFollowing });
         }
-        private IActionResult HandleResponse(Generalresponse result)
+        private IActionResult HandleResponse(GeneralResponse result)
         {
             if (result.IsSuccess)
                 return Created("", new { message = result.Data });

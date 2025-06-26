@@ -1,6 +1,5 @@
 ﻿using Core.DTOs.GeneralDTO;
 using Core.DTOs.OnlineTrainingDTO;
-using Core.DTOs.PostDTO;
 using Core.DTOs.UserDTO;
 using Core.Entities.Identity;
 using Core.Helpers;
@@ -88,9 +87,9 @@ namespace Services
             return new PagedResult<CoachResponseDTO>(Coaches, totalCount, getCoachesDTO.PageNumber, pageSize);
         }
 
-        public async Task<Generalresponse> GetCoachDetailsAsync(string CoachId)
+        public async Task<GeneralResponse> GetCoachDetailsAsync(string CoachId)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             var user = await repository.GetAsync(e => e.Id == CoachId
                         , includeProperties: "OnlineTrainings,Ratings"
@@ -169,9 +168,9 @@ namespace Services
             };
         }
 
-        public async Task<Generalresponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user)
+        public async Task<GeneralResponse> UpdateProfileDetailsAsync(UpdateProfileDTO profileDTO, ApplicationUser user)
         {
-            Generalresponse response = new Generalresponse();
+            GeneralResponse response = new GeneralResponse();
 
             if (user is not Coach && !string.IsNullOrEmpty(profileDTO.Bio))
             {
@@ -203,24 +202,60 @@ namespace Services
             return response;
         }
 
-        public async Task<bool> CheckUserStatusAsync(ApplicationUser user)
+        public async Task<GeneralResponse> CheckUserStatusAsync(ApplicationUser user)
         {
-            var userfromDb = await repository.GetAsync(e => e.Id == user.Id,
-                includeProperties: "OnlineTrainings,Shops,Gym");
+            var userfromDb = await repository.GetAsync(
+                e => e.Id == user.Id,
+                includeProperties: "OnlineTrainings,Shops,Gym"
+            );
 
-            if (userfromDb == null)
+            // Even if user is not a Coach, return default values
+            if (userfromDb is not Coach coach)
             {
-                return false;
+                var defaultResult = new HasBusinessDTO
+                {
+                    hasGym = false,
+                    hasOnlineTrainng = false,
+                    hasShop = false
+                };
+
+                return new GeneralResponse
+                {
+                    IsSuccess = false,
+                    Data = defaultResult
+                };
             }
 
-            if (userfromDb is Coach coach)
+            var result = new HasBusinessDTO
             {
-                return (coach.Gym != null) ||
-                       (coach.OnlineTrainings?.Any() == true) ||
-                       (coach.Shops?.Any() == true);
-            }
+                hasGym = coach.Gym != null,
+                hasOnlineTrainng = coach.OnlineTrainings?.Any() == true,
+                hasShop = coach.Shops?.Any() == true
+            };
 
-            return false;
+            return new GeneralResponse
+            {
+                Data = result,
+                IsSuccess = true
+            };
+        }
+
+        public async Task<GeneralResponse> GetProfilePictureAsync(string userId)
+        {
+            var userFromDb = await repository.GetAsync(e => e.Id == userId);
+            if (userFromDb is null)
+            {
+                return new GeneralResponse
+                {
+                    IsSuccess = false,
+                    Data = "User Not Found."
+                };
+            }
+            return new GeneralResponse
+            {
+                IsSuccess = true,
+                Data = userFromDb.ProfilePictureUrl
+            };
         }
     }
 }

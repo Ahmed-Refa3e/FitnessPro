@@ -34,7 +34,7 @@ namespace Services.Extensions
                     StartDate = onlineTrainingSubscription.StartDate,
                     EndDate = onlineTrainingSubscription.EndDate,
                     OnlineTrainingTitle = onlineTrainingSubscription.OnlineTraining?.Title,
-                    TraineeName = onlineTrainingSubscription.Trainee?.FirstName + onlineTrainingSubscription.Trainee?.LastName,
+                    TraineeName = $"{onlineTrainingSubscription.Trainee?.FirstName} {onlineTrainingSubscription.Trainee?.LastName}",
                     IsActive = onlineTrainingSubscription.IsActive
                 };
         }

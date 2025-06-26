@@ -1,7 +1,5 @@
 ﻿using Core.Entities.OnlineTrainingEntities;
-using Core.Interfaces.Repositories.OnlineTrainingRepositories;
 using Microsoft.AspNetCore.Mvc;
-using Stripe;
 using Stripe.Checkout;
 
 namespace API.Controllers.Payment;

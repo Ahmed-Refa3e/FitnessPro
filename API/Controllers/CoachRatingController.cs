@@ -190,7 +190,7 @@ namespace API.Controllers
             if (user.Id != coachRating.TraineeId)
                 return Unauthorized("You don't have any access to delete this rating");
 
-            repository.Delete(coachRating);
+            repository.Remove(coachRating);
             if (await repository.SaveChangesAsync())
                 return NoContent();
             return BadRequest("Error deleting rating");

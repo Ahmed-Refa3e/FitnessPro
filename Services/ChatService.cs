@@ -23,7 +23,7 @@ namespace Services
         }
 
 
-        public async Task<Generalresponse> GetChatHistoryAsync(string FirstUserId, string LastUserId
+        public async Task<GeneralResponse> GetChatHistoryAsync(string FirstUserId, string LastUserId
             , int pageNumber, int pageSize)
         {
             var messages = await chatRepository.GetChatHistoryAsync(FirstUserId, LastUserId, pageNumber, pageSize);
@@ -44,7 +44,7 @@ namespace Services
                 };
                 returnedMessages.Add(newmessage);
             }
-            return new Generalresponse
+            return new GeneralResponse
             {
                 IsSuccess = true,
                 Data = new PagedResult<MessageResponseDTO>
@@ -52,12 +52,12 @@ namespace Services
             };
         }
 
-        public async Task<Generalresponse> GetContactsAsync(string UserId)
+        public async Task<GeneralResponse> GetContactsAsync(string UserId)
         {
             var userfromdb = await userRepository.GetAsync(e=>e.Id == UserId);
             if (userfromdb == null)
             {
-                return new Generalresponse
+                return new GeneralResponse
                 {
                     Data = "User Not Found",
                     IsSuccess = false,
@@ -101,17 +101,17 @@ namespace Services
                 };
             }).ToList();
 
-            return new Generalresponse
+            return new GeneralResponse
             {
                 IsSuccess = true,
                 Data = contacts
             };
         }
 
-        public async Task<Generalresponse> GetUserStatusAsync(string UserId)
+        public async Task<GeneralResponse> GetUserStatusAsync(string UserId)
         {
             var IsOnline = await connectionRepository.IsUserOnlineAsync(UserId);
-            return new Generalresponse
+            return new GeneralResponse
             {
                 IsSuccess = true,
                 Data = new { userId = UserId, isOnline = IsOnline }

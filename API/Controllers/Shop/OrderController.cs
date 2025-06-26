@@ -23,13 +23,13 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result =await _orderRepository.GetOrder(id, userId);
             if (result is null)
             {
-                return NotFound(new Generalresponse { IsSuccess = false, Data = "No Order has this id" });
+                return NotFound(new GeneralResponse { IsSuccess = false, Data = "No Order has this id" });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = result });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = result });
         }
         [HttpGet("UserOrders")]
         [Authorize]
@@ -37,9 +37,9 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderRepository.GetOrdersForUser(userId);
-            return Ok(new Generalresponse { IsSuccess = true, Data = result });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = result });
         }
         [HttpGet("ShopOrders")]
         [Authorize(Roles = "Coach")]
@@ -47,25 +47,25 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderRepository.GetOrdersForShop(shopId,userId);
-            return Ok(new Generalresponse { IsSuccess = true, Data = result });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = result });
         }
         [HttpPost]
         [Authorize]
         public async Task<ActionResult> AddOrder(AddOrderDTO order)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = ModelState.ExtractErrors() });
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderRepository.Add(order, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = result.Massage });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Created successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Created successfully" });
         }
         [HttpPut("MarkOrderReceived")]
         [Authorize(Roles = "Coach")]
@@ -73,13 +73,13 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderRepository.MakeItReseved(orderId, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = result.Massage });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Updated successfully" });
         }
         [HttpPut("MakeOrderPaymented")]
         [Authorize]
@@ -87,13 +87,13 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderRepository.MakeItPaymented(orderId, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = result.Massage });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Updated successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Updated successfully" });
         }
         [HttpDelete]
         [Authorize]
@@ -101,13 +101,13 @@ namespace API.Controllers.Shop
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new Generalresponse { IsSuccess = false, Data = "User not logged in." });
+                return Unauthorized(new GeneralResponse { IsSuccess = false, Data = "User not logged in." });
             var result = await _orderRepository.Delete(orderId, userId);
             if (result.Id == 0)
             {
-                return BadRequest(new Generalresponse { IsSuccess = false, Data = result.Massage });
+                return BadRequest(new GeneralResponse { IsSuccess = false, Data = result.Massage });
             }
-            return Ok(new Generalresponse { IsSuccess = true, Data = "Deleted successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Deleted successfully" });
         }
     }
 }

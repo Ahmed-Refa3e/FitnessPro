@@ -1,13 +1,14 @@
-﻿using Core.DTOs.GymDTO;
+﻿using Core.DTOs.GeneralDTO;
+using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
-using Infrastructure.Repositories.GymRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Extensions;
+using System.Security.Claims;
 
 namespace API.Controllers.GymAndRating
 {
-    public class GymRatingController(GymRatingRepository Repo, SignInManager<ApplicationUser> signInManager) : BaseApiController
+    public class GymRatingController(GymRatingRepository Repo) : BaseApiController
     {
         /// <summary>
         /// Get rating by rating id
@@ -31,17 +32,15 @@ namespace API.Controllers.GymAndRating
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized("User not found");
+            var TraineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var existingRating = await Repo.GetByConditionAsync(x => ((GymRating)x).TraineeID == user.Id && ((GymRating)x).GymID == CreateGymRatingDTO.GymID);
+            var existingRating = await Repo.GetByConditionAsync(x => ((GymRating)x).TraineeID == TraineeId && ((GymRating)x).GymID == CreateGymRatingDTO.GymID);
 
             if (existingRating != null)
                 return BadRequest("You have already rated this gym");
 
             GymRating rating = CreateGymRatingDTO.ToEntity();
-            rating.TraineeID = user!.Id;
+            rating.TraineeID = TraineeId;
 
             Repo.Add(rating);
 
@@ -58,11 +57,7 @@ namespace API.Controllers.GymAndRating
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await signInManager.UserManager.GetUserAsync(User);
-            if (user is null)
-                return Unauthorized("User is not authenticated");
-
-            var traineeId = user.Id;
+            var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 
             if (await Repo.GetByConditionAsync(x =>
@@ -76,24 +71,19 @@ namespace API.Controllers.GymAndRating
             gymRatingToBeUpdated.RatingValue = UpdateGymRatingDTO.RatingValue;
             gymRatingToBeUpdated.Review = UpdateGymRatingDTO.Review;
 
-            Repo.Update(gymRatingToBeUpdated);
-
             var saved = await Repo.SaveChangesAsync();
             if (!saved)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update the gym rating.");
 
-            return Ok(new { IsSuccess = true, Data = "Gym rating updated successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Gym rating updated successfully" });
         }
 
         [HttpDelete("{GymID:int}")]
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult> DeleteGymRating(int GymID)
         {
-            var user = await signInManager.UserManager.GetUserAsync(User);
-            if (user is null)
-                return Unauthorized("User is not authenticated");
 
-            var traineeId = user.Id;
+            var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (await Repo.GetByConditionAsync(x =>
                 x is GymRating gr &&
@@ -101,12 +91,12 @@ namespace API.Controllers.GymAndRating
                 gr.TraineeID == traineeId) is not GymRating gymRatingToBeDeleted)
                 return NotFound($"No rating found for GymID {GymID} by this user.");
 
-            Repo.Delete(gymRatingToBeDeleted);
+            Repo.Remove(gymRatingToBeDeleted);
 
             if (!await Repo.SaveChangesAsync())
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete the gym rating.");
 
-            return Ok(new { IsSuccess = true, Data = "Gym rating deleted successfully" });
+            return Ok(new GeneralResponse { IsSuccess = true, Data = "Gym rating deleted successfully" });
         }
 
         /// <summary>
@@ -118,12 +108,10 @@ namespace API.Controllers.GymAndRating
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult<bool>> HasRatedGym(int gymId)
         {
-            ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized("User not found");
+            var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var existingRating = await Repo.GetByConditionAsync(x =>
-                ((GymRating)x).TraineeID == user.Id &&
+                ((GymRating)x).TraineeID == traineeId &&
                 ((GymRating)x).GymID == gymId);
 
             return Ok(existingRating != null);
@@ -138,12 +126,10 @@ namespace API.Controllers.GymAndRating
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult<GymRatingResponseDTO>> GetUserGymRating(int gymId)
         {
-            ApplicationUser? user = await signInManager.UserManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized("User not found");
+            var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var userRating = await Repo.GetByConditionAsync(x =>
-                ((GymRating)x).TraineeID == user.Id &&
+                ((GymRating)x).TraineeID == traineeId &&
                 ((GymRating)x).GymID == gymId);
 
             if (userRating == null)
