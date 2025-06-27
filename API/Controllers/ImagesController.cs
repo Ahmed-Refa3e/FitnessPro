@@ -174,6 +174,30 @@ public class ImagesController(IBlobService _blobService,
         return Ok(new { Url = imageUrl });
     }
 
+    // DELETE api/images/delete-shop-image/{shopId}
+    [HttpDelete("delete-shop-image/{shopId}")]
+    [Authorize(Roles = "Coach")]
+    public async Task<IActionResult> DeleteShopImage(int shopId)
+    {
+        // Find the shop by Id
+        var shop = await _context.Shops!.FindAsync(shopId);
+        if (shop == null)
+            return NotFound("Shop not found.");
+
+        // Delete image from Azure Blob Storage
+        if (string.IsNullOrEmpty(shop.PictureUrl))
+        {
+            return NotFound("No image found to delete.");
+        }
+        // Remove image URL from the database
+        await _blobService.DeleteImageAsync(shop.PictureUrl);
+        shop.PictureUrl = null;
+        _context.Shops.Update(shop);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Image deleted successfully." });
+    }
+
     // POST api/images/upload-product-image/{productId}
     [HttpPost("upload-product-image/{productId}")]
     public async Task<IActionResult> UploadProductImage(int productId, [FromForm] IFormFile file)
