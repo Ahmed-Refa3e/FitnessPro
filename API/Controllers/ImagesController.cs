@@ -148,6 +148,31 @@ public class ImagesController(IBlobService _blobService,
     // POST api/images/upload-shop-image/{shopId}
     [HttpPost("upload-shop-image/{shopId}")]
     [Authorize(Roles = "Coach")]
+    public async Task<IActionResult> UploadShopImage(int shopId, [FromForm] IFormFile file)
+    {
+        // Check image validity
+        var checkResult = CheckImage(file);
+        if (checkResult is BadRequestObjectResult)
+            return checkResult;
+
+        var shop = await _context.Shops!.FindAsync(shopId);
+        if (shop == null)
+            return NotFound("Shop not found.");
+        // Check if the shop already has an image
+        if (!string.IsNullOrEmpty(shop.PictureUrl))
+        {
+            // Delete the old image from Azure Blob Storage
+            await _blobService.DeleteImageAsync(shop.PictureUrl);
+        }
+        // Upload the image to Azure Blob
+        var imageUrl = await _blobService.UploadImageAsync(file);
+
+        shop.PictureUrl = imageUrl;
+        _context.Shops.Update(shop);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { Url = imageUrl });
+    }
 
     // POST api/images/upload-product-image/{productId}
     [HttpPost("upload-product-image/{productId}")]
