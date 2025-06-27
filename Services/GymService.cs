@@ -13,51 +13,65 @@ public class GymService(IGymRepository repository) : IGymService
 {
     private const int MaxPageSize = 50;
 
-    public async Task<PagedResult<GymResponseDto>> GetGymsAsync(GetGymDTO GymDTO)
+    public async Task<PagedResult<GymResponseDto>> GetGymsAsync(GetGymDTO gymDTO)
     {
-        // Start with the base queryable from the repository
-        var query = repository.GetQueryable();
+        var query = BuildBaseGymQuery();
 
-        // Include related entities
-        query = query
+        query = ApplyFilters(query, gymDTO);
+        query = ApplySorting(query, gymDTO.SortBy);
+
+        var pagedQuery = ApplyPagination(query, gymDTO.PageNumber, gymDTO.PageSize, out int pageSize);
+
+        var totalCount = await query.CountAsync();
+        var gyms = await repository.ExecuteQueryAsync(pagedQuery.AsNoTracking());
+        var dtoData = gyms.Select(g => g.ToResponseDto()).ToList();
+
+        return new PagedResult<GymResponseDto>(dtoData, totalCount, gymDTO.PageNumber, pageSize);
+    }
+
+    private IQueryable<Gym> BuildBaseGymQuery()
+    {
+        return repository.GetQueryable()
             .Include(g => g.GymSubscriptions)
             .Include(g => g.Ratings)
             .Include(g => g.Owner);
+    }
 
-        // Apply filters
-        if (!string.IsNullOrWhiteSpace(GymDTO.City))
-            query = query.Where(x => x.City == GymDTO.City);
+    private static IQueryable<Gym> ApplyFilters(IQueryable<Gym> query, GetGymDTO dto)
+    {
+        if (!string.IsNullOrWhiteSpace(dto.City))
+            query = query.Where(g => g.City == dto.City);
 
-        if (!string.IsNullOrWhiteSpace(GymDTO.Governorate))
-            query = query.Where(x => x.Governorate == GymDTO.Governorate);
+        if (!string.IsNullOrWhiteSpace(dto.Governorate))
+            query = query.Where(g => g.Governorate == dto.Governorate);
 
-        if (!string.IsNullOrWhiteSpace(GymDTO.GymName))
-            query = query.Where(x => x.GymName.Contains(GymDTO.GymName));
+        if (!string.IsNullOrWhiteSpace(dto.GymName))
+            query = query.Where(g => g.GymName.Contains(dto.GymName));
 
-        // Apply sorting
-        query = GymDTO.SortBy switch
+        return query;
+    }
+    private static IQueryable<Gym> ApplySorting(IQueryable<Gym> query, string? sortBy)
+    {
+        return sortBy switch
         {
-            "rating" => query.OrderByDescending(g => g.Ratings!.Any() ? g.Ratings!.Average(r => r.RatingValue) : 0),
+            "rating" => query.OrderByDescending(g =>
+                g.Ratings!.Any() ? g.Ratings!.Average(r => r.RatingValue) : 0),
+
             "highestPrice" => query.OrderByDescending(g => g.MonthlyPrice),
+
             "lowestPrice" => query.OrderBy(g => g.MonthlyPrice),
+
             _ => query.OrderByDescending(g => g.GymSubscriptions!.Count)
         };
+    }
 
-        // Apply pagination
-        var pageSize = GymDTO.PageSize > MaxPageSize ? MaxPageSize : GymDTO.PageSize;
-        var count = await query.CountAsync();
-        var paginatedQuery = query
-            .Skip((GymDTO.PageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .AsNoTracking();
+    private static IQueryable<Gym> ApplyPagination(IQueryable<Gym> query, int pageNumber, int pageSize, out int safePageSize)
+    {
+        safePageSize = pageSize > MaxPageSize ? MaxPageSize : pageSize;
 
-        // Execute the query using the repository
-        IReadOnlyList<Gym> gyms = await repository.ExecuteQueryAsync(paginatedQuery);
-
-        // Map to DTOs
-        var dtoData = gyms.Select(g => g.ToResponseDto()).ToList();
-
-        return new PagedResult<GymResponseDto>(dtoData, count, GymDTO.PageNumber, pageSize);
+        return query
+            .Skip((pageNumber - 1) * safePageSize)
+            .Take(safePageSize);
     }
 
 
@@ -78,10 +92,8 @@ public class GymService(IGymRepository repository) : IGymService
         {
             return false;
         }
-        // Map DTO to entity
         var gym = CreateGymDTO.ToEntity();
 
-        //Assign the current user's ID as the CoachID
         gym.CoachID = user.Id;
 
         repository.Add(gym);
@@ -156,6 +168,21 @@ public class GymService(IGymRepository repository) : IGymService
         return nearbyGyms;
     }
 
+    private static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double R = 6371; // Radius of Earth in km
+        var latRad1 = lat1 * (Math.PI / 180);
+        var latRad2 = lat2 * (Math.PI / 180);
+        var deltaLat = (lat2 - lat1) * (Math.PI / 180);
+        var deltaLon = (lon2 - lon1) * (Math.PI / 180);
+
+        var a = Math.Sin(deltaLat / 2) * Math.Sin(deltaLat / 2) +
+                Math.Cos(latRad1) * Math.Cos(latRad2) *
+                Math.Sin(deltaLon / 2) * Math.Sin(deltaLon / 2);
+
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        return R * c;
+    }
     private static void BoundingBox(GetNearbyGymsDTO dto, double MaxDistanceKm, out double minLat, out double maxLat, out double minLng, out double maxLng)
     {
         double lat = dto.Latitude;
@@ -185,27 +212,11 @@ public class GymService(IGymRepository repository) : IGymService
     {
         var gym = await repository.GetByIdAsync(gymId);
         if (gym == null) return false;
-        
+
         gym.Latitude = latitude;
         gym.Longitude = longitude;
 
         repository.Update(gym);
         return await repository.SaveChangesAsync();
-    }
-
-    private static double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
-    {
-        const double R = 6371; // Radius of Earth in km
-        var latRad1 = lat1 * (Math.PI / 180);
-        var latRad2 = lat2 * (Math.PI / 180);
-        var deltaLat = (lat2 - lat1) * (Math.PI / 180);
-        var deltaLon = (lon2 - lon1) * (Math.PI / 180);
-
-        var a = Math.Sin(deltaLat / 2) * Math.Sin(deltaLat / 2) +
-                Math.Cos(latRad1) * Math.Cos(latRad2) *
-                Math.Sin(deltaLon / 2) * Math.Sin(deltaLon / 2);
-
-        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-        return R * c;
     }
 }
