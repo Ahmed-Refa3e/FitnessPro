@@ -10,6 +10,7 @@ using Humanizer;
 using Infrastructure.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 
 
@@ -23,6 +24,63 @@ namespace Infrastructure.Repositories.PostRepositoy
         {
             _context = context;
             _blobService = blobService;
+        }
+        public async Task<List<ShowPostAtPage>> GetLastThreePostsOfShop(int shopId)
+        {
+            if (await _context.Shops.FindAsync(shopId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.ShopPosts.Where(x => x.ShopId == shopId)
+                .Select(p => new ShowPostAtPage
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = DateOnly.FromDateTime(p.CreatedAt),
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(3)
+                .ToListAsync();
+            return posts;
+        }
+        public async Task<List<ShowPostAtPage>> GetLastThreePostsOfGym(int gymId)
+        {
+            if (await _context.Gyms.FindAsync(gymId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.GymPosts.Where(x => x.GymId == gymId)
+                .Select(p => new ShowPostAtPage
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = DateOnly.FromDateTime(p.CreatedAt),
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(3)
+                .ToListAsync();
+            return posts;
+        }
+        public async Task<List<ShowPostAtPage>> GetLastThreePostsOfCoach(string coachId)
+        {
+            if (await _context.Users.FindAsync(coachId) == null)
+            {
+                return null;
+            }
+            var posts = await _context.CoachPosts.Where(x => x.CoachId == coachId)
+                .Select(p => new ShowPostAtPage
+                {
+                    Id = p.Id,
+                    Content = p.Content,
+                    CreatedAt = DateOnly.FromDateTime(p.CreatedAt),
+                    PictureUrls = p.PictureUrls.Select(x => x.Url).ToList()
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(3)
+                .ToListAsync();
+            return posts;
         }
         public async Task<List<ShowExternalFormOfShopPostDTO>> GetPostsOfShop(int shopId, int pageNumber, string userId = "")
         {
@@ -558,7 +616,7 @@ namespace Infrastructure.Repositories.PostRepositoy
         }
         public async Task<ShowMainCommentDTO> GetComment(int id)
         {
-            var comment = await _context.postComments.Where(x => x.Id == id).Select(x => new ShowMainCommentDTO
+            var comment = await _context.comments.Where(x => x.Id == id).Select(x => new ShowMainCommentDTO
             {
                 Id = x.Id,
                 Date = x.Created,
