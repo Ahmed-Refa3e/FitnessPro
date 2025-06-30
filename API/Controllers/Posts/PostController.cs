@@ -84,10 +84,40 @@ namespace API.Controllers.Posts
             return Ok(new GeneralResponse { IsSuccess = true, Data = posts });
         }
         [HttpGet("GetAllPostsOfCoach/{id}/{pageNumber:int}")]
-        public async Task<IActionResult> PostsOfShop(string id, int pageNumber)
+        public async Task<IActionResult> PostsOfCoach(string id, int pageNumber)
         {
             var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
             var posts = await _postRepository.GetPostsOfCoach(id, pageNumber, userId);
+            if (posts == null)
+            {
+                return NotFound(new GeneralResponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new GeneralResponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetLastThreePostsOfShop/{id:int}")]
+        public async Task<IActionResult> LastThreePostsOfShop(int id)
+        {
+            var posts = await _postRepository.GetLastThreePostsOfShop(id);
+            if (posts == null)
+            {
+                return NotFound(new GeneralResponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new GeneralResponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetLastThreePostsOfGym/{id:int}")]
+        public async Task<IActionResult> LastThreePostsOfGym(int id)
+        {
+            var posts = await _postRepository.GetLastThreePostsOfGym(id);
+            if (posts == null)
+            {
+                return NotFound(new GeneralResponse { IsSuccess = false, Data = "No Post found with this ID." });
+            }
+            return Ok(new GeneralResponse { IsSuccess = true, Data = posts });
+        }
+        [HttpGet("GetLastThreePostsOfCoach/{id}")]
+        public async Task<IActionResult> LastThreePostsOfCoach(string id)
+        {
+            var posts = await _postRepository.GetLastThreePostsOfCoach(id);
             if (posts == null)
             {
                 return NotFound(new GeneralResponse { IsSuccess = false, Data = "No Post found with this ID." });
@@ -236,7 +266,7 @@ namespace API.Controllers.Posts
             }
             return Ok(new GeneralResponse { IsSuccess = true, Data = result });
         }
-        [HttpGet("GetComment{id:int}")]
+        [HttpGet("GetComment/{id:int}")]
         public async Task<IActionResult> GetComment(int id)
         {
             var result = await _postRepository.GetComment(id);

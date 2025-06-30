@@ -5,6 +5,9 @@ namespace Core.Interfaces.Repositories.PostRepositories
 {
     public interface IPostRepository
     {
+        Task<List<ShowPostAtPage>> GetLastThreePostsOfShop(int shopId);
+        Task<List<ShowPostAtPage>> GetLastThreePostsOfGym(int gymId);
+        Task<List<ShowPostAtPage>> GetLastThreePostsOfCoach(string coachId);
         Task<List<ShowExternalFormOfShopPostDTO>> GetPostsOfShop(int shopId,int pageNumber, string userId="");
         Task<List<ShowExternalFormOfGymPostDTO>> GetPostsOfGym(int gymId, int pageNumber, string userId="");
         Task<List<ShowExternalFormOfCoachPostDTO>> GetPostsOfCoach(string coachId, int pageNumber, string userId = "");
