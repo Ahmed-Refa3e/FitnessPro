@@ -148,6 +148,7 @@ builder.Services.AddScoped<IBlobService>(sp => new BlobService(blobConn!));
 // 9. SignalR
 builder.Services.AddSignalR();
 
+
 var app = builder.Build();
 
 // Seed roles & data

@@ -1,6 +1,5 @@
 ﻿using Core.DTOs.GymDTO;
 using Core.Entities.GymEntities;
-using System;
 
 namespace Services.Extensions;
 
@@ -70,7 +69,7 @@ public static class GymExtensions
                 Description = CreateGymDTO.Description,
             };
     }
-    
+
     public static GymRating ToEntity(this CreateGymRatingDTO createGymRatingDTO)
     {
         return createGymRatingDTO == null

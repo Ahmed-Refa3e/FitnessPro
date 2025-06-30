@@ -23,7 +23,7 @@ public class GymService(IGymRepository repository) : IGymService
         var pagedQuery = ApplyPagination(query, gymDTO.PageNumber, gymDTO.PageSize, out int pageSize);
 
         var totalCount = await query.CountAsync();
-        var gyms = await repository.ExecuteQueryAsync(pagedQuery.AsNoTracking());
+        var gyms = await repository.ExecuteQueryAsync(pagedQuery);
         var dtoData = gyms.Select(g => g.ToResponseDto()).ToList();
 
         return new PagedResult<GymResponseDto>(dtoData, totalCount, gymDTO.PageNumber, pageSize);
@@ -34,7 +34,8 @@ public class GymService(IGymRepository repository) : IGymService
         return repository.GetQueryable()
             .Include(g => g.GymSubscriptions)
             .Include(g => g.Ratings)
-            .Include(g => g.Owner);
+            .Include(g => g.Owner)
+            .AsNoTracking();
     }
 
     private static IQueryable<Gym> ApplyFilters(IQueryable<Gym> query, GetGymDTO dto)
@@ -87,8 +88,8 @@ public class GymService(IGymRepository repository) : IGymService
 
     public async Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO, ApplicationUser user)
     {
-        var GymByCoachId = repository.GetByCoachIdAsync(user.Id);
-        if (GymByCoachId.Result != null)
+        var GymByCoachId = await repository.GetByCoachIdAsync(user.Id);
+        if (GymByCoachId is not null)
         {
             return false;
         }
