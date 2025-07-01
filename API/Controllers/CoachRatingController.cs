@@ -7,8 +7,10 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CoachRatingController(UserManager<ApplicationUser> userManager, CoachRatingRepository repository,IUnitOfWork unitOfWork) : BaseApiController
+    public class CoachRatingController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork) : BaseApiController
     {
+        private readonly IGenericRepository<CoachRating> _ratingRepo = unitOfWork.Repository<CoachRating>();
+
         [HttpPost]
         [Authorize(Roles = "Trainee")]
         public async Task<IActionResult> CreateCoachRating(CreateCoachRatingDTO coachRatingDTO)
@@ -20,10 +22,9 @@ namespace API.Controllers
             if (user == null)
                 return NotFound("User Not Found");
 
-            var ratingFromDb = repository.GetQueryable()
-                .Where(e => e.TraineeId == user.Id && e.CoachId == coachRatingDTO.coachId)
-                .FirstOrDefault();
-            if (ratingFromDb != null)
+            var ratingFromDb = await _ratingRepo.GetQueryable()
+                .FirstOrDefaultAsync(e => e.TraineeId == user.Id && e.CoachId == coachRatingDTO.coachId);
+            if (ratingFromDb is not null)
                 return Conflict($"You already add rating to this Coach");
 
             var coachRating = new CoachRating()
@@ -34,7 +35,7 @@ namespace API.Controllers
                 CreatedAt = DateTime.UtcNow,
                 Rating = coachRatingDTO.ratingValue
             };
-            repository.Add(coachRating);
+            _ratingRepo.Add(coachRating);
 
             var saved = await unitOfWork.CompleteAsync();
             if (!saved)
@@ -56,7 +57,7 @@ namespace API.Controllers
         [HttpGet("GetCoachRatingByCoachRatingId/{id}")]
         public async Task<IActionResult> GetCoachRatingById(int id)
         {
-            var coachRating = await repository.GetByIdAsync(id);
+            var coachRating = await _ratingRepo.GetByIdAsync(id);
             if (coachRating == null)
                 return NotFound($"Coach Rating with ID {id} not found");
 
@@ -81,7 +82,7 @@ namespace API.Controllers
                 return NotFound("User Not Found");
 
 
-            var coachRating = repository.GetQueryable()
+            var coachRating = _ratingRepo.GetQueryable()
                 .Where(e => e.CoachId == coachId && e.TraineeId == user.Id)
                 .FirstOrDefault();
 
@@ -106,7 +107,7 @@ namespace API.Controllers
             if (string.IsNullOrWhiteSpace(CoachId))
                 return BadRequest("Coach ID is required");
 
-            var query = repository.GetQueryable().Where(e => e.CoachId == CoachId);
+            var query = _ratingRepo.GetQueryable().Where(e => e.CoachId == CoachId);
 
             var rating = await query.Select(e => new
             {
@@ -132,7 +133,7 @@ namespace API.Controllers
             if (user == null)
                 return Unauthorized("User Not Found");
 
-            var hasRated = repository.GetQueryable()
+            var hasRated = _ratingRepo.GetQueryable()
                  .Any(r => r.CoachId == coachId && r.TraineeId == user.Id);
 
             return Ok(hasRated);
@@ -150,7 +151,7 @@ namespace API.Controllers
                 return NotFound("User Not Found");
 
 
-            var coachRating = repository.GetQueryable()
+            var coachRating = _ratingRepo.GetQueryable()
                 .Where(e => e.CoachId == coachId && e.TraineeId == user.Id)
                 .FirstOrDefault();
 
@@ -164,7 +165,7 @@ namespace API.Controllers
             coachRating.Content = coachRatingDTO.Content;
             coachRating.CreatedAt = DateTime.Now;
 
-            repository.Update(coachRating);
+            _ratingRepo.Update(coachRating);
             if (!await unitOfWork.CompleteAsync())
                 return BadRequest("Error updating rating");
             return NoContent();
@@ -178,7 +179,7 @@ namespace API.Controllers
             if (user == null)
                 return NotFound("User Not Found");
 
-            var coachRating = repository.GetQueryable()
+            var coachRating = _ratingRepo.GetQueryable()
                 .Where(e => e.CoachId == coachId && e.TraineeId == user.Id)
                 .FirstOrDefault();
 
@@ -188,7 +189,7 @@ namespace API.Controllers
             if (user.Id != coachRating.TraineeId)
                 return Unauthorized("You don't have any access to delete this rating");
 
-            repository.Remove(coachRating);
+            _ratingRepo.Remove(coachRating);
             if (await unitOfWork.CompleteAsync())
                 return NoContent();
             return BadRequest("Error deleting rating");
