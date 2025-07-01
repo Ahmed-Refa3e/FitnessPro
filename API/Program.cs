@@ -131,10 +131,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 // 7. Other repos & services
-builder.Services.AddScoped<IGymRepository, GymRepository>();
-builder.Services.AddScoped<GymRatingRepository>();
-builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IGymRepository, GymRepository>();
+builder.Services.AddScoped<IGymService, GymService>();
 builder.Services.AddScoped<IOnlineTrainingRepository, OnlineTrainingRepository>();
 builder.Services.AddScoped<IOnlineTrainingSubscriptionRepository, OnlineTrainingSubscriptionRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();

@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace API.Controllers.GymAndRating
 {
-    public class GymRatingController(GymRatingRepository Repo) : BaseApiController
+    public class GymRatingController(IGenericRepository<GymRating> Repo) : BaseApiController
     {
         /// <summary>
         /// Get rating by rating id
@@ -34,9 +34,10 @@ namespace API.Controllers.GymAndRating
 
             var TraineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var existingRating = await Repo.GetByConditionAsync(x => ((GymRating)x).TraineeID == TraineeId && ((GymRating)x).GymID == CreateGymRatingDTO.GymID);
+            var query = Repo.GetQueryable();
+            var existingRating = await query.Where(gr => gr.TraineeID == TraineeId && gr.GymID == CreateGymRatingDTO.GymID).FirstOrDefaultAsync();
 
-            if (existingRating != null)
+            if (existingRating is not null)
                 return BadRequest("You have already rated this gym");
 
             GymRating rating = CreateGymRatingDTO.ToEntity();
@@ -57,15 +58,14 @@ namespace API.Controllers.GymAndRating
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
 
-            if (await Repo.GetByConditionAsync(x =>
-                x is GymRating gr &&
-                gr.GymID == GymID &&
-                gr.TraineeID == traineeId) is not GymRating gymRatingToBeUpdated)
+            var query = Repo.GetQueryable();
+            var gymRatingToBeUpdated = await query.Where(gr => gr.TraineeID == traineeId && gr.GymID == GymID).FirstOrDefaultAsync();
+
+            if (gymRatingToBeUpdated is null)
                 return NotFound($"No rating found for GymID {GymID} by this user.");
-
 
             gymRatingToBeUpdated.RatingDate = DateTime.Now;
             gymRatingToBeUpdated.RatingValue = UpdateGymRatingDTO.RatingValue;
@@ -82,13 +82,12 @@ namespace API.Controllers.GymAndRating
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult> DeleteGymRating(int GymID)
         {
-
             var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (await Repo.GetByConditionAsync(x =>
-                x is GymRating gr &&
-                gr.GymID == GymID &&
-                gr.TraineeID == traineeId) is not GymRating gymRatingToBeDeleted)
+            var query = Repo.GetQueryable();
+            var gymRatingToBeDeleted = await query.Where(gr => gr.TraineeID == traineeId && gr.GymID == GymID).FirstOrDefaultAsync();
+
+            if (gymRatingToBeDeleted is null)
                 return NotFound($"No rating found for GymID {GymID} by this user.");
 
             Repo.Remove(gymRatingToBeDeleted);
@@ -110,11 +109,10 @@ namespace API.Controllers.GymAndRating
         {
             var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var existingRating = await Repo.GetByConditionAsync(x =>
-                ((GymRating)x).TraineeID == traineeId &&
-                ((GymRating)x).GymID == gymId);
+            var query = Repo.GetQueryable();
+            var existingRating = await query.Where(gr => gr.TraineeID == traineeId && gr.GymID == gymId).FirstOrDefaultAsync();
 
-            return Ok(existingRating != null);
+            return Ok(existingRating is not null);
         }
 
         /// <summary>
@@ -127,10 +125,10 @@ namespace API.Controllers.GymAndRating
         public async Task<ActionResult<GymRatingResponseDTO>> GetUserGymRating(int gymId)
         {
             var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var userRating = await Repo.GetByConditionAsync(x =>
-                ((GymRating)x).TraineeID == traineeId &&
-                ((GymRating)x).GymID == gymId);
+            var query = Repo.GetQueryable();
+            var userRating = await query
+                .Where(gr => gr.TraineeID == traineeId && gr.GymID == gymId)
+                .FirstOrDefaultAsync();
 
             if (userRating == null)
                 return NotFound("User has not rated this gym");
