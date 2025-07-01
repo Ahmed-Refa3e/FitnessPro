@@ -5,9 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories.OnlineTrainingRepositories
 {
-    public class OnlineTrainingSubscriptionRepository(FitnessContext context) : GenericRepository<OnlineTrainingSubscription>(context)
-        , IOnlineTrainingSubscriptionRepository
+    public class OnlineTrainingSubscriptionRepository : GenericRepository<OnlineTrainingSubscription>, IOnlineTrainingSubscriptionRepository
     {
+        private readonly FitnessContext _context;
+
+        public OnlineTrainingSubscriptionRepository(FitnessContext context) : base(context)
+        {
+            _context = context;
+        }
+
         public async Task<IReadOnlyList<OnlineTrainingSubscription?>> GetByOnlineTrainingIdAsync(int onlineTrainingId)
         {
             IQueryable<OnlineTrainingSubscription> query = GetQueryable()
@@ -37,13 +43,13 @@ namespace Infrastructure.Repositories.OnlineTrainingRepositories
 
         public async Task<bool> PaymentIntentExistsAsync(string paymentIntentId)
         {
-            return await context.OnlineTrainingSubscriptions!
+            return await _context.OnlineTrainingSubscriptions!
                 .AnyAsync(s => s.StripePaymentIntentId == paymentIntentId);
         }
 
         public async Task<bool> HasActiveSubscriptionAsync(string traineeId, int trainingId)
         {
-            return await context.OnlineTrainingSubscriptions!
+            return await _context.OnlineTrainingSubscriptions!
                 .AnyAsync(s =>
                     s.TraineeID == traineeId &&
                     s.OnlineTrainingId == trainingId &&

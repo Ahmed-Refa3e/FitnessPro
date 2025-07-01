@@ -9,7 +9,7 @@ using Services.Extensions;
 
 namespace Services;
 
-public class GymService(IGymRepository repository) : IGymService
+public class GymService(IUnitOfWork unitOfWork) : IGymService
 {
     private const int MaxPageSize = 50;
 
@@ -23,7 +23,7 @@ public class GymService(IGymRepository repository) : IGymService
         var pagedQuery = ApplyPagination(query, gymDTO.PageNumber, gymDTO.PageSize, out int pageSize);
 
         var totalCount = await query.CountAsync();
-        var gyms = await repository.ExecuteQueryAsync(pagedQuery);
+        var gyms = await unitOfWork.GymRepository.ExecuteQueryAsync(pagedQuery);
         var dtoData = gyms.Select(g => g.ToResponseDto()).ToList();
 
         return new PagedResult<GymResponseDto>(dtoData, totalCount, gymDTO.PageNumber, pageSize);
@@ -31,7 +31,7 @@ public class GymService(IGymRepository repository) : IGymService
 
     private IQueryable<Gym> BuildBaseGymQuery()
     {
-        return repository.GetQueryable()
+        return unitOfWork.GymRepository.GetQueryable()
             .Include(g => g.GymSubscriptions)
             .Include(g => g.Ratings)
             .Include(g => g.Owner)
@@ -78,17 +78,17 @@ public class GymService(IGymRepository repository) : IGymService
 
     public async Task<Gym?> GetGymByIdAsync(int id)
     {
-        return await repository.GetByIdAsync(id);
+        return await unitOfWork.GymRepository.GetByIdAsync(id);
     }
 
     public async Task<IReadOnlyList<string>> GetCitiesAsync()
     {
-        return await repository.GetCitiesAsync();
+        return await unitOfWork.GymRepository.GetCitiesAsync();
     }
 
     public async Task<bool> CreateGymAsync(CreateGymDTO CreateGymDTO, ApplicationUser user)
     {
-        var GymByCoachId = await repository.GetByCoachIdAsync(user.Id);
+        var GymByCoachId = await unitOfWork.GymRepository.GetByCoachIdAsync(user.Id);
         if (GymByCoachId is not null)
         {
             return false;
@@ -97,13 +97,13 @@ public class GymService(IGymRepository repository) : IGymService
 
         gym.CoachID = user.Id;
 
-        repository.Add(gym);
-        return await repository.SaveChangesAsync();
+        unitOfWork.GymRepository.Add(gym);
+        return await unitOfWork.CompleteAsync();
     }
 
     public async Task<bool> UpdateGymAsync(int id, UpdateGymDTO dto)
     {
-        var existingGym = await repository.GetByIdAsync(id);
+        var existingGym = await unitOfWork.GymRepository.GetByIdAsync(id);
         if (existingGym == null)
             return false;
 
@@ -121,7 +121,7 @@ public class GymService(IGymRepository repository) : IGymService
 
         try
         {
-            return await repository.SaveChangesAsync();
+            return await unitOfWork.CompleteAsync();
         }
         catch (Exception ex)
         {
@@ -133,16 +133,16 @@ public class GymService(IGymRepository repository) : IGymService
 
     public async Task<bool> DeleteGymAsync(int id)
     {
-        var gym = await repository.GetByIdAsync(id);
+        var gym = await unitOfWork.GymRepository.GetByIdAsync(id);
         if (gym == null) return false;
 
-        repository.Remove(gym);
-        return await repository.SaveChangesAsync();
+        unitOfWork.GymRepository.Remove(gym);
+        return await unitOfWork.CompleteAsync();
     }
 
     public async Task<Gym?> GetGymByCoachIdAsync(string CoachId)
     {
-        return await repository.GetByCoachIdAsync(CoachId);
+        return await unitOfWork.GymRepository.GetByCoachIdAsync(CoachId);
     }
     public async Task<List<GymResponseDto>> GetNearbyGymsAsync(GetNearbyGymsDTO dto)
     {
@@ -150,7 +150,7 @@ public class GymService(IGymRepository repository) : IGymService
 
         BoundingBox(dto, MaxDistanceKm, out double minLat, out double maxLat, out double minLng, out double maxLng);
 
-        var query = repository.GetQueryable()
+        var query = unitOfWork.GymRepository.GetQueryable()
             .Where(g => g.Latitude >= minLat && g.Latitude <= maxLat
                      && g.Longitude >= minLng && g.Longitude <= maxLng
                      && g.Latitude != 0 && g.Longitude != 0)
@@ -200,24 +200,24 @@ public class GymService(IGymRepository repository) : IGymService
 
     public async Task<bool> AddGymLocationAsync(int gymId, double latitude, double longitude)
     {
-        var gym = await repository.GetByIdAsync(gymId);
+        var gym = await unitOfWork.GymRepository.GetByIdAsync(gymId);
         if (gym == null || (gym.Latitude != 0 || gym.Longitude != 0)) return false;
 
         gym.Latitude = latitude;
         gym.Longitude = longitude;
 
-        return await repository.SaveChangesAsync();
+        return await unitOfWork.CompleteAsync();
     }
 
     public async Task<bool> UpdateGymLocationAsync(int gymId, double latitude, double longitude)
     {
-        var gym = await repository.GetByIdAsync(gymId);
+        var gym = await unitOfWork.GymRepository.GetByIdAsync(gymId);
         if (gym == null) return false;
 
         gym.Latitude = latitude;
         gym.Longitude = longitude;
 
-        repository.Update(gym);
-        return await repository.SaveChangesAsync();
+        unitOfWork.GymRepository.Update(gym);
+        return await unitOfWork.CompleteAsync();
     }
 }

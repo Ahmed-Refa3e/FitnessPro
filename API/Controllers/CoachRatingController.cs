@@ -1,7 +1,5 @@
 ﻿using Core.DTOs.UserDTO;
-using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
-using Infrastructure.Repositories.UserRepository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +7,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CoachRatingController(UserManager<ApplicationUser> userManager, CoachRatingRepository repository) : BaseApiController
+    public class CoachRatingController(UserManager<ApplicationUser> userManager, CoachRatingRepository repository,IUnitOfWork unitOfWork) : BaseApiController
     {
         [HttpPost]
         [Authorize(Roles = "Trainee")]
@@ -38,7 +36,7 @@ namespace API.Controllers
             };
             repository.Add(coachRating);
 
-            var saved = await repository.SaveChangesAsync();
+            var saved = await unitOfWork.CompleteAsync();
             if (!saved)
                 return BadRequest("There is a problem while Adding Rating");
 
@@ -153,7 +151,7 @@ namespace API.Controllers
 
 
             var coachRating = repository.GetQueryable()
-                .Where(e=>e.CoachId == coachId && e.TraineeId == user.Id)
+                .Where(e => e.CoachId == coachId && e.TraineeId == user.Id)
                 .FirstOrDefault();
 
             if (coachRating == null)
@@ -167,7 +165,7 @@ namespace API.Controllers
             coachRating.CreatedAt = DateTime.Now;
 
             repository.Update(coachRating);
-            if (!await repository.SaveChangesAsync())
+            if (!await unitOfWork.CompleteAsync())
                 return BadRequest("Error updating rating");
             return NoContent();
         }
@@ -191,7 +189,7 @@ namespace API.Controllers
                 return Unauthorized("You don't have any access to delete this rating");
 
             repository.Remove(coachRating);
-            if (await repository.SaveChangesAsync())
+            if (await unitOfWork.CompleteAsync())
                 return NoContent();
             return BadRequest("Error deleting rating");
         }

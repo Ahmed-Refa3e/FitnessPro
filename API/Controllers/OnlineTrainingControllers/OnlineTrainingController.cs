@@ -7,13 +7,13 @@ using System.Security.Claims;
 
 namespace API.Controllers.OnlineTrainingControllers
 {
-    public class OnlineTrainingController(IOnlineTrainingRepository Repo) : BaseApiController
+    public class OnlineTrainingController(IUnitOfWork unitOfWork) : BaseApiController
     {
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<OnlineTraining>> GetOnlineTrainingById(int id)
         {
-            OnlineTraining? OnlineTraining = await Repo.GetByIdAsync(id);
+            OnlineTraining? OnlineTraining = await unitOfWork.OnlineTrainingRepository.GetByIdAsync(id);
 
             if (OnlineTraining == null) return NotFound("Online training not found");
 
@@ -23,7 +23,7 @@ namespace API.Controllers.OnlineTrainingControllers
         [HttpGet("ByCoachId/Group")]
         public async Task<ActionResult<IReadOnlyList<OnlineTraining>>> GetGroupOnlineTrainingByCoachId(string CoachId)
         {
-            IReadOnlyList<OnlineTraining?> OnlineTrainings = await Repo.GetGroupTrainingByCoachIdAsync(CoachId);
+            IReadOnlyList<OnlineTraining?> OnlineTrainings = await unitOfWork.OnlineTrainingRepository.GetGroupTrainingByCoachIdAsync(CoachId);
             if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Group Online training not found");
             //convert to DTO
             var OnlineTrainingDtos = OnlineTrainings.Select(onlineTraining => onlineTraining!.ToResponseDto()).ToList();
@@ -33,7 +33,7 @@ namespace API.Controllers.OnlineTrainingControllers
         [HttpGet("ByCoachId/Private")]
         public async Task<ActionResult<IReadOnlyList<OnlineTraining>>> GetPrivateOnlineTrainingByCoachId(string CoachId)
         {
-            IReadOnlyList<OnlineTraining?> OnlineTrainings = await Repo.GetPrivateTrainingByCoachIdAsync(CoachId);
+            IReadOnlyList<OnlineTraining?> OnlineTrainings = await unitOfWork.OnlineTrainingRepository.GetPrivateTrainingByCoachIdAsync(CoachId);
             if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Private Online training not found");
             var OnlineTrainingDtos = OnlineTrainings.Select(onlineTraining => onlineTraining!.ToResponseDto()).ToList();
             return Ok(OnlineTrainingDtos);
@@ -59,8 +59,8 @@ namespace API.Controllers.OnlineTrainingControllers
                 DurationOfSession = createOnlineTrainingDTO.DurationOfSession
             };
 
-            Repo.Add(onlineTraining);
-            if (await Repo.SaveChangesAsync())
+            unitOfWork.OnlineTrainingRepository.Add(onlineTraining);
+            if (await unitOfWork.CompleteAsync())
             {
                 return CreatedAtAction(nameof(GetOnlineTrainingById), new { id = onlineTraining.Id }, onlineTraining);
             }
@@ -75,7 +75,7 @@ namespace API.Controllers.OnlineTrainingControllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var onlineTrainingToBeUpdated = await Repo.GetByIdAsync(id);
+            var onlineTrainingToBeUpdated = await unitOfWork.OnlineTrainingRepository.GetByIdAsync(id);
             if (onlineTrainingToBeUpdated == null)
                 return NotFound("Online training not found");
 
@@ -92,8 +92,8 @@ namespace API.Controllers.OnlineTrainingControllers
             onlineTrainingToBeUpdated.NoOfSessionsPerWeek = createOnlineTrainingDTO.NoOfSessionsPerWeek;
             onlineTrainingToBeUpdated.DurationOfSession = createOnlineTrainingDTO.DurationOfSession;
 
-            Repo.Update(onlineTrainingToBeUpdated);
-            var success = await Repo.SaveChangesAsync();
+            unitOfWork.OnlineTrainingRepository.Update(onlineTrainingToBeUpdated);
+            var success = await unitOfWork.CompleteAsync();
 
             if (!success)
                 return NotFound("Online training not found");
@@ -105,7 +105,7 @@ namespace API.Controllers.OnlineTrainingControllers
         [Authorize(Roles = "Coach")]
         public async Task<IActionResult> DeleteOnlineTraining(int id)
         {
-            var training = await Repo.GetByIdAsync(id);
+            var training = await unitOfWork.OnlineTrainingRepository.GetByIdAsync(id);
             if (training is null)
                 return NotFound("Online training not found.");
 
@@ -113,9 +113,9 @@ namespace API.Controllers.OnlineTrainingControllers
             if (string.IsNullOrEmpty(coachId) || training.CoachID != coachId)
                 return Forbid("You are not authorized to delete this online training.");
 
-            Repo.Remove(training);
+            unitOfWork.OnlineTrainingRepository.Remove(training);
 
-            var success = await Repo.SaveChangesAsync();
+            var success = await unitOfWork.CompleteAsync();
             if (!success)
                 return StatusCode(500, "An error occurred while deleting the training.");
 

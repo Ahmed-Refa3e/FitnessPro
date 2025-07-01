@@ -4,9 +4,10 @@ namespace Core.Interfaces.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {
+        IGenericRepository<T> Repository<T>() where T : class;
         IGymRepository GymRepository { get; }
         IOnlineTrainingRepository OnlineTrainingRepository { get; }
         IOnlineTrainingSubscriptionRepository OnlineTrainingSubscriptionRepository { get; }
-        Task<bool> SaveChangesAsync();
+        Task<bool> CompleteAsync();
     }
 }

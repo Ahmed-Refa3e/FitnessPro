@@ -8,18 +8,14 @@ using System.Security.Claims;
 
 namespace API.Controllers.GymAndRating
 {
-    public class GymRatingController(IGenericRepository<GymRating> Repo) : BaseApiController
+    public class GymRatingController(IUnitOfWork unitOfWork) : BaseApiController
     {
-        /// <summary>
-        /// Get rating by rating id
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        private readonly IGenericRepository<GymRating> _ratingRepo = unitOfWork.Repository<GymRating>();
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<GymRatingResponseDTO>> GetGymRatingById(int id)
         {
-            GymRating? gymRating = await Repo.GetByIdAsync(id);
-
+            var gymRating = await _ratingRepo.GetByIdAsync(id);
             if (gymRating == null) return NotFound("GymRating not found");
 
             return Ok(gymRating.ToResponseDto());
@@ -27,113 +23,105 @@ namespace API.Controllers.GymAndRating
 
         [HttpPost]
         [Authorize(Roles = "Trainee")]
-        public async Task<IActionResult> CreateGymRating(CreateGymRatingDTO CreateGymRatingDTO)
+        public async Task<IActionResult> CreateGymRating(CreateGymRatingDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var TraineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var query = Repo.GetQueryable();
-            var existingRating = await query.Where(gr => gr.TraineeID == TraineeId && gr.GymID == CreateGymRatingDTO.GymID).FirstOrDefaultAsync();
+            var existingRating = await _ratingRepo
+                .GetQueryable()
+                .FirstOrDefaultAsync(gr => gr.TraineeID == traineeId && gr.GymID == dto.GymID);
 
             if (existingRating is not null)
                 return BadRequest("You have already rated this gym");
 
-            GymRating rating = CreateGymRatingDTO.ToEntity();
-            rating.TraineeID = TraineeId;
+            var rating = dto.ToEntity();
+            rating.TraineeID = traineeId;
 
-            Repo.Add(rating);
+            _ratingRepo.Add(rating);
 
-            if (await Repo.SaveChangesAsync())
+            if (await unitOfWork.CompleteAsync())
                 return CreatedAtAction(nameof(GetGymRatingById), new { id = rating.GymRatingID }, rating.ToResponseDto());
 
-            return BadRequest("Problem Adding Gym Rating");
+            return BadRequest("Problem adding gym rating");
         }
 
-        [HttpPut("{GymID:int}")]
+        [HttpPut("{gymId:int}")]
         [Authorize(Roles = "Trainee")]
-        public async Task<ActionResult> UpdateGymRating(int GymID, UpdateGymRatingDTO UpdateGymRatingDTO)
+        public async Task<ActionResult> UpdateGymRating(int gymId, UpdateGymRatingDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            string traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
+            var gymRating = await _ratingRepo
+                .GetQueryable()
+                .FirstOrDefaultAsync(gr => gr.TraineeID == traineeId && gr.GymID == gymId);
 
-            var query = Repo.GetQueryable();
-            var gymRatingToBeUpdated = await query.Where(gr => gr.TraineeID == traineeId && gr.GymID == GymID).FirstOrDefaultAsync();
+            if (gymRating is null)
+                return NotFound($"No rating found for GymID {gymId} by this user.");
 
-            if (gymRatingToBeUpdated is null)
-                return NotFound($"No rating found for GymID {GymID} by this user.");
+            gymRating.RatingDate = DateTime.Now;
+            gymRating.RatingValue = dto.RatingValue;
+            gymRating.Review = dto.Review;
 
-            gymRatingToBeUpdated.RatingDate = DateTime.Now;
-            gymRatingToBeUpdated.RatingValue = UpdateGymRatingDTO.RatingValue;
-            gymRatingToBeUpdated.Review = UpdateGymRatingDTO.Review;
-
-            var saved = await Repo.SaveChangesAsync();
-            if (!saved)
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update the gym rating.");
+            if (!await unitOfWork.CompleteAsync())
+                return StatusCode(500, "Failed to update the gym rating.");
 
             return Ok(new GeneralResponse { IsSuccess = true, Data = "Gym rating updated successfully" });
         }
 
-        [HttpDelete("{GymID:int}")]
+        [HttpDelete("{gymId:int}")]
         [Authorize(Roles = "Trainee")]
-        public async Task<ActionResult> DeleteGymRating(int GymID)
+        public async Task<ActionResult> DeleteGymRating(int gymId)
         {
             var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var query = Repo.GetQueryable();
-            var gymRatingToBeDeleted = await query.Where(gr => gr.TraineeID == traineeId && gr.GymID == GymID).FirstOrDefaultAsync();
+            var gymRating = await _ratingRepo
+                .GetQueryable()
+                .FirstOrDefaultAsync(gr => gr.TraineeID == traineeId && gr.GymID == gymId);
 
-            if (gymRatingToBeDeleted is null)
-                return NotFound($"No rating found for GymID {GymID} by this user.");
+            if (gymRating is null)
+                return NotFound($"No rating found for GymID {gymId} by this user.");
 
-            Repo.Remove(gymRatingToBeDeleted);
+            _ratingRepo.Remove(gymRating);
 
-            if (!await Repo.SaveChangesAsync())
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete the gym rating.");
+            if (!await unitOfWork.CompleteAsync())
+                return StatusCode(500, "Failed to delete the gym rating.");
 
             return Ok(new GeneralResponse { IsSuccess = true, Data = "Gym rating deleted successfully" });
         }
 
-        /// <summary>
-        /// Endpoint to return if the user has rated the gym or not 
-        /// </summary>
-        /// <param name="gymId"></param>
-        /// <returns></returns>
         [HttpGet("hasRated/{gymId:int}")]
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult<bool>> HasRatedGym(int gymId)
         {
             var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var query = Repo.GetQueryable();
-            var existingRating = await query.Where(gr => gr.TraineeID == traineeId && gr.GymID == gymId).FirstOrDefaultAsync();
+            var hasRated = await _ratingRepo
+                .GetQueryable()
+                .AnyAsync(gr => gr.TraineeID == traineeId && gr.GymID == gymId);
 
-            return Ok(existingRating is not null);
+            return Ok(hasRated);
         }
 
-        /// <summary>
-        /// To get rating for signed in user of the gym by gym id
-        /// </summary>
-        /// <param name="gymId"></param>
-        /// <returns></returns>
         [HttpGet("UserRating/{gymId:int}")]
         [Authorize(Roles = "Trainee")]
         public async Task<ActionResult<GymRatingResponseDTO>> GetUserGymRating(int gymId)
         {
             var traineeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var query = Repo.GetQueryable();
-            var userRating = await query
-                .Where(gr => gr.TraineeID == traineeId && gr.GymID == gymId)
-                .FirstOrDefaultAsync();
 
-            if (userRating == null)
+            var userRating = await _ratingRepo
+                .GetQueryable()
+                .FirstOrDefaultAsync(gr => gr.TraineeID == traineeId && gr.GymID == gymId);
+
+            if (userRating is null)
                 return NotFound("User has not rated this gym");
 
-            return Ok(((GymRating)userRating).ToResponseDto());
+            return Ok(userRating.ToResponseDto());
         }
     }
 }

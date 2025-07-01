@@ -1,29 +1,19 @@
 ﻿using Core.Entities.ChatEntites;
-using Core.Entities.Identity;
+using Core.Interfaces.Repositories;
 using Core.Interfaces.Repositories.ChatRepositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace Infrastructure.Hubs
 {
     [Authorize]
-    public class ChatHub : Hub
+    public class ChatHub(IChatRepository chatRepository
+            , IUserConnectionRepository connectionRepository
+        , IUnitOfWork unitOfWork) : Hub
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly IChatRepository chatRepository;
-        private readonly IUserConnectionRepository connectionRepository;
 
-        public ChatHub(UserManager<ApplicationUser> userManager, IChatRepository chatRepository
-            , IUserConnectionRepository connectionRepository)
-        {
-            this.userManager = userManager;
-            this.chatRepository = chatRepository;
-            this.connectionRepository = connectionRepository;
-        }
-
-        public async Task SendMessage(string receiverId, string message,string? imageUrl)
+        public async Task SendMessage(string receiverId, string message, string? imageUrl)
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -37,7 +27,7 @@ namespace Infrastructure.Hubs
                 ImageUrl = imageUrl
             };
             chatRepository.Add(chatMessage);
-            await chatRepository.SaveChangesAsync();
+            await unitOfWork.CompleteAsync();
 
             await Clients.Users(receiverId, userId).SendAsync("ReceiveMessage", new
             {
@@ -56,7 +46,7 @@ namespace Infrastructure.Hubs
                 throw new HubException("User is not authenticated.");
 
             await chatRepository.MarkMessagesAsSeenAsync(senderId, receiverId);
-            await chatRepository.SaveChangesAsync();
+            await unitOfWork.CompleteAsync();
             await Clients.User(senderId).SendAsync("MessagesSeen", receiverId);
         }
 
@@ -82,7 +72,7 @@ namespace Infrastructure.Hubs
                 };
 
                 connectionRepository.Add(newConnection);
-                await connectionRepository.SaveChangesAsync();
+                await unitOfWork.CompleteAsync();
 
                 await Clients.All.SendAsync("UserStatusChanged", userId, true);
             }

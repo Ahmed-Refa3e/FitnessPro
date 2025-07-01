@@ -7,7 +7,7 @@ namespace API.Controllers.Payment;
 public class StripeWebhookController(
     IConfiguration configuration,
     ILogger<StripeWebhookController> logger,
-    IOnlineTrainingSubscriptionRepository repo) : BaseApiController
+    IUnitOfWork unitOfWork) : BaseApiController
 {
     private readonly string _webhookSecret = configuration["Stripe:WebhookSecret"] ??
         throw new ArgumentNullException("Stripe Webhook Secret not configured.");
@@ -95,7 +95,7 @@ public class StripeWebhookController(
             }
 
             // Check if already handled
-            bool alreadyExists = await repo.PaymentIntentExistsAsync(paymentIntent.Id);
+            bool alreadyExists = await unitOfWork.OnlineTrainingSubscriptionRepository.PaymentIntentExistsAsync(paymentIntent.Id);
             if (alreadyExists)
             {
                 logger.LogInformation($"ℹ️ PaymentIntent {paymentIntent.Id} already processed.");
@@ -112,14 +112,14 @@ public class StripeWebhookController(
             };
 
             // check if there is already a subscription for this trainee and online training
-            var existingSubscriptions = await repo.GetByOnlineTrainingIdAsync(onlineTrainingId);
+            var existingSubscriptions = await unitOfWork.OnlineTrainingSubscriptionRepository.GetByOnlineTrainingIdAsync(onlineTrainingId);
             if (existingSubscriptions != null && existingSubscriptions.Any(s => s!.TraineeID == traineeId))
             {
                 logger.LogWarning($"⚠️ Subscription already exists for Trainee: {traineeId} and OnlineTraining: {onlineTrainingId}");
                 return;
             }
-            repo.Add(subscription);
-            await repo.SaveChangesAsync();
+            unitOfWork.OnlineTrainingSubscriptionRepository.Add(subscription);
+            await unitOfWork.CompleteAsync();
 
             logger.LogInformation($"✅ OnlineTrainingSubscription created for Trainee: {traineeId}");
         }

@@ -131,6 +131,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // 7. Other repos & services
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IGymRepository, GymRepository>();
 builder.Services.AddScoped<IGymService, GymService>();

@@ -1,22 +1,23 @@
 ﻿using Core.Interfaces.Repositories;
+using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly DbContext _context;
+        private readonly FitnessContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(DbContext context)
+        public GenericRepository(FitnessContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
         }
 
-        public IQueryable<T> GetQueryable()
+        public IQueryable<T> GetQueryable(bool AsNoTracking = false)
         {
-            return _dbSet.AsQueryable();
+            return AsNoTracking ? _dbSet.AsNoTracking() : _dbSet;
         }
 
         public async Task<IReadOnlyList<T>> ExecuteQueryAsync(IQueryable<T> query)
@@ -46,12 +47,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistsAsync(int id)
         {
-            return await _dbSet.FindAsync(id) != null;
-        }
-
-        public async Task<bool> SaveChangesAsync()
-        {
-            return await _context.SaveChangesAsync() > 0;
+            return await _dbSet.AnyAsync(e => EF.Property<int>(e, "Id") == id);
         }
     }
 }
