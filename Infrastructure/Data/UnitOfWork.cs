@@ -23,12 +23,6 @@ public class UnitOfWork(
         return await context.SaveChangesAsync() > 0;
     }
 
-    public void Dispose()
-    {
-        context.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
     public IGenericRepository<T> Repository<T>() where T : class
     {
         var type = typeof(T);

@@ -2,7 +2,7 @@
 
 namespace Core.Interfaces.Repositories
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
         IGenericRepository<T> Repository<T>() where T : class;
         IGymRepository GymRepository { get; }
