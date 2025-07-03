@@ -8,7 +8,7 @@ namespace Infrastructure.Data.PostsConfiguration
     {
         public void Configure(EntityTypeBuilder<CoachPost> builder)
         {
-            builder.HasOne(x => x.Coach).WithMany(x => x.Posts).HasForeignKey(x => x.CoachId).OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(x => x.Coach).WithMany(x => x.Posts).HasForeignKey(x => x.CoachId).OnDelete(DeleteBehavior.Cascade);
             builder.HasIndex(x => x.CoachId);
         }
     }

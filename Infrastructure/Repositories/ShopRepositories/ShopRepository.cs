@@ -101,11 +101,12 @@ namespace Infrastructure.Repositories.IShopRepositories
 
         public async Task<IntResult> Delete(string userId, int shopId)
         {
-            var shop = await _context.Shops.FindAsync(shopId);
+            var shop = await _context.Shops.Include(x => x.Posts).FirstOrDefaultAsync(x => x.Id == shopId);
             if (shop is null || shop.OwnerID != userId)
             {
                 return new IntResult { Massage = "You did not have a shop." };
             }
+            _context.Posts.RemoveRange(shop.Posts);
             _context.Shops.Remove(shop);
             try
             {
