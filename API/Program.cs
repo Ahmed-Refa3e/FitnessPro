@@ -9,7 +9,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
-            .WithOrigins("http://localhost:4200", "https://gym-graduation-pr0ject.vercel.app", "https://localhost:7122");
+            .WithOrigins("http://localhost:4200", "https://gym-graduation-pr0ject.vercel.app", "https://localhost:7122" , "https://fitnessproclient.runasp.net");
     });
 });
 
