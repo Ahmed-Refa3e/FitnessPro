@@ -24,19 +24,25 @@ namespace API.Controllers.OnlineTrainingControllers
         public async Task<ActionResult<IReadOnlyList<OnlineTraining>>> GetGroupOnlineTrainingByCoachId(string CoachId)
         {
             IReadOnlyList<OnlineTraining?> OnlineTrainings = await unitOfWork.OnlineTrainingRepository.GetGroupTrainingByCoachIdAsync(CoachId);
-            if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Group Online training not found");
-            //convert to DTO
-            var OnlineTrainingDtos = OnlineTrainings.Select(onlineTraining => onlineTraining!.ToResponseDto()).ToList();
-            return Ok(OnlineTrainingDtos);
+            var OnlineTrainingDtos = OnlineTrainings
+                .Where(ot => ot is not null) 
+                .Select(ot => ot!.ToResponseDto())
+                .ToList();
+
+            return Ok(OnlineTrainingDtos); 
         }
 
         [HttpGet("ByCoachId/Private")]
         public async Task<ActionResult<IReadOnlyList<OnlineTraining>>> GetPrivateOnlineTrainingByCoachId(string CoachId)
         {
             IReadOnlyList<OnlineTraining?> OnlineTrainings = await unitOfWork.OnlineTrainingRepository.GetPrivateTrainingByCoachIdAsync(CoachId);
-            if (OnlineTrainings == null || !OnlineTrainings.Any()) return NotFound("Private Online training not found");
-            var OnlineTrainingDtos = OnlineTrainings.Select(onlineTraining => onlineTraining!.ToResponseDto()).ToList();
-            return Ok(OnlineTrainingDtos);
+
+            var OnlineTrainingDtos = OnlineTrainings
+                .Where(onlineTraining => onlineTraining is not null)
+                .Select(onlineTraining => onlineTraining!.ToResponseDto())
+                .ToList();
+
+            return Ok(OnlineTrainingDtos); 
         }
 
         [HttpPost]
