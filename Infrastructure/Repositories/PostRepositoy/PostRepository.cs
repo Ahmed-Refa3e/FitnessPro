@@ -367,7 +367,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             var pageSize = 10;
             int offset = (pageNumber - 1) * pageSize;
 
-            var sql = $@"
+            var sql = /*$@"
                             SELECT
                                 p.Id,
                                 p.Content,
@@ -398,7 +398,39 @@ namespace Infrastructure.Repositories.PostRepositoy
                             LEFT JOIN Shops       s ON p.ShopId   = s.Id
                             ORDER BY p.CreatedAt DESC
                             OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
-                            ";
+                            ";*/
+                $@"SELECT
+    p.Id,
+    p.Content,
+    p.CreatedAt,
+    p.CoachId,
+    p.GymId,
+    p.ShopId,
+    CASE p.PostType
+      WHEN 'COH' THEN ISNULL(c.ProfilePictureUrl, '')
+      WHEN 'GYM' THEN ISNULL(g.PictureUrl, '')
+      WHEN 'SHP' THEN ISNULL(s.PictureUrl, '')
+      ELSE '' END AS PhotoPass,
+    CASE p.PostType
+      WHEN 'COH' THEN ISNULL(c.FirstName + ' ' + c.LastName, '')
+      WHEN 'GYM' THEN ISNULL(g.GymName, '')
+      WHEN 'SHP' THEN ISNULL(s.Name, '')
+      ELSE '' END AS EntityName,
+    p.PostType AS SourceType,
+    CASE
+      WHEN p.PostType = 'COH' AND p.CoachId = @userId THEN CAST(1 AS bit)
+      WHEN p.PostType = 'GYM' AND g.CoachID = @userId THEN CAST(1 AS bit)
+      WHEN p.PostType = 'SHP' AND s.OwnerID = @userId THEN CAST(1 AS bit)
+      ELSE CAST(0 AS bit)
+    END AS IsYourPost
+FROM Posts p
+LEFT JOIN AspNetUsers c ON p.CoachId = c.Id
+LEFT JOIN Gyms g ON p.GymId = g.GymId
+LEFT JOIN Shops s ON p.ShopId = s.Id
+WHERE p.PostType IN ('COH', 'GYM', 'SHP')
+ORDER BY p.CreatedAt DESC
+OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
+";
 
             var parameters = new[]
             {
@@ -410,7 +442,7 @@ namespace Infrastructure.Repositories.PostRepositoy
             var posts = await _context.RawPostDTOs
                 .FromSqlRaw(sql, parameters)
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync();//number 410
             var postIds = posts.Select(p => p.Id).ToList();
             var ids = postIds.Any()
                 ? $"'{string.Join("','", postIds)}'"
