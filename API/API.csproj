@@ -10,13 +10,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="wwwroot\**" />
-	  <Content Remove="wwwroot\**" />
-	  <EmbeddedResource Remove="wwwroot\**" />
-	  <None Remove="wwwroot\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<_ContentIncludedByDefault Remove="appsettings.json" />
 	</ItemGroup>
 
@@ -36,6 +29,10 @@
 		<ProjectReference Include="..\Core\Core.csproj" />
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 		<ProjectReference Include="..\Services\Services.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>
