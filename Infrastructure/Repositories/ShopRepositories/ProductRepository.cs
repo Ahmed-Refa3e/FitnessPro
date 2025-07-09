@@ -5,6 +5,7 @@ using Core.Entities.ShopEntities;
 using Core.Interfaces.Repositories.ShopRepositories;
 using Core.Interfaces.Services;
 using Core.Utilities;
+using FuzzySharp;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -148,83 +149,288 @@ namespace Infrastructure.Repositories.ShopRepositories
 
             return product;
         }
-        public async Task<List<ShowProductDTO>> GetProducts(ProductSearchDTO searchDTO)
+
+public async Task<List<ShowProductDTO>> GetProducts(ProductSearchDTO searchDTO)
+    {
+        var query = _context.products.AsQueryable();
+
+        if (searchDTO.CategoryID is not null && searchDTO.CategoryID != 0)
         {
-            var query = _context.products.AsQueryable();
+            query = query.Where(x => x.Categories.Any(c => c.Id == searchDTO.CategoryID));
+        }
 
-            if(!string.IsNullOrEmpty(searchDTO.Name))
-            {
-                query = query.Where(x => EF.Functions.Like(x.Name, $"%{searchDTO.Name}%"));
-            }
+        if (searchDTO.ShopID is not null && searchDTO.ShopID != 0)
+        {
+            query = query.Where(x => x.ShopId == searchDTO.ShopID);
+        }
 
-            if (searchDTO.CategoryID is not null && searchDTO.CategoryID != 0)
-            {
-                query = query.Where(x => x.Categories.Any(c => c.Id == searchDTO.CategoryID));
-            }
+        if (searchDTO.MinimumPrice is not null && searchDTO.MinimumPrice > 0)
+        {
+            query = query.Where(x => x.Price >= searchDTO.MinimumPrice);
+        }
 
-            if (searchDTO.ShopID is not null && searchDTO.ShopID != 0)
-            {
-                query = query.Where(x => x.ShopId == searchDTO.ShopID);
-            }
+        if (searchDTO.MaximumPrice is not null && searchDTO.MaximumPrice > 0)
+        {
+            query = query.Where(x => x.Price <= searchDTO.MaximumPrice);
+        }
 
-            if (searchDTO.MinimumPrice is not null && searchDTO.MinimumPrice > 0)
-            {
-                query = query.Where(x => x.Price >= searchDTO.MinimumPrice);
-            }
+        var products = await query.ToListAsync();
 
-            if (searchDTO.MaximumPrice is not null && searchDTO.MaximumPrice > 0)
+        var productWithSimilarity = products
+            .Select(p => new
             {
-                query = query.Where(x => x.Price <= searchDTO.MaximumPrice);
+                Product = p,
+                Similarity = !string.IsNullOrWhiteSpace(searchDTO.Name)
+                    ? Fuzz.PartialRatio(p.Name, searchDTO.Name)
+                    : 0
+            })
+            .Where(p => string.IsNullOrWhiteSpace(searchDTO.Name) || p.Similarity >= 60)
+            .ToList();
+
+        var ordered = productWithSimilarity.OrderByDescending(p => p.Similarity);
+
+        if (searchDTO.SearchByBiggetDiscount)
+        {
+            if (searchDTO.SearchByPriceAscending)
+            {
+                ordered = ordered
+                    .ThenByDescending(p => 100 - (p.Product.OfferPrice / p.Product.Price) * 100)
+                    .ThenBy(p => p.Product.OfferPrice);
             }
-            if (searchDTO.SearchByBiggetDiscount)
+            else if (searchDTO.SearchByPriceDescending)
             {
-                if (searchDTO.SearchByPriceAscending)
-                {
-                    query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100).ThenBy(x => x.OfferPrice);
-                }
-                else if (searchDTO.SearchByPriceDescending)
-                {
-                    query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100).ThenByDescending(x => x.OfferPrice);
-                }
-                else
-                {
-                    query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
-                }
+                ordered = ordered
+                    .ThenByDescending(p => 100 - (p.Product.OfferPrice / p.Product.Price) * 100)
+                    .ThenByDescending(p => p.Product.OfferPrice);
             }
             else
             {
-                if (searchDTO.SearchByPriceAscending)
-                {
-                    query = query.OrderBy(x => x.OfferPrice).ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
-                }
-                else if (searchDTO.SearchByPriceDescending)
-                {
-                    query = query.OrderByDescending(x => x.OfferPrice).ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
-                }
+                ordered = ordered
+                    .ThenByDescending(p => 100 - (p.Product.OfferPrice / p.Product.Price) * 100);
             }
-
-            (searchDTO.PageNumber, searchDTO.PageSize) = await PaginationHelper.NormalizePaginationAsync(
-                query,
-                searchDTO.PageNumber,
-                searchDTO.PageSize
-            );
-
-            return await query
-                .Skip((searchDTO.PageNumber - 1) * searchDTO.PageSize)
-                .Take(searchDTO.PageSize)
-                .Select(x => new ShowProductDTO
-                {
-                    Id = x.Id,
-                    Description = x.Description,
-                    Name = x.Name,
-                    Price = x.Price,
-                    ImagePath = x.ImagePath,
-                    OfferPrice = x.OfferPrice,
-                    Discount = 100 - (x.OfferPrice / x.Price) * 100
-                })
-                .ToListAsync();
         }
-        public async Task<IntResult> Update(EditProductDTO product, int id, string userId)
+        else
+        {
+            if (searchDTO.SearchByPriceAscending)
+            {
+                ordered = ordered
+                    .ThenBy(p => p.Product.OfferPrice)
+                    .ThenByDescending(p => 100 - (p.Product.OfferPrice / p.Product.Price) * 100);
+            }
+            else if (searchDTO.SearchByPriceDescending)
+            {
+                ordered = ordered
+                    .ThenByDescending(p => p.Product.OfferPrice)
+                    .ThenByDescending(p => 100 - (p.Product.OfferPrice / p.Product.Price) * 100);
+            }
+        }
+
+        var finalProducts = ordered.Select(p => p.Product).ToList();
+
+        (searchDTO.PageNumber, searchDTO.PageSize) =await PaginationHelper.NormalizePaginationWithCountAsync(
+            finalProducts.Count(),
+            searchDTO.PageNumber,
+            searchDTO.PageSize
+        );
+
+        return finalProducts
+            .Skip((searchDTO.PageNumber - 1) * searchDTO.PageSize)
+            .Take(searchDTO.PageSize)
+            .Select(x => new ShowProductDTO
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Name = x.Name,
+                Price = x.Price,
+                ImagePath = x.ImagePath,
+                OfferPrice = x.OfferPrice,
+                Discount = 100 - (x.OfferPrice / x.Price) * 100
+            })
+            .ToList();
+    }
+
+    /*public async Task<List<ShowProductDTO>> GetProducts(ProductSearchDTO searchDTO)
+    {
+        var query = _context.products.AsQueryable();
+
+        if (searchDTO.CategoryID is not null && searchDTO.CategoryID != 0)
+        {
+            query = query.Where(x => x.Categories.Any(c => c.Id == searchDTO.CategoryID));
+        }
+
+        if (searchDTO.ShopID is not null && searchDTO.ShopID != 0)
+        {
+            query = query.Where(x => x.ShopId == searchDTO.ShopID);
+        }
+
+        if (searchDTO.MinimumPrice is not null && searchDTO.MinimumPrice > 0)
+        {
+            query = query.Where(x => x.Price >= searchDTO.MinimumPrice);
+        }
+
+        if (searchDTO.MaximumPrice is not null && searchDTO.MaximumPrice > 0)
+        {
+            query = query.Where(x => x.Price <= searchDTO.MaximumPrice);
+        }
+
+        var products = await query.ToListAsync();
+
+        if (!string.IsNullOrWhiteSpace(searchDTO.Name))
+        {
+            products = products
+                .Select(p => new
+                {
+                    Product = p,
+                    Similarity = Fuzz.PartialRatio(p.Name, searchDTO.Name)
+                })
+                .Where(p => p.Similarity >= 60) 
+                .OrderByDescending(p => p.Similarity)
+                .Select(p => p.Product)
+                .ToList();
+        }
+
+        if (searchDTO.SearchByBiggetDiscount)
+        {
+            if (searchDTO.SearchByPriceAscending)
+            {
+                products = products
+                    .OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100)
+                    .ThenBy(x => x.OfferPrice)
+                    .ToList();
+            }
+            else if (searchDTO.SearchByPriceDescending)
+            {
+                products = products
+                    .OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100)
+                    .ThenByDescending(x => x.OfferPrice)
+                    .ToList();
+            }
+            else
+            {
+                products = products
+                    .OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100)
+                    .ToList();
+            }
+        }
+        else if (!searchDTO.SearchByPriceAscending && !searchDTO.SearchByPriceDescending && !searchDTO.SearchByBiggetDiscount && !string.IsNullOrWhiteSpace(searchDTO.Name))
+        {
+        }
+        else
+        {
+            if (searchDTO.SearchByPriceAscending)
+            {
+                products = products
+                    .OrderBy(x => x.OfferPrice)
+                    .ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100)
+                    .ToList();
+            }
+            else if (searchDTO.SearchByPriceDescending)
+            {
+                products = products
+                    .OrderByDescending(x => x.OfferPrice)
+                    .ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100)
+                    .ToList();
+            }
+        }
+
+        (searchDTO.PageNumber, searchDTO.PageSize) =await PaginationHelper.NormalizePaginationWithCountAsync(
+            products.Count,
+            searchDTO.PageNumber,
+            searchDTO.PageSize
+        );
+
+        return products
+            .Skip((searchDTO.PageNumber - 1) * searchDTO.PageSize)
+            .Take(searchDTO.PageSize)
+            .Select(x => new ShowProductDTO
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Name = x.Name,
+                Price = x.Price,
+                ImagePath = x.ImagePath,
+                OfferPrice = x.OfferPrice,
+                Discount = 100 - (x.OfferPrice / x.Price) * 100
+            })
+            .ToList();
+    }*/
+    /*public async Task<List<ShowProductDTO>> GetProducts(ProductSearchDTO searchDTO)
+    {
+        var query = _context.products.AsQueryable();
+
+        if(!string.IsNullOrEmpty(searchDTO.Name))
+        {
+            query = query.Where(x => EF.Functions.Like(x.Name, $"%{searchDTO.Name}%"));
+        }
+
+        if (searchDTO.CategoryID is not null && searchDTO.CategoryID != 0)
+        {
+            query = query.Where(x => x.Categories.Any(c => c.Id == searchDTO.CategoryID));
+        }
+
+        if (searchDTO.ShopID is not null && searchDTO.ShopID != 0)
+        {
+            query = query.Where(x => x.ShopId == searchDTO.ShopID);
+        }
+
+        if (searchDTO.MinimumPrice is not null && searchDTO.MinimumPrice > 0)
+        {
+            query = query.Where(x => x.Price >= searchDTO.MinimumPrice);
+        }
+
+        if (searchDTO.MaximumPrice is not null && searchDTO.MaximumPrice > 0)
+        {
+            query = query.Where(x => x.Price <= searchDTO.MaximumPrice);
+        }
+        if (searchDTO.SearchByBiggetDiscount)
+        {
+            if (searchDTO.SearchByPriceAscending)
+            {
+                query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100).ThenBy(x => x.OfferPrice);
+            }
+            else if (searchDTO.SearchByPriceDescending)
+            {
+                query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100).ThenByDescending(x => x.OfferPrice);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
+            }
+        }
+        else
+        {
+            if (searchDTO.SearchByPriceAscending)
+            {
+                query = query.OrderBy(x => x.OfferPrice).ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
+            }
+            else if (searchDTO.SearchByPriceDescending)
+            {
+                query = query.OrderByDescending(x => x.OfferPrice).ThenByDescending(x => 100 - (x.OfferPrice / x.Price) * 100);
+            }
+        }
+
+        (searchDTO.PageNumber, searchDTO.PageSize) = await PaginationHelper.NormalizePaginationAsync(
+            query,
+            searchDTO.PageNumber,
+            searchDTO.PageSize
+        );
+
+        return await query
+            .Skip((searchDTO.PageNumber - 1) * searchDTO.PageSize)
+            .Take(searchDTO.PageSize)
+            .Select(x => new ShowProductDTO
+            {
+                Id = x.Id,
+                Description = x.Description,
+                Name = x.Name,
+                Price = x.Price,
+                ImagePath = x.ImagePath,
+                OfferPrice = x.OfferPrice,
+                Discount = 100 - (x.OfferPrice / x.Price) * 100
+            })
+            .ToListAsync();
+    }*/
+    public async Task<IntResult> Update(EditProductDTO product, int id, string userId)
         {
             var productDB = await _context.products
                 .Include(x => x.Shop)
