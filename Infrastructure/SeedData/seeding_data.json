@@ -220,12 +220,12 @@
       "Address": "Street 1, Cairo",
       "City": "Cairo",
       "Governorate": "Cairo",
-      "MonthlyPrice": 500,
-      "YearlyPrice": 5000,
+      "MonthlyPrice": 300,
+      "YearlyPrice": 3000,
       "PhoneNumber": "01000123456",
       "Description": "Cairo Fit Club is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 250,
-      "SessionPrice": 41,
+      "FortnightlyPrice": 150,
+      "SessionPrice": 40,
       "ProfilePictureUrl": "https://www.staywithstylescottsdale.com/wp-content/uploads/2024/03/Featured-Image-Scottsdale-Gyms.jpg"
     },
     {
@@ -234,12 +234,12 @@
       "Address": "Street 2, Alexandria",
       "City": "Alexandria",
       "Governorate": "Alexandria",
-      "MonthlyPrice": 550,
-      "YearlyPrice": 5500,
+      "MonthlyPrice": 250,
+      "YearlyPrice": 2500,
       "PhoneNumber": "01001123456",
       "Description": "Alex Muscle Zone is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 275,
-      "SessionPrice": 45,
+      "FortnightlyPrice": 130,
+      "SessionPrice": 35,
       "ProfilePictureUrl": "https://i0.wp.com/stanzaliving.wpcomstaging.com/wp-content/uploads/2022/04/0fce4-shutterstock_721723381-min.jpg?fit=1000%2C667&ssl=1"
     },
     {
@@ -248,12 +248,12 @@
       "Address": "Street 3, Giza",
       "City": "Giza",
       "Governorate": "Giza",
-      "MonthlyPrice": 600,
-      "YearlyPrice": 6000,
+      "MonthlyPrice": 270,
+      "YearlyPrice": 2700,
       "PhoneNumber": "01002123456",
       "Description": "Giza Power Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 300,
-      "SessionPrice": 50,
+      "FortnightlyPrice": 140,
+      "SessionPrice": 38,
       "ProfilePictureUrl": "https://s3.eu-west-2.amazonaws.com/christchurch-online24-production/listings/a2f6r/photos/10669094-319363751600561-1133646752155420382-o-gl.jpg"
     },
     {
@@ -262,12 +262,12 @@
       "Address": "Street 4, Hurghada",
       "City": "Hurghada",
       "Governorate": "Hurghada",
-      "MonthlyPrice": 650,
-      "YearlyPrice": 6500,
+      "MonthlyPrice": 320,
+      "YearlyPrice": 3200,
       "PhoneNumber": "01003123456",
       "Description": "Elite Fitness Hurghada is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 325,
-      "SessionPrice": 54,
+      "FortnightlyPrice": 160,
+      "SessionPrice": 42,
       "ProfilePictureUrl": "https://cdn.thespaces.com/wp-content/uploads/2020/01/Gymshark-hero-crop.jpg"
     },
     {
@@ -276,12 +276,12 @@
       "Address": "Street 5, Sharm El Sheikh",
       "City": "Sharm El Sheikh",
       "Governorate": "Sharm El Sheikh",
-      "MonthlyPrice": 700,
-      "YearlyPrice": 7000,
+      "MonthlyPrice": 350,
+      "YearlyPrice": 3500,
       "PhoneNumber": "01004123456",
       "Description": "Sharm Strong Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 350,
-      "SessionPrice": 58,
+      "FortnightlyPrice": 180,
+      "SessionPrice": 45,
       "ProfilePictureUrl": "https://www.timeoutdubai.com/cloud/timeoutdubai/2023/04/07/GymNation.jpg"
     },
     {
@@ -290,12 +290,12 @@
       "Address": "Street 6, Port Said",
       "City": "Port Said",
       "Governorate": "Port Said",
-      "MonthlyPrice": 750,
-      "YearlyPrice": 7500,
+      "MonthlyPrice": 300,
+      "YearlyPrice": 3000,
       "PhoneNumber": "01005123456",
       "Description": "Port Said Athletes is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 375,
-      "SessionPrice": 62,
+      "FortnightlyPrice": 150,
+      "SessionPrice": 40,
       "ProfilePictureUrl": "https://www.staywithstylescottsdale.com/wp-content/uploads/2024/03/Featured-Image-Scottsdale-Gyms.jpg"
     },
     {
@@ -304,12 +304,12 @@
       "Address": "Street 7, Mansoura",
       "City": "Mansoura",
       "Governorate": "Mansoura",
-      "MonthlyPrice": 800,
-      "YearlyPrice": 8000,
+      "MonthlyPrice": 280,
+      "YearlyPrice": 2800,
       "PhoneNumber": "01006123456",
       "Description": "Mansoura Flex Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 400,
-      "SessionPrice": 66,
+      "FortnightlyPrice": 140,
+      "SessionPrice": 38,
       "ProfilePictureUrl": "https://i0.wp.com/stanzaliving.wpcomstaging.com/wp-content/uploads/2022/04/0fce4-shutterstock_721723381-min.jpg?fit=1000%2C667&ssl=1"
     },
     {
@@ -318,12 +318,12 @@
       "Address": "Street 8, Luxor",
       "City": "Luxor",
       "Governorate": "Luxor",
-      "MonthlyPrice": 850,
-      "YearlyPrice": 8500,
+      "MonthlyPrice": 260,
+      "YearlyPrice": 2600,
       "PhoneNumber": "01007123456",
       "Description": "Luxor Fit Center is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 425,
-      "SessionPrice": 70,
+      "FortnightlyPrice": 130,
+      "SessionPrice": 35,
       "ProfilePictureUrl": "https://s3.eu-west-2.amazonaws.com/christchurch-online24-production/listings/a2f6r/photos/10669094-319363751600561-1133646752155420382-o-gl.jpg"
     },
     {
@@ -332,12 +332,12 @@
       "Address": "Street 9, Aswan",
       "City": "Aswan",
       "Governorate": "Aswan",
-      "MonthlyPrice": 900,
-      "YearlyPrice": 9000,
+      "MonthlyPrice": 270,
+      "YearlyPrice": 2700,
       "PhoneNumber": "01008123456",
       "Description": "Aswan Iron House is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 450,
-      "SessionPrice": 75,
+      "FortnightlyPrice": 135,
+      "SessionPrice": 37,
       "ProfilePictureUrl": "https://cdn.thespaces.com/wp-content/uploads/2020/01/Gymshark-hero-crop.jpg"
     },
     {
@@ -346,12 +346,12 @@
       "Address": "Street 10, Tanta",
       "City": "Tanta",
       "Governorate": "Tanta",
-      "MonthlyPrice": 950,
-      "YearlyPrice": 9500,
+      "MonthlyPrice": 240,
+      "YearlyPrice": 2400,
       "PhoneNumber": "01009123456",
       "Description": "Tanta Pro Gym is a state-of-the-art fitness center equipped with modern machines and top-notch trainers.",
-      "FortnightlyPrice": 475,
-      "SessionPrice": 79,
+      "FortnightlyPrice": 120,
+      "SessionPrice": 33,
       "ProfilePictureUrl": "https://www.timeoutdubai.com/cloud/timeoutdubai/2023/04/07/GymNation.jpg"
     }
   ],
@@ -361,7 +361,7 @@
       "Title": "Flex & Fit Group – Ahmedhassan",
       "Description": "A full-body group session targeting overall fitness.",
       "TrainingType": "Group",
-      "Price": 1349,
+      "Price": 450,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -370,7 +370,7 @@
       "Title": "Core Crusher Group – Ahmedhassan",
       "Description": "Mobility and balance training in a supportive group.",
       "TrainingType": "Group",
-      "Price": 1313,
+      "Price": 450,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -379,7 +379,7 @@
       "Title": "Total Fit Group – Ahmedhassan",
       "Description": "Mobility and balance training in a supportive group.",
       "TrainingType": "Group",
-      "Price": 1787,
+      "Price": 450,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -388,7 +388,7 @@
       "Title": "Sweat Session Crew – Ahmedhassan",
       "Description": "High-energy group session focusing on strength and endurance.",
       "TrainingType": "Group",
-      "Price": 1530,
+      "Price": 400,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -397,7 +397,7 @@
       "Title": "Personal Power Session – Ahmedhassan",
       "Description": "Personalized strength training for focused results.",
       "TrainingType": "Private",
-      "Price": 1349,
+      "Price": 900,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -406,7 +406,7 @@
       "Title": "Elite 1-on-1 Training – Ahmedhassan",
       "Description": "Custom sessions designed to match your body and goals.",
       "TrainingType": "Private",
-      "Price": 1675,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -415,7 +415,7 @@
       "Title": "Bespoke Strength Program – Ahmedhassan",
       "Description": "Exclusive training with personalized feedback and pacing.",
       "TrainingType": "Private",
-      "Price": 1453,
+      "Price": 800,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -424,7 +424,7 @@
       "Title": "Custom Muscle Routine – Ahmedhassan",
       "Description": "One-on-one session focusing on muscle development.",
       "TrainingType": "Private",
-      "Price": 1315,
+      "Price": 800,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -433,7 +433,7 @@
       "Title": "Total Fit Group – Mohamedsalah",
       "Description": "A full-body group session targeting overall fitness.",
       "TrainingType": "Group",
-      "Price": 1145,
+      "Price": 500,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -442,7 +442,7 @@
       "Title": "Mobility Moves Group – Mohamedsalah",
       "Description": "Boost your stamina with team-based training circuits.",
       "TrainingType": "Group",
-      "Price": 1012,
+      "Price": 400,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -451,7 +451,7 @@
       "Title": "Precision Fitness Plan – Mohamedsalah",
       "Description": "One-on-one session focusing on muscle development.",
       "TrainingType": "Private",
-      "Price": 1348,
+      "Price": 900,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -460,7 +460,7 @@
       "Title": "Flex & Fit Group – Omarsamir",
       "Description": "Boost your stamina with team-based training circuits.",
       "TrainingType": "Group",
-      "Price": 1677,
+      "Price": 450,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -469,7 +469,7 @@
       "Title": "Core Crusher Group – Omarsamir",
       "Description": "Boost your stamina with team-based training circuits.",
       "TrainingType": "Group",
-      "Price": 1764,
+      "Price": 450,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -478,7 +478,7 @@
       "Title": "Cardio Burn Group – Omarsamir",
       "Description": "Sweat together in this intense, results-driven session.",
       "TrainingType": "Group",
-      "Price": 1561,
+      "Price": 400,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -487,7 +487,7 @@
       "Title": "Precision Fitness Plan – Khaledmostafa",
       "Description": "High-performance coaching for your unique fitness path.",
       "TrainingType": "Private",
-      "Price": 1948,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -496,7 +496,7 @@
       "Title": "Tailored Training Method – Khaledmostafa",
       "Description": "Personalized strength training for focused results.",
       "TrainingType": "Private",
-      "Price": 1051,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -505,7 +505,7 @@
       "Title": "Personal Power Session – Khaledmostafa",
       "Description": "Custom sessions designed to match your body and goals.",
       "TrainingType": "Private",
-      "Price": 1666,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -514,7 +514,7 @@
       "Title": "Elite 1-on-1 Training – Khaledmostafa",
       "Description": "Intense private coaching for fast and effective progress.",
       "TrainingType": "Private",
-      "Price": 1086,
+      "Price": 900,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -523,7 +523,7 @@
       "Title": "HIIT Heroes – Youssefadel",
       "Description": "Sweat together in this intense, results-driven session.",
       "TrainingType": "Group",
-      "Price": 1076,
+      "Price": 500,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -532,7 +532,7 @@
       "Title": "Custom Muscle Routine – Youssefadel",
       "Description": "One-on-one session focusing on muscle development.",
       "TrainingType": "Private",
-      "Price": 1161,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -541,7 +541,7 @@
       "Title": "Bespoke Strength Program – Youssefadel",
       "Description": "Goal-oriented fitness training with full customization.",
       "TrainingType": "Private",
-      "Price": 1699,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -550,7 +550,7 @@
       "Title": "HIIT Heroes – Mahmoudtarek",
       "Description": "Mobility and balance training in a supportive group.",
       "TrainingType": "Group",
-      "Price": 1326,
+      "Price": 500,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -559,7 +559,7 @@
       "Title": "Cardio Burn Group – Mahmoudtarek",
       "Description": "Engaging sessions with a mix of cardio and resistance.",
       "TrainingType": "Group",
-      "Price": 1522,
+      "Price": 500,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -568,7 +568,7 @@
       "Title": "Total Fit Group – Mahmoudtarek",
       "Description": "Dynamic group workout designed to enhance muscle power.",
       "TrainingType": "Group",
-      "Price": 1403,
+      "Price": 400,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -577,7 +577,7 @@
       "Title": "Precision Fitness Plan – Mahmoudtarek",
       "Description": "High-performance coaching for your unique fitness path.",
       "TrainingType": "Private",
-      "Price": 1116,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -586,7 +586,7 @@
       "Title": "Endurance Squad – Alisaeed",
       "Description": "Group workout focused on building a strong and stable core.",
       "TrainingType": "Group",
-      "Price": 1693,
+      "Price": 450,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -595,7 +595,7 @@
       "Title": "Power Up Group – Alisaeed",
       "Description": "Dynamic group workout designed to enhance muscle power.",
       "TrainingType": "Group",
-      "Price": 1959,
+      "Price": 500,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -604,7 +604,7 @@
       "Title": "Mobility Moves Group – Mostafanabil",
       "Description": "Engaging sessions with a mix of cardio and resistance.",
       "TrainingType": "Group",
-      "Price": 1449,
+      "Price": 450,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -613,7 +613,7 @@
       "Title": "Cardio Burn Group – Mostafanabil",
       "Description": "Mobility and balance training in a supportive group.",
       "TrainingType": "Group",
-      "Price": 1025,
+      "Price": 500,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -622,7 +622,7 @@
       "Title": "Endurance Squad – Mostafanabil",
       "Description": "A full-body group session targeting overall fitness.",
       "TrainingType": "Group",
-      "Price": 1370,
+      "Price": 500,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -631,7 +631,7 @@
       "Title": "Power Up Group – Mostafanabil",
       "Description": "Fun and functional group fitness tailored to all levels.",
       "TrainingType": "Group",
-      "Price": 1508,
+      "Price": 400,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -640,7 +640,7 @@
       "Title": "Precision Fitness Plan – Mostafanabil",
       "Description": "Personalized strength training for focused results.",
       "TrainingType": "Private",
-      "Price": 1522,
+      "Price": 900,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -649,7 +649,7 @@
       "Title": "Elite 1-on-1 Training – Mostafanabil",
       "Description": "Intense private coaching for fast and effective progress.",
       "TrainingType": "Private",
-      "Price": 1310,
+      "Price": 900,
       "NoOfSessionsPerWeek": 5,
       "DurationOfSession": 60
     },
@@ -658,7 +658,7 @@
       "Title": "Ultimate Personal Plan – Mostafanabil",
       "Description": "Intense private coaching for fast and effective progress.",
       "TrainingType": "Private",
-      "Price": 1158,
+      "Price": 800,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -667,7 +667,7 @@
       "Title": "Focused Fit Coaching – Mostafanabil",
       "Description": "Exclusive training with personalized feedback and pacing.",
       "TrainingType": "Private",
-      "Price": 1320,
+      "Price": 700,
       "NoOfSessionsPerWeek": 3,
       "DurationOfSession": 60
     },
@@ -676,7 +676,7 @@
       "Title": "Ultimate Personal Plan – Sherifgamal",
       "Description": "Custom sessions designed to match your body and goals.",
       "TrainingType": "Private",
-      "Price": 1267,
+      "Price": 800,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
     },
@@ -685,9 +685,245 @@
       "Title": "Custom Muscle Routine – Sherifgamal",
       "Description": "Custom sessions designed to match your body and goals.",
       "TrainingType": "Private",
-      "Price": 1228,
+      "Price": 800,
       "NoOfSessionsPerWeek": 4,
       "DurationOfSession": 60
+    }
+  ],
+  "Shops": [
+    {
+      "ShopName": "Fitfuel Nutrition",
+      "Address": "12 El-Nasr St.",
+      "City": "Cairo",
+      "Governorate": "Cairo",
+      "PhoneNumber": "01062937403",
+      "Description": "Top-quality supplements for athletes and gym-goers.",
+      "CoachEmail": "ahmedhassan@example.com",
+      "PictureUrl": "https://thefitfuelnutrition.com/wp-content/uploads/2021/08/d-14.png"
+    },
+    {
+      "ShopName": "MF Supplements",
+      "Address": "88 El-Tahrir Ave.",
+      "City": "Giza",
+      "Governorate": "Giza",
+      "PhoneNumber": "01129366205",
+      "Description": "Premium gym gear: belts, gloves, resistance bands.",
+      "CoachEmail": "mohamedsalah@example.com",
+      "PictureUrl": "https://mfsupps.com/wp-content/uploads/2022/05/Untitled-design-26-96x96.png"
+    },
+    {
+      "ShopName": "Green Gains Market",
+      "Address": "25 Corniche El Maadi",
+      "City": "Cairo",
+      "Governorate": "Cairo",
+      "PhoneNumber": "01000011222",
+      "Description": "Healthy food, smoothies, and natural snacks.",
+      "CoachEmail": "omarsamir@example.com",
+      "PictureUrl": "https://i.imgur.com/NjJvGLv.jpg"
+    },
+    {
+      "ShopName": "ProGym Wear",
+      "Address": "5 El-Nozha St.",
+      "City": "Alexandria",
+      "Governorate": "Alexandria",
+      "PhoneNumber": "01238939328",
+      "Description": "High-performance sportswear and shoes.",
+      "CoachEmail": "khaledmostafa@example.com",
+      "PictureUrl": "https://i.imgur.com/sdvfVGz.jpg"
+    },
+    {
+      "ShopName": "Muscle House",
+      "Address": "120 El-Mohandessin Rd.",
+      "City": "Giza",
+      "Governorate": "Giza",
+      "PhoneNumber": "01033941079",
+      "Description": "Protein powders, creatine, and gym essentials.",
+      "CoachEmail": "youssefadel@example.com",
+      "PictureUrl": "https://i.imgur.com/1L3RjNy.jpg"
+    },
+    {
+      "ShopName": "IronCore Gear",
+      "Address": "14 El Rehab Market",
+      "City": "New Cairo",
+      "Governorate": "Cairo",
+      "PhoneNumber": "01292843960",
+      "Description": "Everything you need to fuel your fitness journey.",
+      "CoachEmail": "mostafanabil@example.com",
+      "PictureUrl": "https://i.imgur.com/W7aQ3h5.jpg"
+    }
+  ],
+  "Products": [
+    {
+      "Name": "Olympic Barbell 20kg - Standard 2.2m",
+      "Description": "Olympic standard barbell for heavy lifting.",
+      "Price": 1750.0,
+      "OfferPrice": 1650.0,
+      "ImagePath": "https://m.media-amazon.com/images/I/61O3SBVOlML._AC_SX679_.jpg",
+      "Quantity": 5,
+      "Categories": [
+        "Gym Equipment"
+      ],
+      "ShopName": "IronCore Gear"
+    },
+    {
+      "Name": "(MS 108) Entercise Adjustable Bench",
+      "Description": "Sturdy and comfortable bench for chest and dumbbell workouts.",
+      "Price": 1850.0,
+      "OfferPrice": 1700.0,
+      "ImagePath": "https://m.media-amazon.com/images/I/51jBHogbmSL.__AC_SX300_SY300_QL70_ML2_.jpg",
+      "Quantity": 4,
+      "Categories": [
+        "Gym Equipment"
+      ],
+      "ShopName": "Muscle House"
+    },
+    {
+      "Name": "Training Shoes - Size 42",
+      "Description": "Lightweight and breathable workout shoes.",
+      "Price": 680.00,
+      "OfferPrice": 620.00,
+      "ImagePath": "https://m.media-amazon.com/images/I/81ItzHK1yeL._AC_UL480_FMwebp_QL65_.jpg",
+      "Quantity": 12,
+      "Categories": [ "Footwear" ],
+      "ShopName": "ProGym Wear"
+    },
+    {
+      "Name": "Whey Protein - 2.2kg",
+      "Description": "High-quality whey protein for muscle recovery.",
+      "Price": 1450.00,
+      "OfferPrice": 1299.00,
+      "ImagePath": "https://mfsupps.com/wp-content/uploads/2024/09/Azgard-Nutrition-100-Whey-High-Quality-Protein-2.2KG-65-Serving-double-chocolate.png",
+      "Quantity": 15,
+      "Categories": [ "Supplements" ],
+      "ShopName": "MF Supplements"
+    },
+    {
+      "Name": "Fitfuel Nutrition High Quality Peanut Butter 1kg",
+      "Description": "Natural peanut butter rich in protein and healthy fats, ideal for fitness enthusiasts. Great as a snack or post-workout meal.",
+      "Price": 799.00,
+      "OfferPrice": 449.00,
+      "ImagePath": "https://thefitfuelnutrition.com/wp-content/uploads/2024/01/Untitled-design-91.png",
+      "Quantity": 25,
+      "Categories": [ "Food", "Supplements" ],
+      "ShopName": "Fitfuel Nutrition"
+    },
+    {
+      "Name": "Leather Lifting Belt",
+      "Description": "Durable lifting belt for serious lifters.",
+      "Price": 350.00,
+      "OfferPrice": 300.00,
+      "ImagePath": "https://athletehome-eg.com/cdn/shop/files/33434-1.jpg?v=1715259715&width=1445",
+      "Quantity": 10,
+      "Categories": [ "Accessories" ],
+      "ShopName": "IronCore Gear"
+    },
+    {
+      "Name": "Dry-Fit Tank Top",
+      "Description": "Sweat-wicking workout tank top for men.",
+      "Price": 180.0,
+      "OfferPrice": 160.0,
+      "ImagePath": "https://m.media-amazon.com/images/I/31HmGeDg5DL.__AC_SY445_SX342_QL70_ML2_.jpg",
+      "Quantity": 18,
+      "Categories": [
+        "Clothing"
+      ],
+      "ShopName": "ProGym Wear"
+    },
+    {
+      "Name": "Generic Premium Latex Resistance Band Set",
+      "Description": "5 levels of resistance bands for full-body workouts.",
+      "Price": 660.00,
+      "OfferPrice": 580.00,
+      "ImagePath": "https://m.media-amazon.com/images/I/71MvAgLT7jL._UF894,1000_QL80_.jpg",
+      "Quantity": 25,
+      "Categories": [ "Accessories" ],
+      "ShopName": "IronCore Gear"
+    },
+    {
+      "Name": "Ultimate body press wall mounted pull up bar",
+      "Description": "Heavy-duty squat rack with safety bars and integrated pull-up station.",
+      "Price": 1375.00,
+      "OfferPrice": 1290.00,
+      "ImagePath": "https://i.imgur.com/HEjJ5o3.jpg",
+      "Quantity": 3,
+      "Categories": [ "Gym Equipment" ],
+      "ShopName": "IronCore Gear"
+    },
+    {
+      "Name": "Fitness World Dumbbell Set Adjustable Weights 20kg multicolor FT-365",
+      "Description": "Fitness World Dumbbell Set Adjustable Weights 20kg multicolor FT-365",
+      "Price": 3500.00,
+      "OfferPrice": 2800.00,
+      "ImagePath": "https://m.media-amazon.com/images/I/61PCCgAQkGL._AC_SY879_.jpg",
+      "Quantity": 40,
+      "Categories": [ "Gym Equipment" ],
+      "ShopName": "Green Gains Market"
+    },
+    {
+      "Name": "Knee Support Sleeves (Pair)",
+      "Description": "Compression support for squats and deadlifts.",
+      "Price": 275.00,
+      "OfferPrice": 230.00,
+      "ImagePath": "https://m.media-amazon.com/images/I/71Sk9LYfTpL._SX522_.jpg",
+      "Quantity": 16,
+      "Categories": [ "Accessories" ],
+      "ShopName": "Green Gains Market"
+    }
+  ],
+  "Posts": [
+    {
+      "Type": "COACH",
+      "EmailOrName": "ahmedhassan@example.com",
+      "Content": "Stay consistent, not perfect. Progress starts with showing up.",
+      "PictureUrls": []
+    },
+    {
+      "Type": "COACH",
+      "EmailOrName": "mohamedsalah@example.com",
+      "Content": "New training plan available now! DM me for details 💪",
+      "PictureUrls": []
+    },
+    {
+      "Type": "COACH",
+      "EmailOrName": "youssefadel@example.com",
+      "Content": "Don’t skip warm-ups. They reduce injury risk and improve performance.",
+      "PictureUrls": []
+    },
+    {
+      "Type": "COACH",
+      "EmailOrName": "khaledmostafa@example.com",
+      "Content": "Try this 20-minute HIIT workout and thank me later 🔥",
+      "PictureUrls": []
+    },
+    {
+      "Type": "GYM",
+      "EmailOrName": "Cairo Fit Club",
+      "Content": "20% discount on annual memberships this week only!",
+      "PictureUrls": []
+    },
+    {
+      "Type": "GYM",
+      "EmailOrName": "Giza Power Gym",
+      "Content": "New machines just arrived! Try them out with a free first session.",
+      "PictureUrls": []
+    },
+    {
+      "Type": "GYM",
+      "EmailOrName": "Tanta Pro Gym",
+      "Content": "Join our ladies fitness class every Monday with Coach Sherif.",
+      "PictureUrls": []
+    },
+    {
+      "Type": "SHOP",
+      "EmailOrName": "Muscle House",
+      "Content": "Whey Gold 5lb now on sale — limited stock!",
+      "PictureUrls": []
+    },
+    {
+      "Type": "SHOP",
+      "EmailOrName": "CoreFuel Egypt",
+      "Content": "New gym bags in stock — durable, stylish, only 399 EGP.",
+      "PictureUrls": []
     }
   ]
 }

@@ -1,6 +1,8 @@
 ﻿using Core.Entities.GymEntities;
 using Core.Entities.Identity;
 using Core.Entities.OnlineTrainingEntities;
+using Core.Entities.PostEntities;
+using Core.Entities.ShopEntities;
 using Infrastructure.Data;
 using Infrastructure.SeedData;
 using Microsoft.AspNetCore.Identity;
@@ -34,13 +36,19 @@ public static class DataSeeder
             var seedData = JsonConvert.DeserializeObject<SeedingData>(jsonData);
             if (seedData == null) return;
 
-            await SeedCoaches(userManager, seedData);
+            await SeedCoaches(userManager, seedData, context);
 
-            await SeedTrainees(userManager, seedData);
+            await SeedTrainees(userManager, seedData, context);
 
             await SeedGyms(context, userManager, seedData);
 
             await SeedOnlineTrainings(context, userManager, seedData);
+
+            await SeedShops(context, userManager, seedData);
+
+            await SeedProducts(context, seedData);
+
+            await SeedPosts(context, seedData);
 
             await context.SaveChangesAsync();
         }
@@ -54,7 +62,7 @@ public static class DataSeeder
         }
     }
 
-    private static async Task SeedCoaches(UserManager<ApplicationUser> userManager, SeedingData seedData)
+    private static async Task SeedCoaches(UserManager<ApplicationUser> userManager, SeedingData seedData, FitnessContext context)
     {
         var existingCoaches = await userManager.GetUsersInRoleAsync("Coach");
         if (!existingCoaches.Any())
@@ -81,10 +89,12 @@ public static class DataSeeder
                     await userManager.AddToRoleAsync(newCoach, "Coach");
                 }
             }
+            await context.SaveChangesAsync();
         }
+
     }
 
-    private static async Task SeedTrainees(UserManager<ApplicationUser> userManager, SeedingData seedData)
+    private static async Task SeedTrainees(UserManager<ApplicationUser> userManager, SeedingData seedData, FitnessContext context)
     {
         var existingTrainees = await userManager.GetUsersInRoleAsync("Trainee");
         if (!existingTrainees.Any())
@@ -109,6 +119,7 @@ public static class DataSeeder
                     await userManager.AddToRoleAsync(newTrainee, "Trainee");
                 }
             }
+            await context.SaveChangesAsync();
         }
     }
 
@@ -140,6 +151,7 @@ public static class DataSeeder
                     });
                 }
             }
+            await context.SaveChangesAsync();
         }
     }
 
@@ -166,6 +178,154 @@ public static class DataSeeder
                     });
                 }
             }
+            await context.SaveChangesAsync();
+        }
+    }
+    private static async Task SeedShops(FitnessContext context, UserManager<ApplicationUser> userManager, SeedingData seedData)
+    {
+        var existingShops = await context.Shops.AnyAsync();
+        if (!existingShops)
+        {
+            var coaches = await userManager.GetUsersInRoleAsync("Coach");
+
+            foreach (var shop in seedData.Shops)
+            {
+                var coach = coaches.FirstOrDefault(c => c.Email == shop.CoachEmail);
+                if (coach != null)
+                {
+                    await context.Shops.AddAsync(new Shop
+                    {
+                        Name = shop.ShopName,
+                        Address = shop.Address,
+                        City = shop.City,
+                        Governorate = shop.Governorate,
+                        PhoneNumber = shop.PhoneNumber,
+                        Description = shop.Description,
+                        OwnerID = coach.Id,
+                        PictureUrl = shop.PictureUrl
+                    });
+                }
+            }
+            await context.SaveChangesAsync();
+        }
+    }
+
+    private static async Task SeedProducts(FitnessContext context, SeedingData seedData)
+    {
+        var existingProducts = await context.products.AnyAsync();
+        if (!existingProducts)
+        {
+            var shops = await context.Shops.ToListAsync();
+            var allCategories = await context.categories.ToListAsync(); 
+
+            foreach (var product in seedData.Products)
+            {
+                var shop = shops.FirstOrDefault(s => s.Name == product.ShopName);
+                if (shop == null) continue;
+
+                var productCategories = new List<Category>();
+                foreach (var catName in product.Categories)
+                {
+                    var existingCat = allCategories.FirstOrDefault(c => c.Name.Equals(catName, StringComparison.OrdinalIgnoreCase));
+                    if (existingCat != null)
+                    {
+                        productCategories.Add(existingCat);
+                    }
+                    else
+                    {
+                        var newCat = new Category { Name = catName };
+                        context.categories.Add(newCat);
+                        productCategories.Add(newCat);
+                        allCategories.Add(newCat); 
+                    }
+                }
+
+                var newProduct = new Product
+                {
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    OfferPrice = product.OfferPrice,
+                    ImagePath = product.ImagePath,
+                    Quantity = product.Quantity,
+                    ShopId = shop.Id,
+                    Categories = productCategories
+                };
+
+                await context.products.AddAsync(newProduct);
+            }
+
+            await context.SaveChangesAsync();
+        }
+    }
+
+    private static async Task SeedPosts(FitnessContext context, SeedingData seedData)
+    {
+        var existingPosts = await context.Posts.AnyAsync();
+        if (existingPosts) return;
+
+        var coaches = await context.Users
+            .Where(u => u is Coach)
+            .Cast<Coach>()
+            .ToListAsync();
+
+        var gyms = await context.Gyms.ToListAsync();
+        var shops = await context.Shops.ToListAsync();
+
+        foreach (var post in seedData.Posts)
+        {
+            var basePost = new Post
+            {
+                Content = post.Content,
+                CreatedAt = DateTime.UtcNow,
+                PictureUrls = post.PictureUrls?.Select(url => new PostPictureUrl { Url = url }).ToList()
+            };
+
+            switch (post.Type.ToUpper())
+            {
+                case "COACH":
+                    var coach = coaches.FirstOrDefault(c => c.Email == post.EmailOrName);
+                    if (coach != null)
+                    {
+                        await context.CoachPosts.AddAsync(new CoachPost
+                        {
+                            Content = basePost.Content,
+                            CreatedAt = basePost.CreatedAt,
+                            PictureUrls = basePost.PictureUrls,
+                            CoachId = coach.Id
+                        });
+                    }
+                    break;
+
+                case "GYM":
+                    var gym = gyms.FirstOrDefault(g => g.GymName == post.EmailOrName);
+                    if (gym != null)
+                    {
+                        await context.GymPosts.AddAsync(new GymPost
+                        {
+                            Content = basePost.Content,
+                            CreatedAt = basePost.CreatedAt,
+                            PictureUrls = basePost.PictureUrls,
+                            GymId = gym.GymID
+                        });
+                    }
+                    break;
+
+                case "SHOP":
+                    var shop = shops.FirstOrDefault(s => s.Name == post.EmailOrName);
+                    if (shop != null)
+                    {
+                        await context.ShopPosts.AddAsync(new ShopPost
+                        {
+                            Content = basePost.Content,
+                            CreatedAt = basePost.CreatedAt,
+                            PictureUrls = basePost.PictureUrls,
+                            ShopId = shop.Id
+                        });
+                    }
+                    break;
+            }
+            await context.SaveChangesAsync();
         }
     }
 }
