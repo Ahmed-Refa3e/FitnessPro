@@ -480,8 +480,28 @@ namespace Services
                 await _userManager.SetAuthenticationTokenAsync(user, "ResetPassword",
                     "ResetPasswordCode", verificationCode);
 
-                await emailService.SendEmailAsync(email, "Password Reset Verification Code",
-                $"Your verification code is: <b>{verificationCode}</b>");
+                await emailService.SendEmailAsync(email, "Password Reset Verification Code", $@"
+                    <div style='font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;'>
+                        <div style='max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);'>
+                            <h2 style='color: #333333;'>Password Reset Request</h2>
+                            <p style='font-size: 16px; color: #555555;'>
+                                Hello,<br><br>
+                                You requested to reset your password. Please use the verification code below to proceed:
+                            </p>
+                            <div style='text-align: center; margin: 30px 0;'>
+                                <span style='display: inline-block; padding: 15px 30px; font-size: 24px; background-color: #4CAF50; color: white; border-radius: 5px; font-weight: bold;'>
+                                    {verificationCode}
+                                </span>
+                            </div>
+                            <p style='font-size: 14px; color: #777777;'>
+                                If you didn’t request this, you can safely ignore this email.<br><br>
+                                Best regards,<br>
+                                <strong>Fitness Pro Team</strong>
+                            </p>
+                        </div>
+                    </div>
+                ");
+
 
                 response.IsSuccess = true;
                 response.Data = "If this email is registered, a verification code has been sent.";
@@ -588,7 +608,28 @@ namespace Services
             var verificationCode = emailService.GenerateVerificatonCode();
             await _userManager.SetAuthenticationTokenAsync(user, "EmailVerification", "VerificationCode", verificationCode);
 
-            var emailBody = $"Your verification code is: <b>{verificationCode}</b>";
+            var emailBody = $@"
+                <div style='font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9;'>
+                    <div style='max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
+                        <h2 style='color: #2c3e50;'>Verification Code</h2>
+                        <p style='font-size: 16px; color: #34495e;'>
+                            Hello,<br><br>
+                            Here is your verification code:
+                        </p>
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span style='display: inline-block; padding: 15px 30px; font-size: 24px; background-color: #3498db; color: white; border-radius: 8px; font-weight: bold; letter-spacing: 2px;'>
+                                {verificationCode}
+                            </span>
+                        </div>
+                        <p style='font-size: 14px; color: #7f8c8d;'>
+                            Please use this code to complete your verification process.<br><br>
+                            If you did not request this, please ignore this message.<br><br>
+                            Thanks,<br>
+                            <strong>Fitness Pro Team</strong>
+                        </p>
+                    </div>
+                </div>
+            ";
             await emailService.SendEmailAsync(user.Email, "Resend Verification Code", emailBody);
 
             response.IsSuccess = true;
@@ -618,7 +659,27 @@ namespace Services
             var verificationCode = emailService.GenerateVerificatonCode();
             await _userManager.SetAuthenticationTokenAsync(user, "ResetPassword", "ResetPasswordCode", verificationCode);
 
-            var emailBody = $"Your password reset verification code is: <b>{verificationCode}</b>";
+            var emailBody = $@"
+                <div style='font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5;'>
+                    <div style='max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05);'>
+                        <h2 style='color: #2c3e50;'>Reset Your Password</h2>
+                        <p style='font-size: 16px; color: #333333;'>
+                            You requested to reset your password. Please use the verification code below to continue:
+                        </p>
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span style='display: inline-block; padding: 15px 25px; font-size: 22px; background-color: #e74c3c; color: #ffffff; border-radius: 6px; font-weight: bold;'>
+                                {verificationCode}
+                            </span>
+                        </div>
+                        <p style='font-size: 14px; color: #555555;'>
+                            If you didn’t request a password reset, please ignore this email.<br><br>
+                            Thanks,<br>
+                            <strong>Fitness Pro Team</strong>
+                        </p>
+                    </div>
+                </div>
+            ";
+
             await emailService.SendEmailAsync(user.Email, "Password Reset Verification Code", emailBody);
 
             response.IsSuccess = true;
@@ -706,7 +767,27 @@ namespace Services
 
             await _userManager.SetAuthenticationTokenAsync(user, "EmailVerification", "VerificationCode", verificationCode);
 
-            var emailBody = $"Your verification code is: <b>{verificationCode}</b>";
+            var emailBody = $@"
+                <div style='font-family: Arial, sans-serif; background-color: #f0f2f5; padding: 20px;'>
+                    <div style='max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>
+                        <h2 style='color: #2c3e50; text-align: center;'>Email Verification</h2>
+                        <p style='font-size: 16px; color: #555555;'>
+                            Thank you for using our service.<br><br>
+                            Your verification code is:
+                        </p>
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <span style='display: inline-block; background-color: #3498db; color: white; padding: 15px 25px; border-radius: 6px; font-size: 24px; font-weight: bold; letter-spacing: 2px;'>
+                                {verificationCode}
+                            </span>
+                        </div>
+                        <p style='font-size: 14px; color: #888888;'>
+                            If you did not request this code, please ignore this email.<br><br>
+                            Best regards,<br>
+                            <strong>Fitness Pro Team</strong>
+                        </p>
+                    </div>
+                </div>
+            ";
 
             await emailService.SendEmailAsync(user.Email, "Verify your email", emailBody);
 
